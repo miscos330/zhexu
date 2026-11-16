@@ -1,0 +1,169 @@
+/*
+ * 折序 ZHEXU theme: the approved "spatial workbench V2" palette (warm paper,
+ * teal ink and accent). Every rule is scoped to html[data-brand="zhexu"],
+ * which app/layout.tsx sets only when NEXT_PUBLIC_DEPLOYMENT_EXTENSION=zhexu,
+ * so the upstream look is untouched otherwise. No upstream stylesheet is
+ * edited; the theme only overrides custom properties upstream already reads:
+ *
+ * 1. the semantic tokens of app/globals.css (--background, --primary, ...);
+ * 2. Tailwind's violet and purple scales, which upstream components use as
+ *    the product accent in about a thousand utility classes;
+ * 3. the workspace shell's --ws-* palette (components/workbench/workspace-shell.css).
+ *
+ * Not covered: colours written as literals in upstream components, authored
+ * course content, slide paper, and the classic home page's hard-coded logo.
+ */
+
+/* 1. Semantic tokens ------------------------------------------------------ */
+
+html[data-brand='zhexu'] {
+  --background: oklch(97% 0.008 90);
+  --foreground: oklch(25% 0.018 180);
+  --card: oklch(99% 0.004 90);
+  --card-foreground: oklch(25% 0.018 180);
+  --popover: oklch(99% 0.004 90);
+  --popover-foreground: oklch(25% 0.018 180);
+  --primary: oklch(40% 0.065 183);
+  --primary-foreground: oklch(99% 0.004 90);
+  --secondary: oklch(94% 0.012 105);
+  --secondary-foreground: oklch(25% 0.018 180);
+  --muted: oklch(94% 0.012 105);
+  --muted-foreground: oklch(46% 0.016 180);
+  --accent: oklch(94% 0.012 105);
+  --accent-foreground: oklch(25% 0.018 180);
+  --border: oklch(89% 0.01 100);
+  --input: oklch(89% 0.01 100);
+  --ring: oklch(40% 0.065 183 / 55%);
+  --sidebar: oklch(98% 0.006 90);
+  --sidebar-foreground: oklch(25% 0.018 180);
+  --sidebar-primary: oklch(40% 0.065 183);
+  --sidebar-primary-foreground: oklch(99% 0.004 90);
+  --sidebar-accent: oklch(94% 0.012 105);
+  --sidebar-accent-foreground: oklch(25% 0.018 180);
+  --sidebar-border: oklch(89% 0.01 100);
+  --sidebar-ring: oklch(40% 0.065 183 / 55%);
+}
+
+html.dark[data-brand='zhexu'] {
+  --background: oklch(21% 0.015 180);
+  --foreground: oklch(95% 0.008 90);
+  --card: oklch(25% 0.016 180);
+  --card-foreground: oklch(95% 0.008 90);
+  --popover: oklch(25% 0.016 180);
+  --popover-foreground: oklch(95% 0.008 90);
+  --primary: oklch(80% 0.08 177);
+  --primary-foreground: oklch(21% 0.015 180);
+  --secondary: oklch(30% 0.016 180);
+  --secondary-foreground: oklch(95% 0.008 90);
+  --muted: oklch(30% 0.016 180);
+  --muted-foreground: oklch(76% 0.013 180);
+  --accent: oklch(30% 0.016 180);
+  --accent-foreground: oklch(95% 0.008 90);
+  --border: oklch(95% 0.008 90 / 12%);
+  --input: oklch(95% 0.008 90 / 16%);
+  --ring: oklch(80% 0.08 177 / 55%);
+  --sidebar: oklch(23% 0.015 180);
+  --sidebar-foreground: oklch(95% 0.008 90);
+  --sidebar-primary: oklch(80% 0.08 177);
+  --sidebar-primary-foreground: oklch(21% 0.015 180);
+  --sidebar-accent: oklch(30% 0.016 180);
+  --sidebar-accent-foreground: oklch(95% 0.008 90);
+  --sidebar-border: oklch(95% 0.008 90 / 12%);
+  --sidebar-ring: oklch(80% 0.08 177 / 55%);
+}
+
+/* 2. Accent scales --------------------------------------------------------
+   Tailwind utilities read var(--color-violet-600) and friends, so remapping
+   the two scales recolours every accent utility in both colour modes. Violet
+   becomes the brand teal (700 is the brand accent); purple, which upstream
+   pairs with violet in gradients, becomes a neighbouring sea blue so those
+   gradients keep a visible shift. */
+
+html[data-brand='zhexu'] {
+  --color-violet-50: oklch(97.6% 0.011 180);
+  --color-violet-100: oklch(94.8% 0.021 180);
+  --color-violet-200: oklch(89.8% 0.036 180);
+  --color-violet-300: oklch(82.5% 0.055 179);
+  --color-violet-400: oklch(73% 0.072 179);
+  --color-violet-500: oklch(61% 0.08 180);
+  --color-violet-600: oklch(49.5% 0.075 182);
+  --color-violet-700: oklch(40% 0.065 183);
+  --color-violet-800: oklch(33.5% 0.054 183);
+  --color-violet-900: oklch(28% 0.044 183);
+  --color-violet-950: oklch(21% 0.032 183);
+
+  --color-purple-50: oklch(97.6% 0.011 205);
+  --color-purple-100: oklch(94.8% 0.021 205);
+  --color-purple-200: oklch(89.8% 0.036 205);
+  --color-purple-300: oklch(82.5% 0.055 204);
+  --color-purple-400: oklch(73% 0.07 204);
+  --color-purple-500: oklch(61% 0.078 205);
+  --color-purple-600: oklch(49.5% 0.073 206);
+  --color-purple-700: oklch(40% 0.063 207);
+  --color-purple-800: oklch(33.5% 0.052 207);
+  --color-purple-900: oklch(28% 0.042 207);
+  --color-purple-950: oklch(21% 0.03 207);
+}
+
+/* 3. Workspace shell palette ----------------------------------------------
+   Upstream declares these on .ws-root and .dark .ws-root; the selectors below
+   outrank both. */
+
+html[data-brand='zhexu'] .ws-root {
+  --ws-canvas-top: oklch(97.5% 0.008 90);
+  --ws-canvas-bottom: oklch(95.5% 0.01 95);
+  --ws-rail: oklch(99% 0.004 90 / 72%);
+  --ws-surface: oklch(99% 0.004 90 / 82%);
+  --ws-raised: oklch(99.5% 0.003 90);
+  --ws-ink: oklch(25% 0.018 180);
+  --ws-ink-soft: oklch(36% 0.017 180);
+  --ws-ink-mute: oklch(46% 0.016 180);
+  --ws-ink-faint: oklch(64% 0.014 180);
+  --ws-line: oklch(25% 0.018 180 / 12%);
+  --ws-line-soft: oklch(25% 0.018 180 / 7%);
+  --ws-tint: oklch(25% 0.018 180 / 5.5%);
+  --ws-tint-strong: oklch(25% 0.018 180 / 9%);
+  --ws-accent: oklch(40% 0.065 183);
+  --ws-accent-thread: oklch(40% 0.065 183 / 32%);
+  --ws-accent-wash: oklch(40% 0.065 183 / 8%);
+  --ws-scroll-thumb: oklch(25% 0.018 180 / 20%);
+}
+
+html.dark[data-brand='zhexu'] .ws-root {
+  --ws-canvas-top: oklch(18% 0.014 180);
+  --ws-canvas-bottom: oklch(21% 0.015 180);
+  --ws-rail: oklch(21% 0.015 180 / 62%);
+  --ws-surface: oklch(23% 0.016 180 / 78%);
+  --ws-raised: oklch(27% 0.016 180);
+  --ws-ink: oklch(95% 0.008 90);
+  --ws-ink-soft: oklch(86% 0.01 120);
+  --ws-ink-mute: oklch(76% 0.013 180);
+  --ws-ink-faint: oklch(58% 0.013 180);
+  --ws-line: oklch(95% 0.008 90 / 12%);
+  --ws-line-soft: oklch(95% 0.008 90 / 7%);
+  --ws-tint: oklch(95% 0.008 90 / 6%);
+  --ws-tint-strong: oklch(95% 0.008 90 / 10%);
+  --ws-accent: oklch(80% 0.08 177);
+  --ws-accent-thread: oklch(80% 0.08 177 / 36%);
+  --ws-accent-wash: oklch(80% 0.08 177 / 10%);
+  --ws-scroll-thumb: oklch(95% 0.008 90 / 20%);
+}
+
+html[data-brand='zhexu'] .ws-tour {
+  --ws-tour-ring: oklch(80% 0.08 177 / 95%);
+  --ws-tour-glow: oklch(40% 0.065 183 / 38%);
+}
+
+html.dark[data-brand='zhexu'] .ws-tour {
+  --ws-tour-glow: oklch(80% 0.08 177 / 32%);
+}
+
+/* 4. Brand images on dark surfaces ----------------------------------------
+   The mark and the signature are drawn in dark teal. Upstream flips its hero
+   wordmark in dark mode (.ws-wordmark); the same flip is applied to the other
+   places the brand images appear (the rail, the mobile header, the about
+   page), which upstream leaves alone because its own mark reads on both. */
+
+html.dark[data-brand='zhexu'] img[src^='/extensions/zhexu/zhexu-']:not(.ws-wordmark) {
+  filter: invert(1) hue-rotate(180deg) brightness(1.08);
+}

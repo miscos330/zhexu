@@ -16,6 +16,9 @@ import { ModelSettingsInit } from '@/components/model-settings-init';
 import { StorageHealthNotice } from '@/components/storage-health-notice';
 import { AccessCodeGuard } from '@/components/access-code-guard';
 import { WorkbenchShellExtensionsProvider } from '@/lib/workbench/shell-extensions';
+import { DeploymentExtensions } from '@/extensions';
+import { ACTIVE_DEPLOYMENT_EXTENSION } from '@/extensions/config';
+import { ACTIVE_DEPLOYMENT_METADATA } from '@/extensions/metadata';
 import { loadLocaleResource } from '@/lib/i18n/load-resource';
 import { LOCALE_COOKIE, resolveRequestLocale } from '@/lib/i18n/resolve-locale';
 
@@ -57,6 +60,8 @@ export const metadata: Metadata = {
   title: 'OpenMAIC',
   description:
     'The open-source AI interactive classroom. Upload a PDF to instantly generate an immersive, multi-agent learning experience.',
+  // A deployment extension may rename the product (see `extensions/README.md`).
+  ...ACTIVE_DEPLOYMENT_METADATA,
 };
 
 export default async function RootLayout({
@@ -75,7 +80,7 @@ export default async function RootLayout({
   const { initialMobileLayout } = identifyRequestDevice(headerStore.get('user-agent'));
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} data-brand={ACTIVE_DEPLOYMENT_EXTENSION} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
@@ -93,7 +98,11 @@ export default async function RootLayout({
                   account summary provides them here (see
                   `lib/workbench/shell-extensions.tsx`). */}
               <WorkbenchShellExtensionsProvider>
-                <AccessCodeGuard>{children}</AccessCodeGuard>
+                {/* The active deployment extension, if any: unset renders the
+                    upstream shell unchanged (see `extensions/README.md`). */}
+                <DeploymentExtensions>
+                  <AccessCodeGuard>{children}</AccessCodeGuard>
+                </DeploymentExtensions>
               </WorkbenchShellExtensionsProvider>
               <Toaster position="top-center" />
               {/* After the Toaster: this one raises a toast on mount when

@@ -1,0 +1,20 @@
+{
+  "schema": "zhexu-brand-assets/v1",
+  "ownerApprovalDate": "2026-09-05",
+  "name": "折序 ZHEXU",
+  "symbolSource": "Original three-plane Fold concept from approved brand-v2 prototype",
+  "fontFamily": "Noto Sans SC",
+  "weight": 700,
+  "fontSha256": {
+    "chinese": "e1df51edc00bce27b58044e829fb8ec6accc8a5daece475413de90d52818845c",
+    "latin": "79a7c3f1ddff7c79ba3eff8556ee7acc7f3c95259f3982b34a711b6de5fbd6a7"
+  },
+  "generatedWith": "scripts/generate-brand-assets.mjs; fontkit; sharp",
+  "trademarkClearance": "not-assessed",
+  "outputs": {
+    "mark": "3eb3f220bb27633e80fa03b05bec6c33930b930a2daea4cc0ee34dff31f17ea5",
+    "wordmark": "8ac6cd153ff00f291ece4a92d1fb55482cfd40bf23f33b9c6418516d49c912c7",
+    "signature": "8fa81382c68deb5bb07a98c6caa70455664ed00f8c4c95d2eb89d11cc2ede718",
+    "icon": "74e92efdc7514518f423711a211c13985ec17853c05c956b9562a418e7861c8d"
+  }
+}
