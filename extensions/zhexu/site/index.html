@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="zh-CN" data-repo="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n="meta.title">折序 ZHEXU：一句话，展开成一堂课</title>
+    <meta
+      name="description"
+      content="折序是开源的 AI 互动课堂。说出想学什么，它先排好提纲，再做出课件，然后由 AI 老师讲解、AI 同学陪你讨论。"
+      data-i18n-attr="content:hero.lead"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111b18" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="assets/zhexu-mark.svg" />
+    <link
+      rel="preload"
+      href="assets/fonts/Geist-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="site.css" />
+    <script src="site.strings.js"></script>
+    <script src="site.js"></script>
+  </head>
+  <body>
+    <a class="zx-skip" href="#main" data-i18n="a11y.skip">跳到正文</a>
+
+    <header class="zx-header zx-wrap" id="top">
+      <a class="zx-brand" href="#top" aria-label="折序 ZHEXU">
+        <svg
+          class="zx-brand__signature"
+          viewBox="0 0 176 64"
+          width="110"
+          height="40"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <g class="zx-brand__mark">
+            <path d="M8 10H38L55 27H25L8 10Z" />
+            <path d="M8 18L25 35V55L8 38V18Z" />
+            <path d="M32 34H55V55H32V34Z" />
+          </g>
+          <g class="zx-brand__lettering">
+            <path
+              transform="translate(76 41) scale(0.042 -0.042)"
+              d="M862 843L933 742Q868 722 791.5 706Q715 690 635 678.5Q555 667 481 659Q478 681 468 709Q458 737 448 757Q502 764 558.5 773Q615 782 669.5 793Q724 804 773 817Q822 830 862 843ZM508 515L968 515L968 401L508 401ZM703 454L822 454L822 -86L703 -86ZM26 339Q74 349 135.5 363.5Q197 378 264.5 395.5Q332 413 399 430L413 320Q321 294 226.5 269Q132 244 55 224ZM43 661L406 661L406 550L43 550ZM165 850L283 850L283 41Q283 -2 273.5 -26.5Q264 -51 239 -65Q214 -78 176.5 -82Q139 -86 86 -86Q84 -63 74 -31Q64 1 53 24Q82 23 109 22.5Q136 22 146 22Q157 23 161 27Q165 31 165 41ZM448 757L566 757L566 455Q566 363 557 269Q548 175 521.5 84Q495 -7 441 -92Q424 -72 396 -50.5Q368 -29 344 -14Q390 62 412 142Q434 222 441 301.5Q448 381 448 456Z"
+            />
+            <path
+              transform="translate(118 41) scale(0.042 -0.042)"
+              d="M299 588L784 588L784 493L299 493ZM252 332L871 332L871 231L252 231ZM525 291L646 291L646 32Q646 -13 633.5 -37.5Q621 -62 586 -74Q552 -86 503 -88.5Q454 -91 389 -91Q385 -66 373.5 -35Q362 -4 350 20Q380 19 411 18.5Q442 18 466.5 18Q491 18 500 18Q515 19 520 22Q525 25 525 35ZM833 332L852 332L871 339L957 304Q927 248 891.5 190.5Q856 133 824 92L728 136Q755 171 784 221.5Q813 272 833 317ZM748 588L778 588L805 594L881 535Q846 498 802 461Q758 424 710 391.5Q662 359 612 334Q601 350 582 370Q563 390 550 402Q588 423 626 451.5Q664 480 696.5 510.5Q729 541 748 566ZM167 747L957 747L957 636L167 636ZM109 747L226 747L226 473Q226 412 222.5 338Q219 264 207.5 187Q196 110 175 37.5Q154 -35 120 -94Q110 -84 91 -71Q72 -58 53 -45.5Q34 -33 19 -27Q51 27 69 91Q87 155 95.5 222Q104 289 106.5 353.5Q109 418 109 474ZM370 406L442 473Q486 456 538 432Q590 408 639.5 384Q689 360 721 340L643 264Q614 284 567 309.5Q520 335 467.5 360.5Q415 386 370 406ZM459 826L578 858Q593 828 609 791.5Q625 755 634 730L508 692Q501 718 486.5 756.5Q472 795 459 826Z"
+            />
+            <path
+              transform="translate(79 61) scale(0.016 -0.016)"
+              d="M43 0L43 89L388 617L75 617L75 741L570 741L570 652L225 124L573 124L573 0Z"
+            />
+            <path
+              transform="translate(91.808 61) scale(0.016 -0.016)"
+              d="M91 0L91 741L239 741L239 448L519 448L519 741L666 741L666 0L519 0L519 320L239 320L239 0Z"
+            />
+            <path
+              transform="translate(106.92 61) scale(0.016 -0.016)"
+              d="M91 0L91 741L545 741L545 617L239 617L239 446L498 446L498 322L239 322L239 124L556 124L556 0Z"
+            />
+            <path
+              transform="translate(119.76 61) scale(0.016 -0.016)"
+              d="M15 0L222 381L26 741L191 741L265 587Q278 562 291 533.5Q304 505 320 471L324 471Q338 505 350 533.5Q362 562 374 587L444 741L600 741L405 375L613 0L449 0L366 164Q353 192 338.5 222Q324 252 308 286L304 286Q290 252 277 222Q264 192 250 164L171 0Z"
+            />
+            <path
+              transform="translate(132.52 61) scale(0.016 -0.016)"
+              d="M376 -14Q307 -14 254 5.5Q201 25 163.5 67Q126 109 107 175Q88 241 88 333L88 741L235 741L235 320Q235 243 252 198Q269 153 300.5 133.5Q332 114 376 114Q420 114 452 133.5Q484 153 501.5 198Q519 243 519 320L519 741L661 741L661 333Q661 241 642 175Q623 109 586 67Q549 25 496 5.5Q443 -14 376 -14Z"
+            />
+          </g>
+        </svg>
+      </a>
+      <div class="zx-header__right">
+        <nav class="zx-nav" aria-label="页内导航" data-i18n-attr="aria-label:a11y.nav">
+          <a class="zx-nav__link" href="#screens" data-i18n="nav.screens">界面</a>
+          <a class="zx-nav__link" href="#features" data-i18n="nav.features">功能</a>
+          <a class="zx-nav__link" href="#open" data-i18n="nav.open">开源</a>
+          <a class="zx-nav__link" href="#run" data-i18n="nav.run">本地运行</a>
+        </nav>
+        <div class="zx-controls">
+          <button
+            class="zx-toggle"
+            type="button"
+            id="zx-lang"
+            lang="en"
+            aria-label="Switch to English"
+          >
+            EN
+          </button>
+          <button class="zx-icon-btn" type="button" id="zx-theme" aria-label="切换到深色模式">
+            <svg
+              class="zx-icon zx-icon--sun"
+              viewBox="0 0 18 18"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M9 12C10.6569 12 12 10.6569 12 9C12 7.34315 10.6569 6 9 6C7.34315 6 6 7.34315 6 9C6 10.6569 7.34315 12 9 12Z"
+              />
+              <path
+                d="M9 1.5V3M9 15V16.5M3.6975 3.6975L4.755 4.755M13.245 13.245L14.3025 14.3025M1.5 9H3M15 9H16.5M4.755 13.245L3.6975 14.3025M14.3025 3.6975L13.245 4.755"
+              />
+            </svg>
+            <svg
+              class="zx-icon zx-icon--moon"
+              viewBox="0 0 18 18"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M9 2.25a4.5 4.5 0 0 0 6.75 6.75 6.75 6.75 0 1 1-6.75-6.75Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="zx-hero zx-wrap" aria-labelledby="hero-title">
+        <h1 class="zx-display" id="hero-title">
+          <span data-i18n="hero.title.1">一句话，</span>
+          <span data-i18n="hero.title.2">展开成一堂课。</span>
+        </h1>
+        <p class="zx-lead" data-i18n="hero.lead">
+          折序是开源的 AI 互动课堂。说出想学什么，它先排好提纲，再做出课件，然后由 AI 老师讲解、AI
+          同学陪你讨论。
+        </p>
+        <div class="zx-cta">
+          <a
+            class="zx-btn zx-btn--primary"
+            id="zx-source"
+            role="link"
+            aria-disabled="true"
+            data-i18n="cta.source.pending"
+            >源码即将公开</a
+          >
+          <a class="zx-btn zx-btn--secondary" href="#run" data-i18n="cta.run">在本地运行</a>
+        </div>
+        <p class="zx-small" data-i18n="hero.note">MIT 许可，基于 OpenMAIC 构建。</p>
+      </section>
+
+      <section class="zx-fold">
+        <div
+          class="zx-fold__scroller"
+          id="zx-fold"
+          role="group"
+          aria-label="一句话怎样展开成一堂课：六个步骤"
+          data-i18n-attr="aria-label:fold.label"
+        >
+          <ol class="zx-fold__scene">
+            <li class="zx-leaf">
+              <p class="zx-leaf__label" data-i18n="fold.sentence.label">一句话</p>
+              <div class="zx-composer">
+                <p class="zx-leaf__title" data-i18n="fold.sentence.text">
+                  讲讲光合作用，面向初二学生
+                </p>
+                <span class="zx-composer__send" aria-hidden="true">
+                  <svg class="zx-icon" viewBox="0 0 14 14" width="14" height="14" focusable="false">
+                    <path d="M7 11.083V2.917M11.083 7 7 2.917 2.917 7" />
+                  </svg>
+                </span>
+              </div>
+              <span class="zx-leaf__folio" aria-hidden="true">1</span>
+            </li>
+
+            <li class="zx-leaf">
+              <p class="zx-leaf__label" data-i18n="fold.outline.label">提纲</p>
+              <ol class="zx-outline">
+                <li>
+                  <span class="zx-outline__n" aria-hidden="true">1</span>
+                  <span data-i18n="fold.outline.1">叶子为什么是绿的</span>
+                </li>
+                <li>
+                  <span class="zx-outline__n" aria-hidden="true">2</span>
+                  <span data-i18n="fold.outline.2">光反应：把光变成能量</span>
+                </li>
+                <li>
+                  <span class="zx-outline__n" aria-hidden="true">3</span>
+                  <span data-i18n="fold.outline.3">暗反应：把能量存成糖</span>
+                </li>
+                <li>
+                  <span class="zx-outline__n" aria-hidden="true">4</span>
+                  <span data-i18n="fold.outline.4">随堂测验</span>
+                </li>
+              </ol>
+              <span class="zx-leaf__folio" aria-hidden="true">2</span>
+            </li>
+
+            <li class="zx-leaf">
+              <p class="zx-leaf__label" data-i18n="fold.slide.label">讲解</p>
+              <p class="zx-leaf__title" data-i18n="fold.slide.title">光反应</p>
+              <svg
+                class="zx-art"
+                viewBox="0 0 176 84"
+                width="176"
+                height="84"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M26 40C31.5228 40 36 35.5228 36 30C36 24.4772 31.5228 20 26 20C20.4772 20 16 24.4772 16 30C16 35.5228 20.4772 40 26 40Z"
+                />
+                <path
+                  d="M26 10V15M26 45V50M6 30H11M41 30H46M12 16L15.5 19.5M36.5 40.5L40 44M12 44L15.5 40.5M36.5 19.5L40 16"
+                />
+                <path d="M52 28L100 38M52 38L98 50" stroke-dasharray="3 5" />
+                <path d="M106 58C104 38 118 22 148 20C152 48 140 64 120 66C114 66 109 63 106 58Z" />
+                <path d="M110 60C118 48 130 38 144 30" />
+                <path
+                  d="M158 15.5C159.933 15.5 161.5 13.933 161.5 12C161.5 10.067 159.933 8.5 158 8.5C156.067 8.5 154.5 10.067 154.5 12C154.5 13.933 156.067 15.5 158 15.5Z"
+                />
+                <path
+                  d="M166 26.5C167.381 26.5 168.5 25.3807 168.5 24C168.5 22.6193 167.381 21.5 166 21.5C164.619 21.5 163.5 22.6193 163.5 24C163.5 25.3807 164.619 26.5 166 26.5Z"
+                />
+              </svg>
+              <p class="zx-leaf__body" data-i18n="fold.slide.body">
+                叶绿体里的类囊体膜吸收光，把水分解，放出氧气。
+              </p>
+              <span class="zx-leaf__folio" aria-hidden="true">3</span>
+            </li>
+
+            <li class="zx-leaf">
+              <p class="zx-leaf__label" data-i18n="fold.board.label">白板</p>
+              <p class="zx-leaf__title zx-formula">6CO<sub>2</sub> + 6H<sub>2</sub>O</p>
+              <p class="zx-leaf__title zx-formula">
+                → C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6O<sub>2</sub>
+              </p>
+              <svg
+                class="zx-art"
+                viewBox="0 0 150 10"
+                width="150"
+                height="10"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M2 6C14 1 24 11 36 6C48 1 58 11 70 6C82 1 92 11 104 6C116 1 126 11 138 6C150 1 144 4 148 5"
+                />
+              </svg>
+              <p class="zx-leaf__body" data-i18n="fold.board.body">
+                老师一边讲，一边把式子写在白板上。
+              </p>
+              <span class="zx-leaf__folio" aria-hidden="true">4</span>
+            </li>
+
+            <li class="zx-leaf zx-leaf--tight">
+              <p class="zx-leaf__label" data-i18n="fold.quiz.label">测验</p>
+              <p class="zx-leaf__title" data-i18n="fold.quiz.question">
+                光反应发生在叶绿体的哪里？
+              </p>
+              <ul class="zx-options">
+                <li class="zx-option zx-option--right">
+                  <span data-i18n="fold.quiz.option1">类囊体膜</span>
+                  <svg
+                    class="zx-icon"
+                    viewBox="0 0 14 14"
+                    width="14"
+                    height="14"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M2.917 7.292 5.542 9.917 11.083 4.375" />
+                  </svg>
+                </li>
+                <li class="zx-option"><span data-i18n="fold.quiz.option2">基质</span></li>
+                <li class="zx-option"><span data-i18n="fold.quiz.option3">细胞壁</span></li>
+              </ul>
+              <span class="zx-leaf__folio" aria-hidden="true">5</span>
+            </li>
+
+            <li class="zx-leaf">
+              <p class="zx-leaf__label" data-i18n="fold.talk.label">讨论</p>
+              <p class="zx-bubble" data-i18n="fold.talk.teacher">老师：为什么秋天叶子会变黄？</p>
+              <p class="zx-bubble" data-i18n="fold.talk.classmate">同学：是不是叶绿素变少了？</p>
+              <p class="zx-bubble zx-bubble--open" data-i18n="fold.talk.you">你也可以插话…</p>
+              <span class="zx-leaf__folio" aria-hidden="true">6</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="zx-section zx-wrap" id="screens" aria-labelledby="screens-title">
+        <div class="zx-heading">
+          <h2 class="zx-h2" id="screens-title" data-i18n="screens.title">这是真实的界面</h2>
+          <p class="zx-sub" data-i18n="screens.sub">
+            下面的画面截自本地运行的折序，课程是内置的入门课。
+          </p>
+        </div>
+        <figure class="zx-figure">
+          <img
+            class="zx-shot"
+            src="assets/shots/classroom-light.webp"
+            width="2400"
+            height="1500"
+            alt="折序的课堂：中间是一页课件，下面是老师的讲解，右边是 AI 同学。"
+            data-i18n-attr="alt:screens.classroom.alt"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption data-i18n="screens.classroom">
+            上课：课件在上，老师的讲解在下，AI 同学在右边。
+          </figcaption>
+        </figure>
+        <div class="zx-figure-row">
+          <figure class="zx-figure">
+            <img
+              class="zx-shot"
+              src="assets/shots/home-light.webp"
+              width="2400"
+              height="1500"
+              alt="折序的首页：一个输入框，用来写下想学的内容。"
+              data-i18n-attr="alt:screens.home.alt"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption data-i18n="screens.home">开始：写下想学的内容，也可以附上资料。</figcaption>
+          </figure>
+          <figure class="zx-figure">
+            <img
+              class="zx-shot"
+              src="assets/shots/finished-light.webp"
+              width="2400"
+              height="1500"
+              alt="学完一堂课后的对话框，可以去做小测，也可以重新学习。"
+              data-i18n-attr="alt:screens.finished.alt"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption data-i18n="screens.finished">
+              学完一堂课：可以接着做小测，也可以重新学。
+            </figcaption>
+          </figure>
+          <figure class="zx-figure">
+            <img
+              class="zx-shot"
+              src="assets/shots/classroom-dark.webp"
+              width="2400"
+              height="1500"
+              alt="深色模式下的课堂。"
+              data-i18n-attr="alt:screens.dark.alt"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption data-i18n="screens.dark">深色模式。</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="zx-section zx-wrap" id="features" aria-labelledby="syllabus-title">
+        <div class="zx-heading">
+          <h2 class="zx-h2" id="syllabus-title" data-i18n="syllabus.title">一堂课里有什么</h2>
+        </div>
+        <div class="zx-groups">
+          <div class="zx-group">
+            <h3 class="zx-group__label" data-i18n="syllabus.class.label">课上</h3>
+            <dl class="zx-rows">
+              <div class="zx-row">
+                <dt data-i18n="syllabus.class.teacher.term">AI 老师讲解</dt>
+                <dd data-i18n="syllabus.class.teacher.desc">
+                  一页一页讲，边讲边在白板上写公式、画图，也会读出来。
+                </dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="syllabus.class.classmates.term">AI 同学讨论</dt>
+                <dd data-i18n="syllabus.class.classmates.desc">
+                  同学会提问、争论，你可以随时插话。
+                </dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="syllabus.class.ask.term">向老师提问</dt>
+                <dd data-i18n="syllabus.class.ask.desc">
+                  打字或者用麦克风问，老师用课件或白板回答。
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div class="zx-group">
+            <h3 class="zx-group__label" data-i18n="syllabus.pages.label">课件</h3>
+            <dl class="zx-rows">
+              <div class="zx-row">
+                <dt data-i18n="syllabus.pages.kinds.term">四种页面</dt>
+                <dd data-i18n="syllabus.pages.kinds.desc">
+                  幻灯片、测验、可以动手的互动实验，还有项目制学习。
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div class="zx-group">
+            <h3 class="zx-group__label" data-i18n="syllabus.prepare.label">备课</h3>
+            <dl class="zx-rows">
+              <div class="zx-row">
+                <dt data-i18n="syllabus.prepare.start.term">从一句话开始</dt>
+                <dd data-i18n="syllabus.prepare.start.desc">
+                  写下主题，或者附上 PDF 等资料，几分钟后得到一堂课。
+                </dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="syllabus.prepare.revise.term">边聊边改</dt>
+                <dd data-i18n="syllabus.prepare.revise.desc">
+                  在对话里说“把第 2 页讲得更简单”，AI 帮你改；也可以直接编辑页面。
+                </dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="syllabus.prepare.sources.term">知识库和联网检索</dt>
+                <dd data-i18n="syllabus.prepare.sources.desc">
+                  让课程参考你的资料库，或者上网查最新的信息。
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div class="zx-group">
+            <h3 class="zx-group__label" data-i18n="syllabus.take.label">带走</h3>
+            <dl class="zx-rows">
+              <div class="zx-row">
+                <dt data-i18n="syllabus.take.export.term">导出</dt>
+                <dd data-i18n="syllabus.take.export.desc">
+                  可编辑的 PPTX、能离线播放的单个 HTML 文件，或整堂课的 ZIP 包。
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div class="zx-group">
+            <h3 class="zx-group__label" data-i18n="syllabus.host.label">部署</h3>
+            <dl class="zx-rows">
+              <div class="zx-row">
+                <dt data-i18n="syllabus.host.self.term">自己托管</dt>
+                <dd data-i18n="syllabus.host.self.desc">Node.js 加 PostgreSQL，或者用 Docker。</dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="syllabus.host.models.term">模型自选</dt>
+                <dd data-i18n="syllabus.host.models.desc">
+                  OpenAI、Anthropic、Gemini、DeepSeek、通义千问、Ollama 等，密钥留在你的服务器上。
+                </dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="syllabus.host.locales.term">12 种界面语言</dt>
+                <dd data-i18n="syllabus.host.locales.desc">
+                  简体中文、繁体中文、英语、日语、韩语等。
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="zx-section zx-wrap" id="open" aria-labelledby="open-title">
+        <div class="zx-heading">
+          <h2 class="zx-h2" id="open-title" data-i18n="open.title">站在 OpenMAIC 之上</h2>
+          <p class="zx-sub zx-sub--wide" data-i18n="open.sub">
+            折序基于 THU-MAIC 团队开源的 OpenMAIC（MIT
+            许可）。课堂、课件和导出这些能力来自上游；折序在上面加自己的品牌、主题和扩展，通用的改进会提交回上游。
+          </p>
+        </div>
+        <div class="zx-groups">
+          <div class="zx-group">
+            <h3 class="zx-group__label" data-i18n="open.now.label">已经有</h3>
+            <dl class="zx-rows">
+              <div class="zx-row">
+                <dt data-i18n="open.now.classroom.term">课堂能力</dt>
+                <dd data-i18n="open.now.classroom.desc">上游 OpenMAIC 的全部功能。</dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="open.now.brand.term">品牌和主题</dt>
+                <dd data-i18n="open.now.brand.desc">折序的标识、配色和深色模式。</dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="open.now.layer.term">扩展层</dt>
+                <dd data-i18n="open.now.layer.desc">
+                  加功能时不改上游的核心代码，方便跟着上游升级。
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div class="zx-group">
+            <h3 class="zx-group__label" data-i18n="open.next.label">计划中</h3>
+            <dl class="zx-rows">
+              <div class="zx-row">
+                <dt data-i18n="open.next.deliverables.term">成品交付</dt>
+                <dd data-i18n="open.next.deliverables.desc">
+                  A4 讲义、图片标注导出、可编辑的 Word 文档。
+                </dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="open.next.accounts.term">账号和用量</dt>
+                <dd data-i18n="open.next.accounts.desc">注册登录，以及每个人的用量上限。</dd>
+              </div>
+              <div class="zx-row">
+                <dt data-i18n="open.next.skills.term">会进步的 skill</dt>
+                <dd data-i18n="open.next.skills.desc">根据使用情况自动改进教学 skill。</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="zx-section zx-wrap" id="run" aria-labelledby="run-title">
+        <div class="zx-heading">
+          <h2 class="zx-h2" id="run-title" data-i18n="run.title">在自己的电脑上运行</h2>
+          <p class="zx-sub" data-i18n="run.sub">
+            需要 Node.js 22.19 以上、pnpm 10 和 PostgreSQL 16。
+          </p>
+        </div>
+        <ol class="zx-groups">
+          <li class="zx-group">
+            <h3 class="zx-group__label">
+              <span class="zx-step__n" aria-hidden="true">1</span>
+              <span data-i18n="run.get.label">取得源码</span>
+            </h3>
+            <div class="zx-step">
+              <div class="zx-code">
+                <pre
+                  class="zx-code__pre"
+                ><code>git clone <span id="zx-repo-url" data-i18n="run.get.placeholder">&lt;仓库地址&gt;</span> zhexu
+cd zhexu
+pnpm install</code></pre>
+                <button class="zx-copy" type="button" data-i18n="copy.idle">复制</button>
+              </div>
+              <p class="zx-small" id="zx-repo-note" data-i18n="run.get.note">
+                仓库公开后，这里会换成实际地址。
+              </p>
+            </div>
+          </li>
+          <li class="zx-group">
+            <h3 class="zx-group__label">
+              <span class="zx-step__n" aria-hidden="true">2</span>
+              <span data-i18n="run.configure.label">配置</span>
+            </h3>
+            <div class="zx-step">
+              <div class="zx-code">
+                <pre class="zx-code__pre"><code>cp .env.example .env.local
+cp openmaic.example.yml openmaic.yml</code></pre>
+                <button class="zx-copy" type="button" data-i18n="copy.idle">复制</button>
+              </div>
+              <p class="zx-small" data-i18n="run.configure.note">
+                在 .env.local 里填模型密钥和数据库地址，再加上这三行：
+              </p>
+              <div class="zx-code">
+                <pre class="zx-code__pre"><code>NEXT_PUBLIC_DEPLOYMENT_EXTENSION=zhexu
+NEXT_PUBLIC_WORKBENCH_ENABLED=true
+OPENMAIC_AGENT_RUNTIME_ENABLED=true</code></pre>
+                <button class="zx-copy" type="button" data-i18n="copy.idle">复制</button>
+              </div>
+            </div>
+          </li>
+          <li class="zx-group">
+            <h3 class="zx-group__label">
+              <span class="zx-step__n" aria-hidden="true">3</span>
+              <span data-i18n="run.start.label">启动</span>
+            </h3>
+            <div class="zx-step">
+              <div class="zx-code">
+                <pre class="zx-code__pre"><code>pnpm db:up
+pnpm dev</code></pre>
+                <button class="zx-copy" type="button" data-i18n="copy.idle">复制</button>
+              </div>
+              <p class="zx-small" data-i18n="run.start.note">
+                pnpm db:up 用 Docker 起一个开发数据库，已有 PostgreSQL 可以跳过。然后打开
+                http://localhost:3000。
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="zx-footer">
+      <div class="zx-footer__inner zx-wrap">
+        <div class="zx-footer__left">
+          <svg
+            class="zx-footer__mark zx-brand__mark"
+            viewBox="0 0 64 64"
+            width="28"
+            height="28"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M8 10H38L55 27H25L8 10Z" />
+            <path d="M8 18L25 35V55L8 38V18Z" />
+            <path d="M32 34H55V55H32V34Z" />
+          </svg>
+          <p class="zx-small" data-i18n="footer.note">
+            折序 ZHEXU 以 MIT 许可发布，基于 THU-MAIC/OpenMAIC。
+          </p>
+        </div>
+        <nav class="zx-footer__links" aria-label="相关链接" data-i18n-attr="aria-label:a11y.links">
+          <a
+            class="zx-nav__link"
+            href="https://github.com/THU-MAIC/OpenMAIC"
+            rel="noopener"
+            data-i18n="footer.upstream"
+            >OpenMAIC 上游项目</a
+          >
+          <a
+            class="zx-nav__link"
+            id="zx-license"
+            href="https://github.com/THU-MAIC/OpenMAIC/blob/main/LICENSE"
+            rel="noopener"
+            data-i18n="footer.license"
+            >许可证</a
+          >
+        </nav>
+      </div>
+    </footer>
+
+    <p class="zx-sr" id="zx-status" role="status" aria-live="polite"></p>
+  </body>
+</html>

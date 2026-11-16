@@ -43,6 +43,7 @@ extensions/
     theme.css      hand-written colour tokens
     theme-upstream-literals.css   generated, see below
     scripts/sync-upstream-accent.mjs
+    site/          the static showcase page, see site/README.md
 public/extensions/zhexu/   brand assets and their provenance
 tests/extensions/          tests
 ```

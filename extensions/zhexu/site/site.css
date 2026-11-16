@@ -1,0 +1,958 @@
+/*
+ * 折序 ZHEXU showcase page.
+ *
+ * The custom properties below mirror the variables of the Figma design file one to
+ * one: `color/bg/page` there is `--zx-bg-page` here, `space/32` is `--zx-space-32`.
+ * Change a value in both places, never in one.
+ */
+
+/* ── Fonts ─────────────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Geist';
+  src: url('assets/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * The same file, limited to Latin letters and digits. Chinese pages use this face so
+ * that quotation marks, dashes and the ellipsis come from the Chinese font, where
+ * they have the full-width forms Chinese text expects.
+ */
+@font-face {
+  font-family: 'Geist Latin';
+  src: url('assets/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0020-007E, U+00A0-024F;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('assets/fonts/GeistMono-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The fold angle of the concertina strip; registered so it can be animated. */
+@property --zx-theta {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 14deg;
+}
+
+/* ── Tokens ────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* Palette */
+  --zx-paper-100: #fdfcf9;
+  --zx-paper-200: #f7f5ef;
+  --zx-paper-300: #ecece3;
+  --zx-paper-400: #dcdbd4;
+  --zx-ink-100: #f0eee9;
+  --zx-ink-300: #a9b4b1;
+  --zx-ink-600: #4f5b58;
+  --zx-ink-800: #2c3431;
+  --zx-ink-900: #182522;
+  --zx-ink-950: #111b18;
+  --zx-ink-975: #091110;
+  --zx-teal-200: #a3dccc;
+  --zx-teal-300: #83cfbd;
+  --zx-teal-600: #275d56;
+  --zx-teal-700: #10534b;
+  --zx-teal-800: #0c463f;
+  --zx-teal-900: #203a36;
+  --zx-red-300: #f0a89c;
+  --zx-red-600: #a3392b;
+
+  /* Color, light */
+  --zx-bg-page: var(--zx-paper-200);
+  --zx-bg-raised: var(--zx-paper-100);
+  --zx-bg-fold: var(--zx-paper-300);
+  --zx-bg-accent: var(--zx-teal-700);
+  --zx-bg-accent-hover: var(--zx-teal-800);
+  --zx-text-primary: var(--zx-ink-900);
+  --zx-text-muted: var(--zx-ink-600);
+  --zx-text-accent: var(--zx-teal-700);
+  --zx-text-on-accent: var(--zx-paper-100);
+  --zx-text-danger: var(--zx-red-600);
+  --zx-border-default: var(--zx-paper-400);
+  --zx-border-focus: var(--zx-teal-700);
+  --zx-brand-mark: var(--zx-teal-600);
+  --zx-brand-lettering: var(--zx-teal-900);
+
+  /* Size */
+  --zx-space-4: 4px;
+  --zx-space-8: 8px;
+  --zx-space-12: 12px;
+  --zx-space-16: 16px;
+  --zx-space-20: 20px;
+  --zx-space-24: 24px;
+  --zx-space-32: 32px;
+  --zx-space-48: 48px;
+  --zx-space-64: 64px;
+  --zx-space-96: 96px;
+  --zx-space-120: 120px;
+  --zx-space-160: 160px;
+  --zx-radius-sm: 8px;
+  --zx-radius-md: 12px;
+  --zx-radius-lg: 16px;
+
+  /*
+   * Layout. The design has a 375 and a 1440 frame; these run between the two values
+   * as the window widens, and stop at either end.
+   */
+  --zx-content: 1120px;
+  --zx-hero-top: clamp(var(--zx-space-48), 31.1px + 4.507vw, var(--zx-space-96));
+  --zx-fold-top: clamp(var(--zx-space-48), 39.55px + 2.2535vw, 72px);
+  --zx-section-top: clamp(var(--zx-space-64), 44.28px + 5.2582vw, var(--zx-space-120));
+
+  /* Type. Chinese metrics; English overrides follow. */
+  --zx-font-sans:
+    'Geist Latin', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui,
+    sans-serif;
+  --zx-font-mono: 'Geist Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --zx-weight-strong: 700;
+  --zx-display-size: clamp(2.75rem, 2.1338rem + 2.6291vw, 4.5rem);
+  --zx-display-line: clamp(3.25rem, 2.5458rem + 3.0047vw, 5.25rem);
+  --zx-display-track: 0;
+  --zx-h2-size: clamp(1.75rem, 1.5739rem + 0.7512vw, 2.25rem);
+  --zx-h2-line: clamp(2.375rem, 2.1989rem + 0.7512vw, 2.875rem);
+  --zx-lead-line: 2.125rem;
+  --zx-body-line: 1.75rem;
+  --zx-small-line: 1.375rem;
+  --zx-leaf-title-line: 1.375rem;
+  --zx-leaf-body-line: 1.25rem;
+}
+
+:root:lang(en) {
+  --zx-font-sans: 'Geist', system-ui, sans-serif;
+  --zx-weight-strong: 600;
+  --zx-display-line: clamp(3rem, 2.3838rem + 2.6291vw, 4.75rem);
+  --zx-display-track: -0.025em;
+  --zx-h2-line: clamp(2.25rem, 2.0739rem + 0.7512vw, 2.75rem);
+  --zx-lead-line: 1.9375rem;
+  --zx-body-line: 1.625rem;
+  --zx-small-line: 1.3125rem;
+  --zx-leaf-title-line: 1.3125rem;
+  --zx-leaf-body-line: 1.1875rem;
+}
+
+/* Color, dark. The two blocks must stay identical: one follows the system, one the toggle. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --zx-bg-page: var(--zx-ink-950);
+    --zx-bg-raised: var(--zx-ink-900);
+    --zx-bg-fold: var(--zx-ink-975);
+    --zx-bg-accent: var(--zx-teal-300);
+    --zx-bg-accent-hover: var(--zx-teal-200);
+    --zx-text-primary: var(--zx-ink-100);
+    --zx-text-muted: var(--zx-ink-300);
+    --zx-text-accent: var(--zx-teal-300);
+    --zx-text-on-accent: var(--zx-ink-950);
+    --zx-text-danger: var(--zx-red-300);
+    --zx-border-default: var(--zx-ink-800);
+    --zx-border-focus: var(--zx-teal-300);
+    --zx-brand-mark: var(--zx-teal-300);
+    --zx-brand-lettering: var(--zx-ink-100);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --zx-bg-page: var(--zx-ink-950);
+  --zx-bg-raised: var(--zx-ink-900);
+  --zx-bg-fold: var(--zx-ink-975);
+  --zx-bg-accent: var(--zx-teal-300);
+  --zx-bg-accent-hover: var(--zx-teal-200);
+  --zx-text-primary: var(--zx-ink-100);
+  --zx-text-muted: var(--zx-ink-300);
+  --zx-text-accent: var(--zx-teal-300);
+  --zx-text-on-accent: var(--zx-ink-950);
+  --zx-text-danger: var(--zx-red-300);
+  --zx-border-default: var(--zx-ink-800);
+  --zx-border-focus: var(--zx-teal-300);
+  --zx-brand-mark: var(--zx-teal-300);
+  --zx-brand-lettering: var(--zx-ink-100);
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: var(--zx-space-24);
+}
+
+body {
+  margin: 0;
+  background: var(--zx-bg-page);
+  color: var(--zx-text-primary);
+  font-family: var(--zx-font-sans);
+  font-size: 1rem;
+  line-height: var(--zx-body-line);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+dl,
+dd,
+figure,
+pre {
+  margin: 0;
+}
+
+ol,
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+sub {
+  font-size: 0.72em;
+  line-height: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--zx-border-focus);
+  outline-offset: 2px;
+}
+
+.zx-wrap {
+  width: min(100% - 2 * var(--zx-space-20), var(--zx-content));
+  margin-inline: auto;
+}
+
+.zx-sr {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.zx-skip {
+  position: absolute;
+  top: var(--zx-space-8);
+  left: var(--zx-space-8);
+  z-index: 1;
+  padding: var(--zx-space-8) var(--zx-space-16);
+  border-radius: var(--zx-radius-sm);
+  background: var(--zx-bg-accent);
+  color: var(--zx-text-on-accent);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.zx-skip:focus {
+  transform: none;
+}
+
+/* ── Type ──────────────────────────────────────────────────────────────── */
+
+.zx-display {
+  font-size: var(--zx-display-size);
+  font-weight: 700;
+  line-height: var(--zx-display-line);
+  letter-spacing: var(--zx-display-track);
+}
+
+.zx-display > span {
+  display: block;
+}
+
+.zx-h2 {
+  font-size: var(--zx-h2-size);
+  font-weight: var(--zx-weight-strong);
+  line-height: var(--zx-h2-line);
+}
+
+.zx-lead {
+  max-width: 620px;
+  color: var(--zx-text-muted);
+  font-size: 1.1875rem;
+  line-height: var(--zx-lead-line);
+}
+
+.zx-sub {
+  max-width: 720px;
+  color: var(--zx-text-muted);
+}
+
+.zx-sub--wide {
+  max-width: 760px;
+}
+
+.zx-small,
+figcaption {
+  color: var(--zx-text-muted);
+  font-size: 0.875rem;
+  line-height: var(--zx-small-line);
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────── */
+
+.zx-btn,
+.zx-nav__link,
+.zx-toggle,
+.zx-icon-btn,
+.zx-copy {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--zx-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.zx-btn {
+  height: 44px;
+  padding: 0 var(--zx-space-20);
+}
+
+.zx-btn--primary {
+  background: var(--zx-bg-accent);
+  color: var(--zx-text-on-accent);
+}
+
+.zx-btn--primary:hover {
+  background: var(--zx-bg-accent-hover);
+}
+
+.zx-btn--secondary {
+  border: 1px solid var(--zx-border-default);
+  color: var(--zx-text-primary);
+}
+
+.zx-btn--secondary:hover {
+  background: var(--zx-bg-fold);
+}
+
+.zx-btn[aria-disabled='true'],
+.zx-btn[aria-disabled='true']:hover {
+  background: var(--zx-bg-fold);
+  color: var(--zx-text-muted);
+  cursor: default;
+}
+
+.zx-nav__link {
+  height: 32px;
+  padding: 0 var(--zx-space-8);
+  color: var(--zx-text-muted);
+}
+
+.zx-nav__link:hover {
+  color: var(--zx-text-primary);
+}
+
+.zx-toggle,
+.zx-icon-btn,
+.zx-copy {
+  border: 1px solid var(--zx-border-default);
+  background: transparent;
+  cursor: pointer;
+}
+
+.zx-toggle:hover,
+.zx-icon-btn:hover,
+.zx-copy:hover {
+  background: var(--zx-bg-fold);
+}
+
+.zx-toggle {
+  height: 36px;
+  padding: 0 var(--zx-space-12);
+}
+
+.zx-icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.zx-copy {
+  height: 30px;
+  padding: 0 var(--zx-space-12);
+  color: var(--zx-text-muted);
+  font-weight: 400;
+  line-height: var(--zx-small-line);
+}
+
+.zx-copy:hover {
+  color: var(--zx-text-primary);
+}
+
+.zx-copy[data-state='done'] {
+  color: var(--zx-text-accent);
+}
+
+.zx-copy[data-state='failed'] {
+  color: var(--zx-text-danger);
+}
+
+.zx-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The theme button shows the theme in use: a sun in light, a moon in dark. */
+.zx-icon--moon {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .zx-icon--sun {
+    display: none;
+  }
+
+  :root:not([data-theme='light']) .zx-icon--moon {
+    display: block;
+  }
+}
+
+:root[data-theme='dark'] .zx-icon--sun {
+  display: none;
+}
+
+:root[data-theme='dark'] .zx-icon--moon {
+  display: block;
+}
+
+/* Language, theme and copy need the script: without it they are not offered. */
+:root:not(.zx-js) .zx-controls,
+:root:not(.zx-js) .zx-copy {
+  display: none;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+
+.zx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.zx-brand {
+  display: inline-flex;
+  border-radius: var(--zx-radius-sm);
+}
+
+.zx-brand__mark {
+  fill: var(--zx-brand-mark);
+}
+
+.zx-brand__lettering {
+  fill: var(--zx-brand-lettering);
+}
+
+.zx-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--zx-space-32);
+}
+
+.zx-nav,
+.zx-controls,
+.zx-footer__links {
+  display: flex;
+  gap: var(--zx-space-8);
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+
+.zx-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--zx-space-32);
+  padding-top: var(--zx-hero-top);
+}
+
+.zx-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zx-space-12);
+}
+
+/* ── Fold strip ────────────────────────────────────────────────────────── */
+
+/*
+ * Six leaves folded like a concertina book. Each leaf turns by the fold angle about
+ * one of its vertical edges, alternating, and is pulled left by what the leaves
+ * before it lost in width, so neighbours keep meeting at the folds.
+ */
+.zx-fold {
+  --zx-leaf-width: 216px;
+  --zx-leaf-height: 300px;
+  padding-top: var(--zx-fold-top);
+}
+
+.zx-fold__scroller {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-inline-start: max(var(--zx-space-20), calc((100% - var(--zx-content)) / 2));
+  scrollbar-width: none;
+}
+
+.zx-fold__scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* Keeps a gutter after the last leaf once the strip is scrolled to its end. */
+.zx-fold__scroller::after {
+  flex: none;
+  width: var(--zx-space-20);
+  content: '';
+}
+
+.zx-fold__scene {
+  /* cos(14deg): the share of its width a turned leaf still covers. */
+  --zx-fold-cos: 0.9703;
+  display: flex;
+  flex: none;
+  width: calc(6 * var(--zx-leaf-width) * var(--zx-fold-cos));
+  height: var(--zx-leaf-height);
+  perspective: 1800px;
+}
+
+.zx-leaf {
+  --zx-leaf-turn: 14deg;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--zx-space-12);
+  width: var(--zx-leaf-width);
+  padding: var(--zx-space-20);
+  border: 1px solid var(--zx-border-default);
+  background: var(--zx-bg-raised);
+  overflow: hidden;
+  transform-origin: 0 50%;
+  transform: translateX(
+      calc(var(--zx-leaf-shift) * var(--zx-leaf-width) * (var(--zx-fold-cos) - 1))
+    )
+    rotateY(var(--zx-leaf-turn));
+}
+
+.zx-leaf:nth-child(even) {
+  --zx-leaf-turn: -14deg;
+  background: var(--zx-bg-fold);
+  transform-origin: 100% 50%;
+}
+
+/* How many leaf widths lie to the left of the edge a leaf turns about. */
+.zx-leaf:nth-child(1) {
+  --zx-leaf-shift: 0;
+}
+
+.zx-leaf:nth-child(2),
+.zx-leaf:nth-child(3) {
+  --zx-leaf-shift: 2;
+}
+
+.zx-leaf:nth-child(4),
+.zx-leaf:nth-child(5) {
+  --zx-leaf-shift: 4;
+}
+
+.zx-leaf:nth-child(6) {
+  --zx-leaf-shift: 6;
+}
+
+.zx-leaf--tight {
+  gap: var(--zx-space-8);
+}
+
+/*
+ * Where the browser can do the trigonometry, the angle is a variable and can move.
+ * The cosine is set on the scene, the element whose angle is animated, so that it
+ * follows the animation.
+ */
+@supports (width: calc(1px * cos(14deg))) {
+  .zx-fold__scene {
+    --zx-fold-cos: cos(var(--zx-theta));
+  }
+
+  .zx-leaf {
+    --zx-leaf-turn: var(--zx-theta);
+  }
+
+  .zx-leaf:nth-child(even) {
+    --zx-leaf-turn: calc(-1 * var(--zx-theta));
+  }
+
+  /* The one animation on the page: the strip opens once, when the page loads. */
+  @media (prefers-reduced-motion: no-preference) {
+    .zx-can-unfold .zx-fold__scene {
+      animation: zx-unfold 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+    }
+  }
+}
+
+@keyframes zx-unfold {
+  from {
+    --zx-theta: 84deg;
+  }
+
+  to {
+    --zx-theta: 14deg;
+  }
+}
+
+.zx-leaf__label {
+  color: var(--zx-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+}
+
+.zx-leaf__title {
+  font-size: 0.9375rem;
+  font-weight: var(--zx-weight-strong);
+  line-height: var(--zx-leaf-title-line);
+}
+
+.zx-leaf__body,
+.zx-outline,
+.zx-option,
+.zx-bubble {
+  font-size: 0.8125rem;
+  line-height: var(--zx-leaf-body-line);
+}
+
+.zx-leaf__body {
+  color: var(--zx-text-muted);
+}
+
+.zx-leaf__folio,
+.zx-outline__n {
+  font-family: 'Geist', var(--zx-font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+}
+
+.zx-leaf__folio {
+  margin-top: auto;
+  color: var(--zx-text-muted);
+}
+
+.zx-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zx-space-8);
+  padding: var(--zx-space-12);
+  border: 1px solid var(--zx-border-default);
+  border-radius: var(--zx-radius-sm);
+  background: var(--zx-bg-page);
+}
+
+.zx-composer__send {
+  display: flex;
+  align-items: center;
+  align-self: flex-end;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--zx-bg-accent);
+  color: var(--zx-text-on-accent);
+}
+
+.zx-outline > li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--zx-space-8);
+  padding: var(--zx-space-8) 0;
+  border-top: 1px solid var(--zx-border-default);
+}
+
+.zx-outline__n {
+  color: var(--zx-text-accent);
+}
+
+.zx-art {
+  flex: none;
+  fill: none;
+  stroke: var(--zx-text-accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.zx-formula {
+  color: var(--zx-text-accent);
+  font-family: 'Geist', var(--zx-font-sans);
+}
+
+.zx-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zx-space-8);
+}
+
+.zx-option {
+  display: flex;
+  align-items: center;
+  gap: var(--zx-space-8);
+  padding: var(--zx-space-8) var(--zx-space-12);
+  border: 1px solid var(--zx-border-default);
+  border-radius: var(--zx-radius-sm);
+  background: var(--zx-bg-page);
+  color: var(--zx-text-muted);
+}
+
+.zx-option > span {
+  flex: 1;
+}
+
+.zx-option--right {
+  border-color: var(--zx-border-focus);
+  color: var(--zx-text-primary);
+}
+
+.zx-option .zx-icon {
+  flex: none;
+  color: var(--zx-text-accent);
+}
+
+.zx-bubble {
+  padding: var(--zx-space-8) var(--zx-space-12);
+  border: 1px solid var(--zx-border-default);
+  border-radius: var(--zx-radius-sm);
+  background: var(--zx-bg-raised);
+}
+
+.zx-bubble--open {
+  border-style: dashed;
+  background: none;
+  color: var(--zx-text-muted);
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────── */
+
+.zx-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zx-space-32);
+  padding-top: var(--zx-section-top);
+}
+
+.zx-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zx-space-12);
+}
+
+.zx-figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zx-space-12);
+}
+
+.zx-shot {
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  border: 1px solid var(--zx-border-default);
+  border-radius: var(--zx-radius-md);
+  background: var(--zx-bg-fold);
+  object-fit: cover;
+}
+
+.zx-figure-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--zx-space-24);
+}
+
+.zx-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zx-space-32);
+}
+
+.zx-group {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+.zx-group__label {
+  display: flex;
+  gap: var(--zx-space-12);
+  padding-top: var(--zx-space-20);
+  font-size: 1.25rem;
+  font-weight: var(--zx-weight-strong);
+  line-height: 1.75rem;
+}
+
+.zx-step__n {
+  color: var(--zx-text-accent);
+}
+
+.zx-row {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  column-gap: var(--zx-space-32);
+  row-gap: var(--zx-space-4);
+  padding: var(--zx-space-20) 0;
+  border-top: 1px solid var(--zx-border-default);
+}
+
+.zx-row > dt {
+  font-weight: var(--zx-weight-strong);
+}
+
+.zx-row > dd {
+  color: var(--zx-text-muted);
+}
+
+.zx-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zx-space-12);
+  min-width: 0;
+  padding-top: var(--zx-space-12);
+}
+
+.zx-code {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--zx-space-16);
+  padding: var(--zx-space-16) var(--zx-space-20);
+  border: 1px solid var(--zx-border-default);
+  border-radius: var(--zx-radius-md);
+  background: var(--zx-bg-raised);
+}
+
+.zx-code__pre {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  font-family: var(--zx-font-mono);
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+}
+
+.zx-code__pre > code {
+  font: inherit;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────────── */
+
+.zx-footer {
+  margin-top: var(--zx-section-top);
+  border-top: 1px solid var(--zx-border-default);
+}
+
+.zx-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--zx-space-16);
+  padding-block: var(--zx-space-32);
+}
+
+.zx-footer__left {
+  display: flex;
+  align-items: center;
+  gap: var(--zx-space-12);
+}
+
+.zx-footer__mark {
+  flex: none;
+}
+
+/* ── Narrow windows ────────────────────────────────────────────────────── */
+
+@media (max-width: 859.98px) {
+  .zx-nav {
+    display: none;
+  }
+
+  .zx-lead,
+  .zx-sub {
+    max-width: none;
+  }
+
+  .zx-figure-row,
+  .zx-group,
+  .zx-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .zx-row {
+    padding: var(--zx-space-16) 0;
+  }
+
+  .zx-code {
+    flex-direction: column;
+    gap: var(--zx-space-12);
+    padding: var(--zx-space-16);
+  }
+
+  .zx-code__pre {
+    flex: none;
+    width: 100%;
+  }
+
+  .zx-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .zx-footer__left {
+    align-items: flex-start;
+  }
+}
