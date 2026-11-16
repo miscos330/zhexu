@@ -135,7 +135,8 @@
     address.removeAttribute('data-i18n');
     address.textContent = `${repo}.git`;
     document.getElementById('zx-repo-note').hidden = true;
-    document.getElementById('zx-license').href = `${repo}/blob/main/LICENSE`;
+    // HEAD is the repository's default branch, whatever it is called.
+    document.getElementById('zx-license').href = `${repo}/blob/HEAD/LICENSE`;
   }
 
   /** A strip or code block that scrolls sideways must be reachable from the keyboard. */

@@ -31,21 +31,22 @@ assets/
 
 `tools/` and this file are not part of the page.
 
-## When the repository is public
+## Repository address
 
-Set its address on the first line of the markup:
+The address of the public repository is set on the first line of the markup:
 
 ```html
-<html lang="zh-CN" data-repo="https://github.com/<owner>/<repo>">
+<html lang="zh-CN" data-repo="https://github.com/miscos330/zhexu">
 ```
 
-The "source coming soon" button becomes a link to the repository, the clone
-command shows the real address and the license link points at the repository's
-own `LICENSE`. Until then the page says that the source is not public yet, and
-the license link goes to upstream's.
+It gives the source button its link, puts the real address into the clone
+command and points the license link at the repository's own `LICENSE`. The app
+has its own copy of this address, `ZHEXU_LINKS.source` in
+`extensions/zhexu/brand.ts`; a test keeps the two the same.
 
-The app has its own copy of this link: `ZHEXU_LINKS.source` in
-`extensions/zhexu/brand.ts`.
+A deployment whose repository is not public yet leaves `data-repo` empty. The
+page then says that the source is coming soon, shows a placeholder in the clone
+command and sends the license link to upstream's `LICENSE`.
 
 ## Text
 

@@ -9,6 +9,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
 import { describe, expect, it } from 'vitest';
+import { ZHEXU_LINKS } from '@/extensions/zhexu/brand';
 
 const ROOT = process.cwd();
 const SITE = join(ROOT, 'extensions', 'zhexu', 'site');
@@ -129,6 +130,11 @@ describe('showcase page files', () => {
     for (const path of paths) expect(html).toContain(path);
     expect(read('assets/zhexu-mark.svg')).toBe(readFileSync(join(brand, 'zhexu-mark.svg'), 'utf8'));
     expect(existsSync(join(SITE, 'assets', 'fonts', 'OFL.txt'))).toBe(true);
+  });
+
+  it('names the same repository as the app', () => {
+    const repo = html.match(/<html\b[^>]*\sdata-repo="([^"]*)"/)?.[1];
+    expect(repo).toBe(ZHEXU_LINKS.source ?? '');
   });
 });
 
