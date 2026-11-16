@@ -46,6 +46,9 @@ extensions/
     site/          the static showcase page, see site/README.md
 public/extensions/zhexu/   brand assets and their provenance
 tests/extensions/          tests
+.github/README.md          the ZHEXU front page, with README-zh.md beside it.
+                           GitHub shows it in place of the README at the root,
+                           which stays upstream's
 ```
 
 The only upstream files touched are `app/layout.tsx` (two imports, the
