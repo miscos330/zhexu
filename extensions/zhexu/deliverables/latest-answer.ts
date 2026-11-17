@@ -1,4 +1,13 @@
-import { DELIVERABLE_TOOL_NAMES, isDeliverableDownloadUrl } from './contract';
+import {
+  DELIVERABLE_CARD_TOOL_NAMES,
+  DELIVERABLE_TOOL_NAMES,
+  isDeliverableDownloadUrl,
+} from './contract';
+
+/** Tools that deliver files: what is said after one ran is a report on those files. */
+const DELIVERY_TOOL_NAMES = [
+  ...new Set([...DELIVERABLE_TOOL_NAMES, ...DELIVERABLE_CARD_TOOL_NAMES]),
+];
 
 interface Message {
   role: string;
@@ -28,21 +37,21 @@ const calls = (message: Message, names?: readonly string[]) =>
       (!names || (typeof part.name === 'string' && names.includes(part.name))),
   );
 
-/** True when a handout tool was called earlier in the same turn as the message at `index`. */
+/** True when a file-delivering tool was called earlier in the same turn as the message at `index`. */
 function followsHandoutCall(messages: readonly unknown[], index: number): boolean {
   for (let i = index - 1; i >= 0; i -= 1) {
     const message = messages[i] as Message | null | undefined;
     if (!message || typeof message !== 'object') continue;
     if (message.role === 'user') return false;
-    if (message.role === 'assistant' && calls(message, DELIVERABLE_TOOL_NAMES)) return true;
+    if (message.role === 'assistant' && calls(message, DELIVERY_TOOL_NAMES)) return true;
   }
   return false;
 }
 
 /**
  * The answer "export the last answer" means: the newest assistant message that
- * is text, calls no tool, was not written after a handout tool ran in the same
- * turn and does not itself hand out a handout link. What the assistant says
+ * is text, calls no tool, was not written after a handout or annotation tool ran
+ * in the same turn and does not itself hand out a handout link. What the assistant says
  * about an export ("here are the files", "it failed") is not the content to
  * export, so a retry still finds the answer the user meant.
  */

@@ -52,7 +52,14 @@ export async function registerFonts(): Promise<void> {
   const { GlobalFonts } = await import('@napi-rs/canvas');
   if (fontsReady) return;
   for (const [file, family] of FONTS) {
-    if (!GlobalFonts.registerFromPath(path.join(process.cwd(), file), family))
+    // Read at run time from `public/`, which a deployment ships as it is. The
+    // comment keeps the build from tracing every file under the project root.
+    if (
+      !GlobalFonts.registerFromPath(
+        path.join(/* turbopackIgnore: true */ process.cwd(), file),
+        family,
+      )
+    )
       throw Error('deliverable_font_unavailable');
   }
   fontsReady = true;

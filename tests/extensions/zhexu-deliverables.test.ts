@@ -426,6 +426,21 @@ describe('choosing the answer to export', () => {
     ).toBe('第一课：光的折射');
   });
 
+  it('skips what the assistant said about an annotated image', () => {
+    expect(
+      latestExportableAnswer([
+        { role: 'assistant', content: [{ type: 'text', text: '第一课：光的折射' }] },
+        { role: 'user', content: '给这张图加标注' },
+        { role: 'assistant', content: [{ type: 'toolCall', name: 'view_material_image' }] },
+        { role: 'toolResult', content: [{ type: 'text', text: 'viewId=…' }] },
+        { role: 'assistant', content: [{ type: 'toolCall', name: 'annotate_image' }] },
+        { role: 'toolResult', content: [{ type: 'text', text: '{}' }] },
+        { role: 'assistant', content: [{ type: 'text', text: '标注图已经生成，请核对位置。' }] },
+        { role: 'user', content: '把上面那条回答导出成讲义' },
+      ]),
+    ).toBe('第一课：光的折射');
+  });
+
   it('keeps an answer written after other tools ran', () => {
     expect(
       latestExportableAnswer([
