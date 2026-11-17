@@ -43,11 +43,12 @@ const FONTS: ReadonlyArray<readonly [file: string, family: string]> = [
 ];
 
 /** The printed face and its fallbacks, in order; a character is drawn by the first font that has it. */
-const TEXT_FAMILY =
+export const TEXT_FAMILY =
   'ZhexuDocument, ZhexuDocumentAR, ZhexuDocumentKR, ZhexuDocumentCY, ZhexuDocumentMath, ZhexuDocumentGreek';
 
 let fontsReady = false;
-async function registerFonts(): Promise<void> {
+/** Register the extension's fonts with the canvas once per process. */
+export async function registerFonts(): Promise<void> {
   const { GlobalFonts } = await import('@napi-rs/canvas');
   if (fontsReady) return;
   for (const [file, family] of FONTS) {

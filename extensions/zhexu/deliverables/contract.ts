@@ -55,12 +55,22 @@ export const DELIVERABLE_TOOL_NAMES = [
   'verify_deliverable',
 ] as const;
 
-/** The tools whose result the chat shows as a handout card. */
+/**
+ * The tools whose result the chat shows as a file card: the handout tools and
+ * the image annotation tool, which delivers its files the same way.
+ */
 export const DELIVERABLE_CARD_TOOL_NAMES: readonly string[] = [
   'create_deliverable',
   'export_deliverable',
   'verify_deliverable',
+  'annotate_image',
 ];
+
+/**
+ * What the extension records in a material's `sourceUrl` for a file it made.
+ * Only materials carrying it are served by the download endpoint.
+ */
+export const DELIVERED_FILE_PROVENANCE = /^urn:zhexu:(deliverable|annotation):/;
 
 const DOWNLOAD_BASE = '/api/extensions/zhexu/deliverables';
 

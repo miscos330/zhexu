@@ -14,6 +14,12 @@ export interface DeploymentAgentToolContext {
   ownerId: string;
   /** The conversation so far, read when a tool runs. */
   messages: () => readonly unknown[];
+  /**
+   * True only when the run's model is declared vision-capable. Images in a tool
+   * result reach no other model, so a tool that shows the model an image must
+   * not be offered without it.
+   */
+  modelSeesImages: boolean;
 }
 
 export async function deploymentAgentTools(

@@ -8,7 +8,7 @@
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { DeploymentToolCard } from '@/extensions/tool-cards';
+import { DeploymentToolCard, DeploymentToolCards } from '@/extensions/tool-cards';
 import { deliverableDownloadUrl } from '@/extensions/zhexu/deliverables/contract';
 import type { ChatNode } from '@/lib/workbench/session-store';
 
@@ -81,6 +81,32 @@ describe('tool card seam', () => {
   });
 });
 
+describe('cards of a row of tool calls', () => {
+  function mountRow(nodes: ChatNode[], extension: 'zhexu' | null = 'zhexu') {
+    const host = document.createElement('div');
+    document.body.append(host);
+    const root = createRoot(host);
+    roots.push(root);
+    act(() => root.render(createElement(DeploymentToolCards, { nodes, extension })));
+    return host;
+  }
+  const row = (): ChatNode[] => [
+    { ...node('list_materials', {}), key: 'a' },
+    { key: 'b', kind: 'thinking', text: '' } as ChatNode,
+    { ...node('export_deliverable', details()), key: 'c' },
+    { ...node('create_deliverable', details()), key: 'd', toolState: 'running' } as ChatNode,
+  ];
+
+  it('shows the card of each finished call of the extension’s tools, and only those', () => {
+    const host = mountRow(row());
+    expect(host.querySelectorAll('[data-testid="zhexu-deliverable-card"]')).toHaveLength(1);
+  });
+
+  it('renders nothing without an extension', () => {
+    expect(mountRow(row(), null).innerHTML).toBe('');
+  });
+});
+
 describe('handout card', () => {
   it('shows the preview and a download link per file', () => {
     const host = mount(node('create_deliverable', details()));
@@ -136,6 +162,30 @@ describe('handout card', () => {
     );
     expect(host.querySelector('[role="status"]')?.textContent).toContain('A file is missing');
     expect(host.querySelectorAll('a')).toHaveLength(1);
+  });
+
+  it('reminds the reader to check an annotated image and offers no handout check', () => {
+    const host = mount(
+      node('annotate_image', {
+        status: 'saved',
+        deliveryState: 'delivered',
+        kind: 'annotation',
+        sessionId: 's1',
+        title: 'Plant cell',
+        imageId: 'mat_img',
+        files: [file('png', 'mat_png'), file('pdf', 'mat_pdf')],
+      }),
+    );
+    expect(card(host)?.getAttribute('aria-label')).toBe('Annotated image files');
+    expect(host.textContent).toContain('check the positions before use');
+    expect(host.querySelectorAll('a')).toHaveLength(2);
+    expect(host.querySelector('button')).toBeNull();
+  });
+
+  it('shows no reminder on a handout', () => {
+    expect(mount(node('create_deliverable', details())).textContent).not.toContain(
+      'check the positions',
+    );
   });
 
   it('checks the files again on request and shows the server’s answer', async () => {

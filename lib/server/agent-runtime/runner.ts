@@ -1825,6 +1825,7 @@ async function executeSession(
             sessionId: id,
             ownerId: meta.ownerId,
             messages: () => agent.state.messages,
+            modelSeesImages: driver.connection.modelInfo?.capabilities?.vision === true,
           });
 
           const candidateTools = assembleRunnerTools(

@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const state = vi.hoisted(() => ({
   runtime: true,
   enabled: true,
+  annotations: false,
   ownerId: 'user:one',
   sessions: new Map<string, { id: string; ownerId: string }>(),
   materials: new Map<string, Record<string, unknown>>(),
@@ -20,6 +21,9 @@ vi.mock('@/lib/config/feature-flags', () => ({
 }));
 vi.mock('@/extensions/zhexu/deliverables/enabled', () => ({
   zhexuDeliverablesEnabled: () => state.enabled,
+}));
+vi.mock('@/extensions/zhexu/annotations/enabled', () => ({
+  zhexuImageAnnotationsEnabled: () => state.annotations,
 }));
 vi.mock('@/lib/server/identity/with-owner', () => ({
   withRequestOwner: (
@@ -115,6 +119,7 @@ const verify = (sessionId: string, sourceId: string) =>
 beforeEach(() => {
   state.runtime = true;
   state.enabled = true;
+  state.annotations = false;
   state.ownerId = 'user:one';
   state.sessions.clear();
   state.materials.clear();
@@ -151,6 +156,25 @@ describe('handout download', () => {
     state.ownerId = 'user:two';
     expect((await download('s1', 'mat_pdf')).status).toBe(404);
     expect((await download('s2', 'mat_pdf')).status).toBe(404);
+  });
+
+  it('serves an annotated image with only the annotation switch on, and no handout check', async () => {
+    put(
+      'mat_note',
+      's1',
+      'cell-annotated.png',
+      PNG,
+      'image/png',
+      `urn:zhexu:annotation:${'b'.repeat(64)}:png:${sha(PNG)}`,
+    );
+    state.enabled = false;
+    expect((await download('s1', 'mat_note')).status).toBe(404);
+    state.annotations = true;
+    const response = await download('s1', 'mat_note');
+    expect(response.status).toBe(200);
+    expect(response.headers.get('Content-Type')).toBe('image/png');
+    expect((await download('s1', 'mat_upload')).status).toBe(404);
+    expect((await verify('s1', 'mat_rec')).status).toBe(404);
   });
 
   it('does not serve session materials that are not handout files', async () => {

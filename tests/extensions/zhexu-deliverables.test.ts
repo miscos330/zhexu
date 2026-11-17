@@ -470,7 +470,12 @@ describe('handout links', () => {
 });
 
 describe('agent tool seam', () => {
-  const context = { sessionId: 's1', ownerId: 'user:one', messages: () => [] };
+  const context = {
+    sessionId: 's1',
+    ownerId: 'user:one',
+    messages: () => [],
+    modelSeesImages: false,
+  };
 
   afterEach(() => {
     vi.unstubAllEnvs();

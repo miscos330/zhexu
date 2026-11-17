@@ -22,6 +22,7 @@ interface CardFile {
 
 interface CardDetails {
   status?: string;
+  kind?: string;
   title?: string;
   sourceId?: string;
   sessionId?: string;
@@ -45,9 +46,10 @@ function shownFiles(details: CardDetails): CardFile[] {
 }
 
 /**
- * The handout a tool call produced: a preview of the first page, its download
- * links and whether the files are still intact. "Check files" asks the server
- * to verify the saved bytes again; it calls no model.
+ * The files a tool call delivered, a handout or an annotated image: a preview
+ * of the first page, the download links and whether the files are still intact.
+ * For a handout, "Check files" asks the server to verify the saved bytes again;
+ * it calls no model. An annotated image carries a reminder to check the labels.
  */
 export function DeliverableCard({ node }: { node: ChatNode }) {
   const { locale } = useI18n();
@@ -79,6 +81,8 @@ export function DeliverableCard({ node }: { node: ChatNode }) {
 
   const state = details.deliveryState ?? (files.length ? 'delivered' : 'missing');
   const preview = files.find((file) => file.format === 'png');
+  const annotation = details.kind === 'annotation';
+  const label = annotation ? m.annotationLabel : m.deliveryLabel;
   const status = failed
     ? m.deliveryVerifyFailed
     : !files.length
@@ -127,8 +131,8 @@ export function DeliverableCard({ node }: { node: ChatNode }) {
 
   return (
     <section
-      aria-label={m.deliveryLabel}
-      className="mx-3 mb-3 rounded-lg border border-border p-3"
+      aria-label={label}
+      className="rounded-lg border border-border bg-card p-3"
       data-testid="zhexu-deliverable-card"
       data-delivery-state={state}
     >
@@ -139,13 +143,16 @@ export function DeliverableCard({ node }: { node: ChatNode }) {
           src={preview.download}
           width={310}
           height={438}
-          alt={details.title ?? m.deliveryLabel}
+          alt={details.title ?? label}
           className="mt-2 h-auto max-h-72 w-auto max-w-full rounded border border-border object-contain"
         />
       ) : null}
       <p className="mt-2 text-xs text-muted-foreground" role="status">
         {status}
       </p>
+      {annotation && files.length ? (
+        <p className="mt-1 text-xs text-muted-foreground">{m.annotationReview}</p>
+      ) : null}
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {files.map((file) => (
           <a

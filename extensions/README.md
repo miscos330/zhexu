@@ -28,7 +28,7 @@ rebuild after changing it. Unknown values select nothing.
 | Colours                                                           | custom properties scoped to `html[data-brand='<id>']`                | `app/globals.css`, Tailwind's colour scales     |
 | Browser tab title, description                                    | `extensions/metadata.ts`                                             | the `metadata` export of `app/layout.tsx`       |
 | Agent tools of its own                                            | `extensions/agent-tools.ts`, called once per run                     | `lib/server/agent-runtime/runner.ts`            |
-| What the conversation shows under a finished call of such a tool  | `extensions/tool-cards.tsx`                                          | `components/workbench/chat/tool-card.tsx`       |
+| What the conversation shows for a finished call of such a tool    | `extensions/tool-cards.tsx`                                          | `components/workbench/chat/action-cluster.tsx`  |
 | HTTP endpoints of its own                                         | route files under `app/api/extensions/<id>/` that only forward       | none                                            |
 
 ## Files
@@ -50,6 +50,7 @@ extensions/
     agent-tools.ts the extension's agent tools, each behind its own switch
     tool-cards.tsx the cards of those tools
     deliverables/  A4 handouts, see below
+    annotations/   image annotations, see below
   agent-tools.ts   server seam: the active extension's agent tools
   tool-cards.tsx   client seam: the active extension's tool cards
 app/api/extensions/zhexu/  route files that forward to extensions/zhexu/
@@ -63,8 +64,9 @@ tests/extensions/          tests
 The only upstream files touched are `app/layout.tsx` (two imports, the
 `data-brand` attribute, the `DeploymentExtensions` wrapper and one spread in
 `metadata`), `lib/server/agent-runtime/runner.ts` (one import and one call that
-appends the extension's tools to the run's own), `components/workbench/chat/tool-card.tsx`
-(one import and one line), `next.config.ts` (`@napi-rs/canvas` added to
+appends the extension's tools to the run's own), `components/workbench/chat/action-cluster.tsx`
+(one import and a wrapper that puts the extension's cards under a row of tool
+calls, where they stay in view when the row folds), `next.config.ts` (`@napi-rs/canvas` added to
 `serverExternalPackages`) and `.env.example` (one section at the end).
 
 ## A4 handouts (ZHEXU)
@@ -119,6 +121,44 @@ Greek letters and common math signs. The handwriting face is Long Cang (SIL OFL
 Not covered: subscript and superscript digits such as ₁ (no shipped font has
 them), formulas (text is drawn as written, LaTeX is not typeset), tables and
 images. Text that needs more than sixteen pages is refused, not cut.
+
+## Image annotations (ZHEXU)
+
+With the switch on, the agent can look at a PNG, JPEG or WebP image the user
+attached and put numbered labels on it. The result is an A4 PNG and PDF: the
+image, a numbered marker with an arrow at every point and the labels listed
+underneath. The original image is never changed, and no image model is called.
+
+```env
+ZHEXU_IMAGE_ANNOTATIONS_ENABLED=true   # read at request time, no rebuild
+```
+
+| File in `zhexu/annotations/` | What it holds                                                          |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| `contract.ts`                | point and crop schemas, and the mapping from a view back to the original |
+| `render.ts`                  | the bounded preview shown to the model, and the annotated A4 page      |
+| `tools.ts`                   | `view_material_image` and `annotate_image`                              |
+| `enabled.ts`                 | the switch                                                             |
+
+How it works:
+
+- `view_material_image` returns a JPEG preview of the whole image or of one
+  crop, at most 32 KB and four looks per run, with a `viewId`.
+- `annotate_image` only accepts an image the model has looked at in this run.
+  Points given relative to a crop are mapped back to the original through the
+  rectangle that was actually cut. Points are refused when the image's bytes
+  changed after the look.
+- The files are saved and served like a handout's (same storage, same download
+  endpoint, same card), and the same annotation is drawn only once. The card
+  reminds the reader to check the positions.
+- The tools are offered only to a model the built-in registry declares
+  vision-capable. Upstream sends tool-result images to no other model, and
+  `openmaic.yml` cannot declare a custom OpenAI-compatible model as
+  vision-capable, so such a model does not get the tools.
+
+Not ported from the private edition: the dialog in which the user moves and
+edits the labels and saves a new revision, searching and importing images from
+the web, and source attribution.
 
 ## Theme
 

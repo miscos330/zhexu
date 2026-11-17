@@ -26,6 +26,8 @@ export interface ZhexuMessages {
   readonly deliveryVerify: string;
   readonly deliveryChecking: string;
   readonly deliveryPages: (pages: number) => string;
+  readonly annotationLabel: string;
+  readonly annotationReview: string;
 }
 
 const ZH: ZhexuMessages = {
@@ -51,6 +53,8 @@ const ZH: ZhexuMessages = {
   deliveryVerify: '核对文件',
   deliveryChecking: '正在核对…',
   deliveryPages: (pages) => `${pages} 页`,
+  annotationLabel: '图片标注文件',
+  annotationReview: '标注由 AI 辅助生成，使用前请核对位置。原图没有改动。',
 };
 
 const EN: ZhexuMessages = {
@@ -76,6 +80,9 @@ const EN: ZhexuMessages = {
   deliveryVerify: 'Check files',
   deliveryChecking: 'Checking…',
   deliveryPages: (pages) => (pages === 1 ? '1 page' : `${pages} pages`),
+  annotationLabel: 'Annotated image files',
+  annotationReview:
+    'The labels are AI-assisted: check the positions before use. The original image is unchanged.',
 };
 
 export function zhexuMessages(locale: string): ZhexuMessages {
