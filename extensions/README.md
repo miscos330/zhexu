@@ -66,8 +66,8 @@ The only upstream files touched are `app/layout.tsx` (two imports, the
 `metadata`), `lib/server/agent-runtime/runner.ts` (one import and one call that
 appends the extension's tools to the run's own), `components/workbench/chat/action-cluster.tsx`
 (one import and a wrapper that puts the extension's cards under a row of tool
-calls, where they stay in view when the row folds), `next.config.ts` (`@napi-rs/canvas` added to
-`serverExternalPackages`) and `.env.example` (one section at the end).
+calls, where they stay in view when the row folds) and `.env.example` (one
+section at the end).
 
 ## A4 handouts (ZHEXU)
 
@@ -192,11 +192,11 @@ out of date.
 - Docker builds: `Dockerfile` and `docker-compose.yml` pass each `NEXT_PUBLIC_*`
   value as a build argument, and `NEXT_PUBLIC_DEPLOYMENT_EXTENSION` is not among
   them yet.
-- Handouts in a production build: they have run under `pnpm dev` and the tests,
-  not in a standalone or Docker build. `@napi-rs/canvas` is a native package that
-  upstream does not load on the server; it is in `serverExternalPackages`, and
-  whether the traced output ships its binding and the fonts under `public/` is
-  not checked.
+- Handouts in a Docker image: they have run under `pnpm dev`, the tests and a
+  standalone build on Windows, not in a Docker build. `@napi-rs/canvas` is a
+  native package; upstream lists it in `serverExternalPackages` for its own PDF
+  rendering, and whether the image ships its Linux binding and the fonts under
+  `public/` is not checked.
 
 ## Add another extension
 

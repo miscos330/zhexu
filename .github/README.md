@@ -84,7 +84,7 @@ Models, Docker and the other options are covered in the upstream [Quick Start](/
 | [`tests/extensions/`](/tests/extensions) | Tests for all of the above |
 | [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | The checks that run on this branch |
 
-Five upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, `next.config.ts` keeps one native package out of the bundle, and `.env.example` documents the switches.
+Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, and `.env.example` documents the switches.
 
 ## Branches
 
