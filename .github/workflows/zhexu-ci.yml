@@ -1,0 +1,56 @@
+name: ZHEXU
+
+# Upstream's CI (ci.yml) runs for `main` and its integration branches only, so
+# the `zhexu` branch of this fork would otherwise have no checks at all. This
+# workflow covers what the fork adds: the whole tree still has to format, lint
+# and type-check, and the tests of the extension and of the two upstream areas
+# it hooks into (the workbench and the conversation) have to pass.
+#
+# It reuses upstream's workspace setup, so an upstream change to how the
+# workspace installs and builds is picked up by the next merge.
+
+on:
+  push:
+    branches: [zhexu]
+  pull_request:
+    branches: [zhexu]
+
+concurrency:
+  group: zhexu-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Format, lint, types and extension tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-workspace
+
+      # The root tsc reaches tests that load render-service sources, which
+      # resolve the standalone service's own Node dependencies (as in ci.yml).
+      - name: Install render-service dependencies
+        working-directory: render-service
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+        run: npm ci
+
+      - name: Prettier, ESLint, TypeScript, i18n
+        run: |
+          scripts/ci-run-parallel.sh \
+            'prettier' 'pnpm check' \
+            'eslint' 'pnpm lint' \
+            'tsc' 'npx tsc --noEmit' \
+            'i18n' 'pnpm check:i18n-keys'
+
+      # tests/extensions draws real handout and annotation pages, so this also
+      # proves the native canvas package and the shipped fonts work on Linux.
+      - name: Extension, workbench and conversation tests
+        run: pnpm exec vitest run tests/extensions tests/workbench tests/chat
