@@ -28,7 +28,7 @@ Available now:
 - **A4 handouts**: the assistant hands an answer over as real files, an A4 PDF and page images, optionally in a Chinese handwriting face. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Image annotations**: the assistant looks at an image you attached and puts numbered labels on it, as an A4 PNG and PDF. The original image is kept unchanged. [How it works](/extensions/README.md#image-annotations-zhexu).
 
-Both are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by tests and have run end to end on a development machine, in development mode and in a production build, with a scripted stand-in for the model. They have not been run with a real model yet.
+Both are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. They have not been run with a real model yet.
 
 | A handout in the handwriting face | An annotated image |
 | --- | --- |

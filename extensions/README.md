@@ -192,11 +192,10 @@ out of date.
   logo; the brand shows in the workbench shell.
 - Upstream locale strings that name the product ("Welcome to OpenMAIC" in the
   first-run tour, "About OpenMAIC" in the account menu) and the favicon.
-- Handouts in a Docker image: they have run under `pnpm dev`, the tests and a
-  standalone build on Windows, not in a Docker build. `@napi-rs/canvas` is a
-  native package; upstream lists it in `serverExternalPackages` for its own PDF
-  rendering, and whether the image ships its Linux binding and the fonts under
-  `public/` is not checked.
+- A real model: every run so far, on a development machine and in CI (a
+  production build and the Docker image, see `zhexu/e2e/README.md`), used a
+  scripted stand-in that calls the tools with fixed content. How a real model
+  uses the tools, and what it writes into a handout, is not checked.
 
 ## Add another extension
 

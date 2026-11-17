@@ -28,7 +28,7 @@
 - **A4 讲义**：助手把回答交付成真实文件，包括 A4 PDF 和页面图片，可选手写体。[实现方式](/extensions/README.md#a4-handouts-zhexu)。
 - **图片标注**：助手查看你附上的图片，加上带编号的标注，导出 A4 的 PNG 和 PDF；原图不改动。[实现方式](/extensions/README.md#image-annotations-zhexu)。
 
-这两个功能默认关闭，各有一个开关（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有测试覆盖，并在开发机上端到端跑通过，开发模式和生产构建都试过，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
+这两个功能默认关闭，各有一个开关（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有单元测试，也有[浏览器测试](/extensions/zhexu/e2e/README.md)：CI 会对着生产构建和 Docker 镜像各端到端跑一遍，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
 
 | 手写体讲义 | 图片标注 |
 | --- | --- |
