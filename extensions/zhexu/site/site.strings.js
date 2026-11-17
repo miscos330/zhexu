@@ -122,10 +122,16 @@ window.ZX_STRINGS = {
     'open.now.layer.term': 'Extension layer',
     'open.now.layer.desc':
       'New features are added without editing upstream core code, so upgrades stay easy.',
+    'open.now.handouts.term': 'A4 handouts',
+    'open.now.handouts.desc':
+      'The assistant delivers an answer as an A4 PDF and page images, in a handwriting font if you like. Off by default.',
+    'open.now.annotations.term': 'Image annotations',
+    'open.now.annotations.desc':
+      'The assistant adds numbered notes to an image you attach and exports a PNG and a PDF; the original is not changed. Off by default.',
     'open.next.label': 'Planned',
-    'open.next.deliverables.term': 'Finished documents',
+    'open.next.deliverables.term': 'More finished documents',
     'open.next.deliverables.desc':
-      'A4 handouts, annotated image export and editable Word documents.',
+      'Editable Word documents, and a page that lists the files the assistant has delivered.',
     'open.next.accounts.term': 'Accounts and usage',
     'open.next.accounts.desc': 'Sign-up and sign-in, with a usage limit per person.',
     'open.next.skills.term': 'Skills that improve',

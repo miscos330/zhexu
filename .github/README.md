@@ -95,6 +95,12 @@ Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts th
 
 An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`.
 
+What this fork has sent upstream so far (status as of 2026-11-17):
+
+- [#2286](https://github.com/THU-MAIC/OpenMAIC/pull/2286), pull request, open: six test files that failed on Windows.
+- [#2285](https://github.com/THU-MAIC/OpenMAIC/issues/2285), bug report, accepted by a maintainer: the standalone build output included the whole repository.
+- [#2306](https://github.com/THU-MAIC/OpenMAIC/discussions/2306), idea, open: let a deployment change the workbench accent colour.
+
 ## License
 
 MIT, the same as upstream. The original THU-MAIC copyright notice is kept. See [LICENSE](/LICENSE).

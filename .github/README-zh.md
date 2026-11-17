@@ -95,6 +95,12 @@ pnpm dev
 
 不是折序专用的改进应该提给上游，这样所有人都能用上，做法见 OpenMAIC 的 [CONTRIBUTING.md](/CONTRIBUTING.md)。对扩展、主题或展示页的修改，欢迎在这里向 `zhexu` 分支提 pull request。
 
+这个仓库到目前为止提给上游的内容（状态截至 2026-11-17）：
+
+- [#2286](https://github.com/THU-MAIC/OpenMAIC/pull/2286)，pull request，待评审：修复 Windows 上失败的六个测试文件。
+- [#2285](https://github.com/THU-MAIC/OpenMAIC/issues/2285)，Bug 报告，维护者已接受：独立构建产物里带上了整个仓库。
+- [#2306](https://github.com/THU-MAIC/OpenMAIC/discussions/2306)，功能想法，讨论中：让部署方可以更改工作台的强调色。
+
 ## 许可
 
 MIT，和上游相同，保留 THU-MAIC 的原版权声明。见 [LICENSE](/LICENSE)。
