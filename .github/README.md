@@ -38,9 +38,11 @@ These two pages are real output of the renderer, made from test content.
 
 Planned:
 
-- **More finished documents**: editable Word documents, and a page that lists the files the assistant delivered.
-- **Accounts and usage**: sign-up and sign-in, with a usage limit per person.
-- **Skills that improve**: teaching skills that refine themselves from how they are used.
+- **Course handouts**: export a finished course as an A4 handout.
+- **Worksheets**: a worksheet layout, a page of questions and a page of answers.
+- **My files**: one page that lists the handouts and annotated images the assistant has delivered.
+
+The direction is printable material for teachers, which is where ZHEXU differs from upstream.
 
 What the extension does not reach yet is listed in [`extensions/README.md`](/extensions/README.md#not-covered-yet).
 

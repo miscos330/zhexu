@@ -129,13 +129,13 @@ window.ZX_STRINGS = {
     'open.now.annotations.desc':
       'The assistant adds numbered notes to an image you attach and exports a PNG and a PDF; the original is not changed. Off by default.',
     'open.next.label': 'Planned',
-    'open.next.deliverables.term': 'More finished documents',
-    'open.next.deliverables.desc':
-      'Editable Word documents, and a page that lists the files the assistant has delivered.',
-    'open.next.accounts.term': 'Accounts and usage',
-    'open.next.accounts.desc': 'Sign-up and sign-in, with a usage limit per person.',
-    'open.next.skills.term': 'Skills that improve',
-    'open.next.skills.desc': 'Teaching skills that refine themselves from how they are used.',
+    'open.next.course.term': 'Course handouts',
+    'open.next.course.desc': 'Export a finished course as an A4 handout.',
+    'open.next.worksheets.term': 'Worksheets',
+    'open.next.worksheets.desc': 'A worksheet layout: a page of questions and a page of answers.',
+    'open.next.files.term': 'My files',
+    'open.next.files.desc':
+      'One page that lists the handouts and annotated images the assistant has delivered.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',
