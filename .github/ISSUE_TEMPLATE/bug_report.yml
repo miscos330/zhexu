@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug or unexpected behavior
+description: Report a bug in what ZHEXU adds (handouts, image annotations, the theme, the showcase page)
 title: "[Bug]: "
 labels: ["bug"]
 body:
@@ -7,6 +7,8 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report a bug! Please fill out the information below to help us investigate.
+
+        This repository is ZHEXU, a downstream edition of OpenMAIC. If the bug also happens with `NEXT_PUBLIC_DEPLOYMENT_EXTENSION` unset, it is in OpenMAIC itself: please report it [upstream](https://github.com/THU-MAIC/OpenMAIC/issues/new?template=bug_report.yml), where everyone gets the fix.
 
         Before submitting, please search existing issues for duplicates and remove API keys, access tokens, personal data, and other secrets from logs, screenshots, or recordings.
 
@@ -62,9 +64,9 @@ body:
   - type: input
     id: version
     attributes:
-      label: OpenMAIC Version
-      description: Which release, commit SHA, or Docker image tag are you using?
-      placeholder: e.g. v0.4.2, 40ff80a, or latest
+      label: Version
+      description: Which commit of this repository are you using? (`git rev-parse --short HEAD`)
+      placeholder: e.g. 44431c9d
     validations:
       required: true
 
@@ -72,15 +74,13 @@ body:
     id: area
     attributes:
       label: Affected Area
-      description: Which part of OpenMAIC is affected?
+      description: Which part of ZHEXU is affected?
       options:
-        - Classroom generation
-        - Playback / presentation
-        - Editor / canvas
-        - Import / export
-        - Model / provider integration
-        - Storage / persistence
-        - Deployment / infrastructure
+        - A4 handouts
+        - Image annotations
+        - Brand and theme
+        - Showcase page
+        - Running or building this repository
         - Documentation
         - Other
     validations:

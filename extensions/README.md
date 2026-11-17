@@ -67,7 +67,9 @@ The only upstream files touched are `app/layout.tsx` (two imports, the
 appends the extension's tools to the run's own), `components/workbench/chat/action-cluster.tsx`
 (one import and a wrapper that puts the extension's cards under a row of tool
 calls, where they stay in view when the row folds) and `.env.example` (one
-section at the end).
+section at the end). Outside the code, the issue forms in
+`.github/ISSUE_TEMPLATE/` (`bug_report.yml`, `config.yml`) ask about this
+repository and point everything else upstream.
 
 ## A4 handouts (ZHEXU)
 

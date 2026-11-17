@@ -1,14 +1,15 @@
-blank_issues_enabled: false
+# ZHEXU: this file differs from upstream. Issues opened in this repository are
+# about what it adds (the extension, the theme, the showcase page). Anything
+# that also applies to OpenMAIC without the extension is sent upstream, where
+# everyone gets the fix.
+blank_issues_enabled: true
 contact_links:
-  - name: Feature idea
-    url: https://github.com/THU-MAIC/OpenMAIC/discussions/new?category=ideas
-    about: Propose a feature in Discussions (Ideas). Issues are for bugs; accepted ideas become issues.
-  - name: Question
-    url: https://github.com/THU-MAIC/OpenMAIC/discussions/new?category=q-a
-    about: Ask how to use or deploy OpenMAIC in Discussions (Q&A), where answers stay searchable
+  - name: Bug in OpenMAIC itself
+    url: https://github.com/THU-MAIC/OpenMAIC/issues/new?template=bug_report.yml
+    about: A bug that also happens without the ZHEXU extension belongs upstream, where everyone gets the fix
+  - name: Question or idea about OpenMAIC itself
+    url: https://github.com/THU-MAIC/OpenMAIC/discussions
+    about: How to use or deploy the classroom, and ideas for it, are discussed in upstream's Discussions
   - name: Report a Security Vulnerability
     url: https://github.com/THU-MAIC/OpenMAIC/security/advisories/new
-    about: Privately report a security vulnerability instead of opening a public issue
-  - name: Discord Community
-    url: https://discord.gg/p8Pf2r3SaG
-    about: Chat with the community
+    about: Privately report a vulnerability in OpenMAIC to its maintainers instead of opening a public issue

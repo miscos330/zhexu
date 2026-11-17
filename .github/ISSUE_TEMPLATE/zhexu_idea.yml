@@ -1,0 +1,33 @@
+name: Idea for ZHEXU
+description: Suggest something for the extension, the theme or the showcase page
+title: "[Idea]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! This form is for what ZHEXU adds on top of OpenMAIC: A4 handouts, image annotations, the brand and theme, and the showcase page.
+
+        An idea for the classroom itself reaches more people in [upstream's Discussions (Ideas)](https://github.com/THU-MAIC/OpenMAIC/discussions/new?category=ideas).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem do you want solved?
+      description: Who runs into it, and when?
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What would a good outcome look like?
+      description: Describe the result, not necessarily how to build it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Examples, sketches or links that help.

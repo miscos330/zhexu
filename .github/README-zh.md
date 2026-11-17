@@ -84,7 +84,7 @@ pnpm dev
 | [`tests/extensions/`](/tests/extensions) | 以上内容的测试 |
 | [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | 这个分支上运行的检查 |
 
-上游文件改了四个，每个只有几行：`app/layout.tsx` 挂载扩展；`lib/server/agent-runtime/runner.ts` 把扩展的工具加进一次运行；`components/workbench/chat/action-cluster.tsx` 在对话里显示扩展的卡片；`.env.example` 说明各个开关。
+上游文件改了四个，每个只有几行：`app/layout.tsx` 挂载扩展；`lib/server/agent-runtime/runner.ts` 把扩展的工具加进一次运行；`components/workbench/chat/action-cluster.tsx` 在对话里显示扩展的卡片；`.env.example` 说明各个开关。另外改了 `.github/ISSUE_TEMPLATE/` 下的议题表单，让在这里提的议题针对本仓库，其他问题指向上游。
 
 ## 分支
 
@@ -93,7 +93,7 @@ pnpm dev
 
 ## 参与贡献
 
-不是折序专用的改进应该提给上游，这样所有人都能用上，做法见 OpenMAIC 的 [CONTRIBUTING.md](/CONTRIBUTING.md)。对扩展、主题或展示页的修改，欢迎在这里向 `zhexu` 分支提 pull request。
+不是折序专用的改进应该提给上游，这样所有人都能用上，做法见 OpenMAIC 的 [CONTRIBUTING.md](/CONTRIBUTING.md)。对扩展、主题或展示页的修改，欢迎在这里向 `zhexu` 分支提 pull request；它们的问题可以在本仓库提议题。
 
 这个仓库到目前为止提给上游的内容（状态截至 2026-11-17）：
 

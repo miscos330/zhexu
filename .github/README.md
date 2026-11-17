@@ -84,7 +84,7 @@ Models, Docker and the other options are covered in the upstream [Quick Start](/
 | [`tests/extensions/`](/tests/extensions) | Tests for all of the above |
 | [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | The checks that run on this branch |
 
-Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, and `.env.example` documents the switches.
+Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, and `.env.example` documents the switches. The issue forms under `.github/ISSUE_TEMPLATE/` are changed as well, so that an issue opened here is about this repository and anything else is pointed upstream.
 
 ## Branches
 
@@ -93,7 +93,7 @@ Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts th
 
 ## Contributing
 
-An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`.
+An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`, and problems with them as issues in this repository.
 
 What this fork has sent upstream so far (status as of 2026-11-17):
 
