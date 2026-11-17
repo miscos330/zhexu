@@ -1,0 +1,68 @@
+name: ZHEXU showcase page
+
+# Publishes the static showcase page (extensions/zhexu/site) to GitHub Pages.
+#
+# The page has no build step: the first job copies the files that
+# extensions/zhexu/site/README.md lists under "Publish" and uploads them, the
+# second deploys that upload. Every address in the page is relative, so it
+# works under the repository's path on github.io as well as at a host's root.
+#
+# Pages has to be enabled for the repository with "GitHub Actions" as the
+# source. Until it is, this workflow fails and nothing is published.
+
+on:
+  push:
+    branches: [zhexu]
+    paths:
+      - 'extensions/zhexu/site/**'
+      - '.github/workflows/zhexu-pages.yml'
+  workflow_dispatch:
+
+# One deployment at a time; a newer one waits for the one in progress to finish.
+concurrency:
+  group: zhexu-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    name: Collect the page
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          sparse-checkout: extensions/zhexu/site
+
+      # `tools/` and the README are not part of the page.
+      - name: Copy the published files
+        run: |
+          set -euo pipefail
+          src=extensions/zhexu/site
+          mkdir -p _site
+          cp "$src/index.html" "$src/site.css" "$src/site.js" "$src/site.strings.js" _site/
+          cp -r "$src/assets" _site/assets
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  publish:
+    name: Publish to GitHub Pages
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

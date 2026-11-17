@@ -31,6 +31,12 @@ assets/
 
 `tools/` and this file are not part of the page.
 
+On GitHub, `.github/workflows/zhexu-pages.yml` does this copy and publishes the
+result to GitHub Pages whenever a file of the page changes on `zhexu`. It needs
+Pages enabled for the repository with "GitHub Actions" as the source. Every
+address in the page is relative, so it also works under a repository path such
+as `https://<account>.github.io/<repository>/`.
+
 ## Repository address
 
 The address of the public repository is set on the first line of the markup:
