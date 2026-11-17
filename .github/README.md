@@ -6,6 +6,8 @@ ZHEXU is an open-source AI classroom. Say what you want to learn: it plans an ou
 
 English | [简体中文](/.github/README-zh.md)
 
+[![ZHEXU checks](https://github.com/miscos330/zhexu/actions/workflows/zhexu-ci.yml/badge.svg?branch=zhexu)](https://github.com/miscos330/zhexu/actions/workflows/zhexu-ci.yml)
+
 ![The ZHEXU classroom: a slide in the middle, the teacher's narration under it and AI classmates on the right](/extensions/zhexu/site/assets/shots/classroom-light.webp)
 
 ## Built on OpenMAIC
@@ -22,11 +24,21 @@ Available now:
 
 - **Classroom**: everything upstream OpenMAIC does.
 - **Brand and theme**: the ZHEXU mark, colours and dark mode.
-- **Extension layer**: new features live under [`extensions/`](/extensions/README.md) and are added without editing upstream core code, so upgrades stay easy.
+- **Extension layer**: new features live under [`extensions/`](/extensions/README.md) and are added with a few small hooks into upstream code, so upgrades stay easy.
+- **A4 handouts**: the assistant hands an answer over as real files, an A4 PDF and page images, optionally in a Chinese handwriting face. [How it works](/extensions/README.md#a4-handouts-zhexu).
+- **Image annotations**: the assistant looks at an image you attached and puts numbered labels on it, as an A4 PNG and PDF. The original image is kept unchanged. [How it works](/extensions/README.md#image-annotations-zhexu).
+
+Both are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by tests and have run end to end on a development machine, in development mode and in a production build, with a scripted stand-in for the model. They have not been run with a real model yet.
+
+| A handout in the handwriting face | An annotated image |
+| --- | --- |
+| ![A sample A4 handout page set in a Chinese handwriting face](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![A sample annotated image: a drawing with numbered markers and the labels listed under it](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
+
+These two pages are real output of the renderer, made from test content.
 
 Planned:
 
-- **Finished documents**: A4 handouts, annotated image export and editable Word documents.
+- **More finished documents**: editable Word documents, and a page that lists the files the assistant delivered.
 - **Accounts and usage**: sign-up and sign-in, with a usage limit per person.
 - **Skills that improve**: teaching skills that refine themselves from how they are used.
 
@@ -66,12 +78,13 @@ Models, Docker and the other options are covered in the upstream [Quick Start](/
 | Path | What it is |
 | --- | --- |
 | [`extensions/`](/extensions/README.md) | The extension layer: which extension is active, and how one changes the brand, the theme and the workspace shell |
-| [`extensions/zhexu/`](/extensions/zhexu) | The ZHEXU extension: brand, theme and an about page |
+| [`extensions/zhexu/`](/extensions/zhexu) | The ZHEXU extension: brand, theme, an about page, A4 handouts and image annotations |
 | [`extensions/zhexu/site/`](/extensions/zhexu/site/README.md) | A static showcase page with no build step. Preview it with `node extensions/zhexu/site/tools/serve.mjs` |
 | [`public/extensions/zhexu/`](/public/extensions/zhexu) | Brand assets and where they come from |
 | [`tests/extensions/`](/tests/extensions) | Tests for all of the above |
+| [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | The checks that run on this branch |
 
-Two upstream files are touched: `app/layout.tsx`, to mount the extension, and `.env.example`, for one section of documentation.
+Five upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, `next.config.ts` keeps one native package out of the bundle, and `.env.example` documents the switches.
 
 ## Branches
 

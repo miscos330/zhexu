@@ -6,6 +6,8 @@
 
 [English](/.github/README.md) | 简体中文
 
+[![ZHEXU checks](https://github.com/miscos330/zhexu/actions/workflows/zhexu-ci.yml/badge.svg?branch=zhexu)](https://github.com/miscos330/zhexu/actions/workflows/zhexu-ci.yml)
+
 ![折序的课堂：中间是一页课件，下面是老师的讲解，右边是 AI 同学](/extensions/zhexu/site/assets/shots/classroom-light.webp)
 
 ## 基于 OpenMAIC
@@ -22,11 +24,21 @@
 
 - **课堂能力**：上游 OpenMAIC 的全部功能。
 - **品牌和主题**：折序的标识、配色和深色模式。
-- **扩展层**：新功能放在 [`extensions/`](/extensions/README.md) 下，加功能时不改上游的核心代码，方便跟着上游升级。
+- **扩展层**：新功能放在 [`extensions/`](/extensions/README.md) 下，只在上游代码里留几个很小的接入点，方便跟着上游升级。
+- **A4 讲义**：助手把回答交付成真实文件，包括 A4 PDF 和页面图片，可选手写体。[实现方式](/extensions/README.md#a4-handouts-zhexu)。
+- **图片标注**：助手查看你附上的图片，加上带编号的标注，导出 A4 的 PNG 和 PDF；原图不改动。[实现方式](/extensions/README.md#image-annotations-zhexu)。
+
+这两个功能默认关闭，各有一个开关（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有测试覆盖，并在开发机上端到端跑通过，开发模式和生产构建都试过，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
+
+| 手写体讲义 | 图片标注 |
+| --- | --- |
+| ![一页手写体的 A4 讲义样张](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![一张带标注的图片样张：图上有编号标记，标注列在图的下方](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
+
+这两页是渲染器的真实输出，内容是测试用的。
 
 计划中：
 
-- **成品交付**：A4 讲义、图片标注导出、可编辑的 Word 文档。
+- **更多成品交付**：可编辑的 Word 文档，以及一个列出助手交付过的文件的页面。
 - **账号和用量**：注册登录，以及每个人的用量上限。
 - **会进步的 skill**：根据使用情况自动改进教学 skill。
 
@@ -66,12 +78,13 @@ pnpm dev
 | 路径 | 内容 |
 | --- | --- |
 | [`extensions/`](/extensions/README.md) | 扩展层：启用哪个扩展，以及扩展怎样改品牌、主题和工作台外壳 |
-| [`extensions/zhexu/`](/extensions/zhexu) | 折序扩展：品牌、主题和“关于”页 |
+| [`extensions/zhexu/`](/extensions/zhexu) | 折序扩展：品牌、主题、“关于”页、A4 讲义和图片标注 |
 | [`extensions/zhexu/site/`](/extensions/zhexu/site/README.md) | 静态展示页，没有构建步骤。预览：`node extensions/zhexu/site/tools/serve.mjs` |
 | [`public/extensions/zhexu/`](/public/extensions/zhexu) | 品牌素材和它们的来源记录 |
 | [`tests/extensions/`](/tests/extensions) | 以上内容的测试 |
+| [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | 这个分支上运行的检查 |
 
-上游文件只改了两个：`app/layout.tsx`，用来挂载扩展；`.env.example`，加了一段说明。
+上游文件改了五个，每个只有几行：`app/layout.tsx` 挂载扩展；`lib/server/agent-runtime/runner.ts` 把扩展的工具加进一次运行；`components/workbench/chat/action-cluster.tsx` 在对话里显示扩展的卡片；`next.config.ts` 让一个原生依赖不被打进包里；`.env.example` 说明各个开关。
 
 ## 分支
 
