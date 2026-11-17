@@ -1446,6 +1446,8 @@
     "providerMiniMaxTTS": "MiniMax TTS",
     "providerXiaomiTTS": "Xiaomi MiMo TTS",
     "providerXiaomiASR": "Xiaomi MiMo ASR",
+    "providerDeepSeekTTS": "DeepSeek TTS",
+    "providerDeepSeekASR": "DeepSeek ASR",
     "providerGoogleTTS": "Google Gemini TTS",
     "providerLemonadeTTS": "Lemonade TTS (Local)",
     "providerBrowserNativeTTS": "Browser Native TTS",
@@ -1859,6 +1861,8 @@
       "capVideo": "Video generation",
       "capWebSearch": "Web search",
       "capWebFetch": "Web fetch",
+      "capAsr": "Speech recognition",
+      "capDocument": "Document parsing",
       "saved": "Connection settings saved",
       "stageInteractive": "Interactive",
       "stageSlide": "Slides",
@@ -2189,6 +2193,10 @@
         "webFetch": {
           "name": "Web Fetch",
           "desc": "Lets the agent read web pages approved in the session."
+        },
+        "materialChapters": {
+          "name": "Chapter recognition",
+          "desc": "Identifies chapters and sections in long documents."
         }
       },
       "source": {
@@ -2204,7 +2212,9 @@
           "search": "Search",
           "fetch": "Fetch",
           "image": "Image",
-          "video": "Video"
+          "video": "Video",
+          "parse": "Parse",
+          "chapters": "Chapters"
         }
       },
       "empty": {
@@ -2239,7 +2249,9 @@
     "webFetchSettings": "Web Fetch",
     "webFetchHint": "Choose how web pages are read. Hosted readers receive session-approved public URLs. Results remain untrusted, and failures do not switch readers.",
     "webFetchApiKey": "API Key",
-    "webFetchSharedKeyHint": "This key is also used for chat with this provider. Changing or removing it affects chat."
+    "webFetchSharedKeyHint": "This key is also used for chat with this provider. Changing or removing it affects chat.",
+    "autoConfirmRecommended": "Auto-confirm recommended answers",
+    "autoConfirmRecommendedDesc": "When the workbench agent asks a question and recommends an option, choose it after a short countdown if you don't respond. Any interaction stops the countdown."
   },
   "workspace": {
     "knowledgeBase": {
@@ -2275,6 +2287,11 @@
         "processing_interrupted": {
           "label": "Parsing did not finish",
           "description": "Parsing could not be completed. You can try again later."
+        },
+        "pages_failed": {
+          "label": "PDF pages failed to parse",
+          "description": "PDF pages {{firstPage}}–{{lastPage}} failed to parse, so this material cannot be read yet. Try parsing it again later.",
+          "descriptionWithoutCount": "Some PDF pages failed to parse, so this material cannot be read yet. Try parsing it again later."
         },
         "too_many_pages": {
           "label": "Too many pages",

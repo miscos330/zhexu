@@ -1446,6 +1446,8 @@
     "providerMiniMaxTTS": "MiniMax TTS",
     "providerXiaomiTTS": "Xiaomi MiMo TTS",
     "providerXiaomiASR": "Xiaomi MiMo ASR",
+    "providerDeepSeekTTS": "DeepSeek TTS",
+    "providerDeepSeekASR": "DeepSeek ASR",
     "providerGoogleTTS": "Google Gemini TTS",
     "providerLemonadeTTS": "Lemonade TTS (Cục bộ)",
     "providerBrowserNativeTTS": "Giọng đọc sẵn có của trình duyệt",
@@ -1859,6 +1861,8 @@
       "capVideo": "Tạo video",
       "capWebSearch": "Tìm kiếm web",
       "capWebFetch": "Lấy trang web",
+      "capAsr": "Nhận dạng giọng nói",
+      "capDocument": "Bóc tách tài liệu",
       "saved": "Đã lưu cài đặt kết nối",
       "stageInteractive": "Tương tác",
       "stageSlide": "Trang slide",
@@ -2189,6 +2193,10 @@
         "webFetch": {
           "name": "Lấy trang web",
           "desc": "Để tác tử đọc các trang web được cho phép trong phiên."
+        },
+        "materialChapters": {
+          "name": "Nhận diện chương",
+          "desc": "Nhận diện các chương và mục trong tài liệu dài."
         }
       },
       "source": {
@@ -2204,7 +2212,9 @@
           "search": "Tìm kiếm",
           "fetch": "Đọc trang",
           "image": "Ảnh",
-          "video": "Video"
+          "video": "Video",
+          "parse": "Phân tích",
+          "chapters": "Chương"
         }
       },
       "empty": {
@@ -2239,7 +2249,9 @@
     "webFetchSettings": "Lấy trang web",
     "webFetchHint": "Chọn cách đọc trang web. Dịch vụ lưu trữ chỉ nhận URL công khai được cho phép trong phiên. Kết quả vẫn là dữ liệu không đáng tin cậy và lỗi không làm chuyển sang dịch vụ khác.",
     "webFetchApiKey": "Khóa API",
-    "webFetchSharedKeyHint": "Khóa này cũng được dùng để trò chuyện với nhà cung cấp này. Thay đổi hoặc xóa khóa sẽ ảnh hưởng đến trò chuyện."
+    "webFetchSharedKeyHint": "Khóa này cũng được dùng để trò chuyện với nhà cung cấp này. Thay đổi hoặc xóa khóa sẽ ảnh hưởng đến trò chuyện.",
+    "autoConfirmRecommended": "Tự động xác nhận câu trả lời đề xuất",
+    "autoConfirmRecommendedDesc": "Khi tác nhân đặt câu hỏi kèm phương án đề xuất, phương án đó sẽ được chọn sau một khoảng đếm ngược ngắn nếu bạn không phản hồi. Mọi thao tác đều dừng đếm ngược."
   },
   "workspace": {
     "knowledgeBase": {
@@ -2275,6 +2287,11 @@
         "processing_interrupted": {
           "label": "Phân tích chưa hoàn tất",
           "description": "Không thể hoàn tất phân tích. Bạn có thể thử lại sau."
+        },
+        "pages_failed": {
+          "label": "Không thể phân tích các trang PDF",
+          "description": "Không thể phân tích các trang {{firstPage}}–{{lastPage}} của PDF nên hiện chưa thể đọc tài liệu này. Hãy thử phân tích lại sau.",
+          "descriptionWithoutCount": "Không thể phân tích một số trang của PDF nên hiện chưa thể đọc tài liệu này. Hãy thử phân tích lại sau."
         },
         "too_many_pages": {
           "label": "Quá nhiều trang",

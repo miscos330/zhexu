@@ -42,9 +42,6 @@ const nextConfig: NextConfig = {
   // Mark them server-external so Next loads them natively and the dynamic
   // import resolves as a real Node call.
   serverExternalPackages: [
-    // Native Node addon (the ZHEXU extension draws handout pages with it):
-    // bundled, it cannot find its .node binding.
-    '@napi-rs/canvas',
     '@earendil-works/pi-ai',
     '@earendil-works/pi-agent-core',
     '@openmaic/generation',
@@ -55,6 +52,10 @@ const nextConfig: NextConfig = {
     // egress cannot resolve their SDK in the shipped deployment.
     '@aws-sdk/client-s3',
     '@aws-sdk/s3-request-presigner',
+    // Native canvas backend for server-side PDF page rendering (DeepSeek OCR
+    // figure crops). Its platform binary is a `.node` file that cannot be
+    // bundled; it is loaded natively from node_modules instead.
+    '@napi-rs/canvas',
   ],
   experimental: {
     proxyClientMaxBodySize: '200mb',

@@ -1446,6 +1446,8 @@
     "providerMiniMaxTTS": "MiniMax TTS",
     "providerXiaomiTTS": "Xiaomi MiMo TTS",
     "providerXiaomiASR": "Xiaomi MiMo ASR",
+    "providerDeepSeekTTS": "DeepSeek TTS",
+    "providerDeepSeekASR": "DeepSeek ASR",
     "providerGoogleTTS": "Google Gemini TTS",
     "providerLemonadeTTS": "Lemonade TTS (local)",
     "providerBrowserNativeTTS": "Synthèse vocale native du navigateur",
@@ -1859,6 +1861,8 @@
       "capVideo": "Génération de vidéo",
       "capWebSearch": "Recherche web",
       "capWebFetch": "Récupération web",
+      "capAsr": "Reconnaissance vocale",
+      "capDocument": "Analyse de documents",
       "saved": "Paramètres de connexion enregistrés",
       "stageInteractive": "Interactif",
       "stageSlide": "Diapositives",
@@ -2189,6 +2193,10 @@
         "webFetch": {
           "name": "Récupération web",
           "desc": "Permet à l’agent de lire les pages web autorisées dans la session."
+        },
+        "materialChapters": {
+          "name": "Reconnaissance des chapitres",
+          "desc": "Identifie les chapitres et sections des documents longs."
         }
       },
       "source": {
@@ -2204,7 +2212,9 @@
           "search": "Recherche",
           "fetch": "Lecture",
           "image": "Image",
-          "video": "Vidéo"
+          "video": "Vidéo",
+          "parse": "Analyse",
+          "chapters": "Chapitres"
         }
       },
       "empty": {
@@ -2239,7 +2249,9 @@
     "webFetchSettings": "Récupération web",
     "webFetchHint": "Choisissez comment lire les pages web. Les services hébergés reçoivent les URL publiques autorisées dans la session. Les résultats restent non fiables et aucun autre lecteur n’est utilisé en cas d’échec.",
     "webFetchApiKey": "Clé API",
-    "webFetchSharedKeyHint": "Cette clé sert aussi au chat avec ce fournisseur. La modifier ou la supprimer affecte le chat."
+    "webFetchSharedKeyHint": "Cette clé sert aussi au chat avec ce fournisseur. La modifier ou la supprimer affecte le chat.",
+    "autoConfirmRecommended": "Confirmer automatiquement les réponses recommandées",
+    "autoConfirmRecommendedDesc": "Quand l’agent pose une question avec une option recommandée, elle est choisie après un court compte à rebours si vous ne répondez pas. Toute interaction l’arrête."
   },
   "workspace": {
     "knowledgeBase": {
@@ -2275,6 +2287,11 @@
         "processing_interrupted": {
           "label": "Analyse non terminée",
           "description": "L’analyse n’a pas pu être terminée. Vous pouvez réessayer plus tard."
+        },
+        "pages_failed": {
+          "label": "Échec de l’analyse de pages PDF",
+          "description": "L’analyse des pages {{firstPage}}–{{lastPage}} du PDF a échoué. Ce document ne peut pas encore être lu. Réessayez de l’analyser plus tard.",
+          "descriptionWithoutCount": "L’analyse de certaines pages du PDF a échoué. Ce document ne peut pas encore être lu. Réessayez de l’analyser plus tard."
         },
         "too_many_pages": {
           "label": "Trop de pages",
