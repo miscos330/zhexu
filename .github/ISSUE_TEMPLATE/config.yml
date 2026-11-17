@@ -10,6 +10,6 @@ contact_links:
   - name: Question or idea about OpenMAIC itself
     url: https://github.com/THU-MAIC/OpenMAIC/discussions
     about: How to use or deploy the classroom, and ideas for it, are discussed in upstream's Discussions
-  - name: Report a Security Vulnerability
+  - name: Security vulnerability in OpenMAIC
     url: https://github.com/THU-MAIC/OpenMAIC/security/advisories/new
     about: Privately report a vulnerability in OpenMAIC to its maintainers instead of opening a public issue
