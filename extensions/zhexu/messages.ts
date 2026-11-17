@@ -17,6 +17,15 @@ export interface ZhexuMessages {
   readonly menuUpstream: string;
   readonly homeNote: string;
   readonly homeLink: string;
+  readonly deliveryLabel: string;
+  readonly deliverySaved: string;
+  readonly deliveryVerified: string;
+  readonly deliveryPartial: string;
+  readonly deliveryMissing: string;
+  readonly deliveryVerifyFailed: string;
+  readonly deliveryVerify: string;
+  readonly deliveryChecking: string;
+  readonly deliveryPages: (pages: number) => string;
 }
 
 const ZH: ZhexuMessages = {
@@ -33,6 +42,15 @@ const ZH: ZhexuMessages = {
   menuUpstream: 'OpenMAIC 上游项目',
   homeNote: '折序 ZHEXU · 基于 OpenMAIC 的开源 AI 课堂',
   homeLink: '了解更多',
+  deliveryLabel: '讲义文件',
+  deliverySaved: '文件已保存，可以下载。',
+  deliveryVerified: '已重新核对，文件完好。',
+  deliveryPartial: '有文件缺失，下面是还能下载的部分。',
+  deliveryMissing: '文件已经不在了。可以让助手用同一份内容重新导出。',
+  deliveryVerifyFailed: '这次没能核对，请稍后再试。',
+  deliveryVerify: '核对文件',
+  deliveryChecking: '正在核对…',
+  deliveryPages: (pages) => `${pages} 页`,
 };
 
 const EN: ZhexuMessages = {
@@ -49,6 +67,15 @@ const EN: ZhexuMessages = {
   menuUpstream: 'OpenMAIC upstream',
   homeNote: 'ZHEXU · an open-source AI classroom built on OpenMAIC',
   homeLink: 'Learn more',
+  deliveryLabel: 'Handout files',
+  deliverySaved: 'The files are saved and ready to download.',
+  deliveryVerified: 'Checked again: the files are intact.',
+  deliveryPartial: 'A file is missing. The ones below can still be downloaded.',
+  deliveryMissing: 'The files are gone. Ask the assistant to export the same content again.',
+  deliveryVerifyFailed: 'The check did not go through. Try again in a moment.',
+  deliveryVerify: 'Check files',
+  deliveryChecking: 'Checking…',
+  deliveryPages: (pages) => (pages === 1 ? '1 page' : `${pages} pages`),
 };
 
 export function zhexuMessages(locale: string): ZhexuMessages {

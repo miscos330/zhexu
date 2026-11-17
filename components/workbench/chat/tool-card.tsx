@@ -26,6 +26,7 @@ import { wbStyles as styles } from './chat-styles';
 import { formatDurationBetween } from './format';
 import { formatToolPayload, isSkillLoadTool, presentTool } from './tool-presentation';
 import { deriveToolProgress, progressLine } from './tool-progress';
+import { DeploymentToolCard } from '@/extensions/tool-cards';
 
 export type ToolStackPosition = 'single' | 'first' | 'middle' | 'last';
 
@@ -225,6 +226,7 @@ export function ToolCard({
         ) : null}
       </button>
 
+      {!running ? <DeploymentToolCard node={node} /> : null}
       {open ? (
         <div className={styles.toolCard.body}>
           {argsText ? (

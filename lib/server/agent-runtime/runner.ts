@@ -50,6 +50,7 @@ import {
 import { buildFetchUrlTool } from './fetch-url';
 import { assembleCapabilityRuntime, resolveRunnerCapabilities } from './capability-tools';
 import { assembleRunnerTools, buildRunnerCoursePrompt } from './runner-contract';
+import { deploymentAgentTools } from '@/extensions/agent-tools';
 import { buildMaterialTools } from './material-tools';
 import { defaultLocale, supportedLocaleOf, type Locale } from '@/lib/i18n/types';
 import { startExtractionWatcher, type ExtractionWatcher } from './extraction-watcher';
@@ -1818,6 +1819,13 @@ async function executeSession(
                 await import('@/lib/server/sandbox/agent-tools')
               ).sessionSandboxTools(id, meta.ownerId)
             : [];
+          // Tools the active deployment extension adds (extensions/README.md);
+          // none unless an extension is selected and has switched a feature on.
+          const deploymentTools = await deploymentAgentTools({
+            sessionId: id,
+            ownerId: meta.ownerId,
+            messages: () => agent.state.messages,
+          });
 
           const candidateTools = assembleRunnerTools(
             [askUserTool],
@@ -1847,6 +1855,7 @@ async function executeSession(
             voiceCloneTools,
             personalHistoryTools,
             sandboxTools,
+            deploymentTools,
           );
 
           const runtime = assembleCapabilityRuntime({
