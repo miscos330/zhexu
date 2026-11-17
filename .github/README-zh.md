@@ -73,7 +73,7 @@ pnpm dev
 
 打开 <http://localhost:3000>。品牌和扩展的入口显示在工作台里，所以需要后两行。不设置 `NEXT_PUBLIC_DEPLOYMENT_EXTENSION` 时，应用就是上游原版的 OpenMAIC。
 
-模型、Docker 和其他选项见上游的[快速开始](/README-zh.md#-快速开始)。Docker 构建目前还不包含扩展。
+模型、Docker 和其他选项见上游的[快速开始](/README-zh.md#-快速开始)。用 Docker 构建时，把 `NEXT_PUBLIC_DEPLOYMENT_EXTENSION=zhexu` 和 `NEXT_PUBLIC_WORKBENCH_ENABLED=true` 作为构建参数传入，镜像里就带上扩展。
 
 ## 本仓库加了什么
 
@@ -86,7 +86,7 @@ pnpm dev
 | [`tests/extensions/`](/tests/extensions) | 以上内容的测试 |
 | [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | 这个分支上运行的检查 |
 
-上游文件改了四个，每个只有几行：`app/layout.tsx` 挂载扩展；`lib/server/agent-runtime/runner.ts` 把扩展的工具加进一次运行；`components/workbench/chat/action-cluster.tsx` 在对话里显示扩展的卡片；`.env.example` 说明各个开关。另外改了 `.github/ISSUE_TEMPLATE/` 下的议题表单，让在这里提的议题针对本仓库，其他问题指向上游。
+上游文件改了四个，每个只有几行：`app/layout.tsx` 挂载扩展；`lib/server/agent-runtime/runner.ts` 把扩展的工具加进一次运行；`components/workbench/chat/action-cluster.tsx` 在对话里显示扩展的卡片；`.env.example` 说明各个开关。`Dockerfile` 和 `docker-compose.yml` 各多了一个构建参数，用来带上扩展。另外改了 `.github/ISSUE_TEMPLATE/` 下的议题表单，让在这里提的议题针对本仓库，其他问题指向上游。
 
 ## 分支
 

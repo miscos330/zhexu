@@ -54,3 +54,173 @@ jobs:
       # proves the native canvas package and the shipped fonts work on Linux.
       - name: Extension, workbench and conversation tests
         run: pnpm exec vitest run tests/extensions tests/workbench tests/chat
+
+  # The browser tests of extensions/zhexu/e2e against a production build. The
+  # model is a scripted stand-in on the runner, so no provider or key is used;
+  # the tools, the renderer, the store and the download route are the real ones.
+  e2e:
+    name: Browser tests of the extension (production build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: openmaic
+          POSTGRES_USER: openmaic
+          POSTGRES_PASSWORD: openmaic-e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U openmaic -d openmaic"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://openmaic:openmaic-e2e@localhost:5432/openmaic
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-workspace
+
+      # As in upstream's ci.yml: the browser tarball is cached, and its
+      # download is bounded and retried.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if timeout -k 10 240 pnpm exec playwright install chromium; then
+              exit 0
+            fi
+            echo "Playwright Chromium download attempt ${attempt} failed, retrying..."
+            sleep 5
+          done
+          echo "::error::Playwright Chromium download failed after 3 attempts."
+          exit 1
+
+      # The two NEXT_PUBLIC_* values are compiled into the browser bundle, so
+      # they are set for the build and not only for the server.
+      - name: Build
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_DEPLOYMENT_EXTENSION: zhexu
+          NEXT_PUBLIC_WORKBENCH_ENABLED: 'true'
+
+      - name: Run the extension's browser tests
+        run: pnpm exec playwright test -c extensions/zhexu/e2e/playwright.config.ts
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: zhexu-e2e-report
+          path: |
+            playwright-report/
+            test-results/zhexu/
+          retention-days: 7
+
+  # The same browser tests against the Docker image. This is what shows that
+  # the image carries the native canvas binding for Alpine and the fonts the
+  # renderer reads from `public/`, which a build on the runner cannot show.
+  docker:
+    name: Browser tests of the extension (Docker image)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: openmaic
+          POSTGRES_USER: openmaic
+          POSTGRES_PASSWORD: openmaic-e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U openmaic -d openmaic"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Build the image with the extension
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_DEPLOYMENT_EXTENSION=zhexu \
+            --build-arg NEXT_PUBLIC_WORKBENCH_ENABLED=true \
+            --tag zhexu:ci .
+
+      # Host networking: the container reaches PostgreSQL and the stand-in
+      # model on the runner's loopback, and the tests reach the app the same way.
+      - name: Start the container
+        run: |
+          docker run --detach --name zhexu --network host \
+            --env PORT=3210 \
+            --env DATABASE_URL=postgres://openmaic:openmaic-e2e@localhost:5432/openmaic \
+            --env OPENMAIC_AGENT_RUNTIME_ENABLED=true \
+            --env ZHEXU_DELIVERABLES_ENABLED=true \
+            --env ZHEXU_IMAGE_ANNOTATIONS_ENABLED=true \
+            --env ALLOW_LOCAL_NETWORKS=true \
+            --env OPENMAIC_CONFIG=/app/openmaic.mock.yml \
+            --volume "$PWD/extensions/zhexu/e2e/openmaic.mock.yml:/app/openmaic.mock.yml:ro" \
+            zhexu:ci
+
+      - uses: ./.github/actions/setup-workspace
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if timeout -k 10 240 pnpm exec playwright install chromium; then
+              exit 0
+            fi
+            echo "Playwright Chromium download attempt ${attempt} failed, retrying..."
+            sleep 5
+          done
+          echo "::error::Playwright Chromium download failed after 3 attempts."
+          exit 1
+
+      - name: Wait for the app in the container
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            if curl --silent --fail --output /dev/null http://localhost:3210/api/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::The app in the container did not answer within two minutes."
+          exit 1
+
+      - name: Run the extension's browser tests against the container
+        run: pnpm exec playwright test -c extensions/zhexu/e2e/playwright.config.ts
+        env:
+          ZHEXU_E2E_BASE_URL: http://localhost:3210
+
+      - name: Container log
+        if: always()
+        run: docker logs zhexu 2>&1 | tail -n 200
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: zhexu-docker-e2e-report
+          path: |
+            playwright-report/
+            test-results/zhexu/
+          retention-days: 7

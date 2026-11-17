@@ -22,6 +22,8 @@ services:
         - NEXT_PUBLIC_WORKBENCH_ENABLED=${NEXT_PUBLIC_WORKBENCH_ENABLED:-}
         # Previous name of NEXT_PUBLIC_WORKBENCH_ENABLED, still read for one release.
         - NEXT_PUBLIC_PRO_WORKBENCH_ENABLED=${NEXT_PUBLIC_PRO_WORKBENCH_ENABLED:-}
+        # ZHEXU: which deployment extension the browser bundle is built with.
+        - NEXT_PUBLIC_DEPLOYMENT_EXTENSION=${NEXT_PUBLIC_DEPLOYMENT_EXTENSION:-}
     # Published on loopback by default: the single-user owner (see
     # docker-compose.defaults.env) serves one course library to every request,
     # so only this machine should reach it. To publish on the network, set

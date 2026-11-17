@@ -1,0 +1,18 @@
+# Test only: points the app at the scripted stand-in model of
+# extensions/zhexu/e2e/mock-model.mjs on 127.0.0.1:11999. Holds no secret.
+#
+# The model id is one the built-in registry declares vision-capable, so the
+# image tools are offered; every request still goes to the stand-in. The preset
+# is one that speaks chat completions, which is what the stand-in answers.
+providers:
+  mock:
+    preset: kimi
+    baseUrl: http://127.0.0.1:11999/v1
+    apiKey: not-a-real-key
+    models: [kimi-k3]
+
+slots:
+  llm: mock:kimi-k3
+  agent:
+    model: mock:kimi-k3
+    api: openai-completions

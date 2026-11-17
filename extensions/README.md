@@ -67,7 +67,8 @@ The only upstream files touched are `app/layout.tsx` (two imports, the
 appends the extension's tools to the run's own), `components/workbench/chat/action-cluster.tsx`
 (one import and a wrapper that puts the extension's cards under a row of tool
 calls, where they stay in view when the row folds) and `.env.example` (one
-section at the end). Outside the code, the issue forms in
+section at the end). `Dockerfile` and `docker-compose.yml` take
+`NEXT_PUBLIC_DEPLOYMENT_EXTENSION` as one more build argument. Outside the code, the issue forms in
 `.github/ISSUE_TEMPLATE/` (`bug_report.yml`, `config.yml`) ask about this
 repository and point everything else upstream.
 
@@ -191,9 +192,6 @@ out of date.
   logo; the brand shows in the workbench shell.
 - Upstream locale strings that name the product ("Welcome to OpenMAIC" in the
   first-run tour, "About OpenMAIC" in the account menu) and the favicon.
-- Docker builds: `Dockerfile` and `docker-compose.yml` pass each `NEXT_PUBLIC_*`
-  value as a build argument, and `NEXT_PUBLIC_DEPLOYMENT_EXTENSION` is not among
-  them yet.
 - Handouts in a Docker image: they have run under `pnpm dev`, the tests and a
   standalone build on Windows, not in a Docker build. `@napi-rs/canvas` is a
   native package; upstream lists it in `serverExternalPackages` for its own PDF

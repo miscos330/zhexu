@@ -73,7 +73,7 @@ pnpm dev
 
 Open <http://localhost:3000>. The brand and the extension's entries show in the workbench, which is why the last two lines are needed. Without `NEXT_PUBLIC_DEPLOYMENT_EXTENSION` the app is exactly upstream OpenMAIC.
 
-Models, Docker and the other options are covered in the upstream [Quick Start](/README.md#-quick-start). Docker builds do not include the extension yet.
+Models, Docker and the other options are covered in the upstream [Quick Start](/README.md#-quick-start). A Docker build includes the extension when `NEXT_PUBLIC_DEPLOYMENT_EXTENSION=zhexu` and `NEXT_PUBLIC_WORKBENCH_ENABLED=true` are passed as build arguments.
 
 ## What this repository adds
 
@@ -86,7 +86,7 @@ Models, Docker and the other options are covered in the upstream [Quick Start](/
 | [`tests/extensions/`](/tests/extensions) | Tests for all of the above |
 | [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | The checks that run on this branch |
 
-Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, and `.env.example` documents the switches. The issue forms under `.github/ISSUE_TEMPLATE/` are changed as well, so that an issue opened here is about this repository and anything else is pointed upstream.
+Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, and `.env.example` documents the switches. `Dockerfile` and `docker-compose.yml` take the extension as one more build argument. The issue forms under `.github/ISSUE_TEMPLATE/` are changed as well, so that an issue opened here is about this repository and anything else is pointed upstream.
 
 ## Branches
 
