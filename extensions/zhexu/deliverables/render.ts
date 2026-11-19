@@ -254,15 +254,20 @@ export async function renderDeliverable(
   for (const lines of body.sections) {
     let page: Array<{ line: BodyLine; baseline: number }> = [];
     let used = 0;
+    const place = (line: BodyLine) => {
+      page.push({ line, baseline: heading.bodyTop + used + (line.above - plainAbove) });
+      used += line.above + line.below;
+    };
     for (const line of lines) {
       const pitch = line.above + line.below;
       if (page.length && used + pitch > room + 0.001) {
         pages.push(page);
         page = [];
         used = 0;
+        // A table that runs on to this page shows its header row again.
+        if (line.repeat) place(line.repeat);
       }
-      page.push({ line, baseline: heading.bodyTop + used + (line.above - plainAbove) });
-      used += pitch;
+      place(line);
     }
     if (page.length) pages.push(page);
   }

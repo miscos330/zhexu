@@ -9,9 +9,12 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
+import JSZip from 'jszip';
+import sharp from 'sharp';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   layoutBody,
+  tableBlocks,
   tableCells,
   type BodyLayoutOptions,
   type BodyLine,
@@ -301,6 +304,93 @@ describe('a handout body with formulas', () => {
     );
     expect(right).toBeLessThanOrEqual(600 + 1);
     expect(second!.above).toBeGreaterThan(3 * 40);
+  });
+
+  it('joins cells marked < and ^ into one box, when they make a rectangle', () => {
+    expect(
+      tableBlocks([
+        ['A', '<', 'B'],
+        ['^', '^', 'C'],
+        ['\\<', 'D', '^'],
+      ]).map(({ r0, c0, r1, c1, text }) => [text, r0, c0, r1, c1]),
+    ).toEqual([
+      ['A', 0, 0, 1, 1],
+      ['B', 0, 2, 0, 2],
+      ['C', 1, 2, 2, 2],
+      ['<', 2, 0, 2, 0],
+      ['D', 2, 1, 2, 1],
+    ]);
+    // An L shape is not a cell: nothing is joined and the marks are text.
+    expect(
+      tableBlocks([
+        ['A', '<'],
+        ['^', 'B'],
+        ['^', '<'],
+      ]).map((block) => block.text),
+    ).toEqual(['A', '<', '^', 'B', '^', '<']);
+  });
+
+  it('draws a joined cell as one box, keeps rows it ties together on one line', () => {
+    const body = [
+      '| 物质 | 性质 | < |',
+      '| --- | --- | --- |',
+      '| 水 | 无色 | 液体 |',
+      '| ^ | 透明 | ^ |',
+      '| 铁 | 银白色 | 固体 |',
+    ].join('\n');
+    const lines = layoutBody(body, options()).sections[0]!;
+    // Header; the two rows of 水 tied by its cell; 铁.
+    expect(lines.map(kinds)).toEqual([
+      ['物质', '性质'],
+      ['水', '无色', '液体', '透明'],
+      ['铁', '银白色', '固体'],
+    ]);
+    // The header's 性质 spans the last two columns: its box ends where the table does.
+    const shades = lines[0]!.items.flatMap((item) => (item.kind === 'shade' ? [item] : []));
+    expect(shades).toHaveLength(2);
+    const right = (line: BodyLine) =>
+      Math.max(
+        ...line.items.flatMap((item) => (item.kind === 'rule' ? [item.x + item.width] : [])),
+      );
+    expect(shades[1]!.x + shades[1]!.width).toBeCloseTo(right(lines[0]!) - 1, 0);
+    // 水 and 液体 cover two rows: the band holds both, and 透明 sits below 无色.
+    const at = (text: string) =>
+      lines[1]!.items.find((item) => item.kind === 'text' && item.text === text)!;
+    expect(at('透明').y!).toBeGreaterThan(at('无色').y!);
+    expect(at('水').y).toBe(at('无色').y);
+    // A rule between the two rows runs only under the middle column, not through 水 or 液体.
+    const across = lines[1]!.items.flatMap((item) =>
+      item.kind === 'rule' && item.width > item.height && item.y! > lines[1]!.items[0]!.y! + 5
+        ? [item]
+        : [],
+    );
+    expect(across.some((rule) => rule.x > at('无色').x - 30 && rule.x < at('无色').x)).toBe(true);
+  });
+
+  it('draws the header row again on each later page a long table runs on to', async () => {
+    const rows = Array.from({ length: 70 }, (_, index) => `| ${index + 1} | 第 ${index + 1} 行 |`);
+    const body = ['| 序号 | 内容 |', '| --- | --- |', ...rows].join('\n');
+    const files = await renderDeliverable({
+      kind: 'document',
+      title: '长表',
+      style: 'standard',
+      body,
+    });
+    const zip = await JSZip.loadAsync(files.find((file) => file.format === 'zip')!.bytes);
+    const pages = Object.keys(zip.files).sort();
+    expect(pages.length).toBeGreaterThan(1);
+    // The header's shading (#E6EFED) is on every page, near the top.
+    for (const name of pages) {
+      const png = await zip.files[name]!.async('nodebuffer');
+      const { data, info } = await sharp(png)
+        .extract({ left: 0, top: 0, width: 1240, height: 400 })
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      let shaded = 0;
+      for (let i = 0; i < data.length; i += info.channels)
+        if (data[i] === 0xe6 && data[i + 1] === 0xef && data[i + 2] === 0xed) shaded += 1;
+      expect(shaded, name).toBeGreaterThan(10_000);
+    }
   });
 
   it('leaves text with pipes alone unless it is a table', () => {

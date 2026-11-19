@@ -47,6 +47,8 @@ export interface BodyLine {
   /** Room above and below the baseline; the line takes `above + below`. */
   above: number;
   below: number;
+  /** Drawn first when this line begins a page: a table's header row. */
+  repeat?: BodyLine;
 }
 
 export interface BodyLayoutOptions {
@@ -120,6 +122,54 @@ interface Table {
   rows: string[][];
   header: boolean;
   align: Align[];
+}
+
+/** A cell of a table: the rows and columns it covers, and its text. */
+export interface Block {
+  r0: number;
+  c0: number;
+  r1: number;
+  c1: number;
+  text: string;
+}
+
+/**
+ * The cells of a table, with joined cells resolved: `<` joins the cell to its
+ * left, `^` the cell above (`\<` and `\^` are those characters as text). When
+ * a join would not make a rectangle, no cell is joined and the marks print as
+ * text.
+ */
+export function tableBlocks(rows: string[][]): Block[] {
+  const literal = (cell: string) => (cell === '\\<' ? '<' : cell === '\\^' ? '^' : cell);
+  const single = () =>
+    rows.flatMap((cells, r) =>
+      cells.map((cell, c) => ({ r0: r, c0: c, r1: r, c1: c, text: literal(cell) })),
+    );
+  const origin: Array<Array<readonly [number, number]>> = rows.map(() => []);
+  rows.forEach((cells, r) =>
+    cells.forEach((cell, c) => {
+      origin[r]![c] =
+        cell === '<' && c > 0
+          ? origin[r]![c - 1]!
+          : cell === '^' && r > 0 && origin[r - 1]![c]
+            ? origin[r - 1]![c]!
+            : [r, c];
+    }),
+  );
+  const groups = new Map<readonly [number, number], Array<[number, number]>>();
+  origin.forEach((cells, r) =>
+    cells.forEach((key, c) => groups.set(key, [...(groups.get(key) ?? []), [r, c]])),
+  );
+  const blocks: Block[] = [];
+  for (const [[r0, c0], slots] of groups) {
+    const r1 = Math.max(...slots.map(([r]) => r));
+    const c1 = Math.max(...slots.map(([, c]) => c));
+    const rectangle =
+      slots.length === (r1 - r0 + 1) * (c1 - c0 + 1) && slots.every(([r, c]) => r >= r0 && c >= c0);
+    if (!rectangle) return single();
+    blocks.push({ r0, c0, r1, c1, text: literal(rows[r0]![c0]!) });
+  }
+  return blocks.sort((a, b) => a.r0 - b.r0 || a.c0 - b.c0);
 }
 
 /**
@@ -345,7 +395,13 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     return lines;
   };
 
-  /** A table: one line per row, ruled, in columns as wide as their content allows. */
+  /**
+   * A table, ruled, in columns as wide as their content allows. A cell that is
+   * only `<` joins the cell to its left, one that is only `^` the cell above;
+   * a joined cell is one box across its columns and rows. Rows tied together
+   * by a joined cell are one line of the layout, so they stay on one page; a
+   * header row is drawn again at the top of each later page the table runs on.
+   */
   const table = ({ rows, header, align }: Table): BodyLine[] => {
     tables += 1;
     const padX = lineHeight * TABLE.padX;
@@ -357,8 +413,7 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     const margin = lineHeight * TABLE.margin;
     const columns = align.length;
 
-    // Each column wants the width of its longest unbroken cell line; columns
-    // share the page by that, but a short column keeps all it needs.
+    const blocks = tableBlocks(rows);
     const lineWidth = (text: string) =>
       Math.max(
         0,
@@ -366,12 +421,24 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
           (line) => line.width,
         ),
       );
-    const natural = Array.from({ length: columns }, (_, column) =>
-      Math.max(
-        lineHeight,
-        ...rows.map((cells) => Math.max(...cells[column]!.split(/<br\s*\/?>/i).map(lineWidth))),
-      ),
-    );
+    const textWidth = (text: string) => Math.max(...text.split(/<br\s*\/?>/i).map(lineWidth));
+
+    // Each column wants the width of its longest unbroken cell line; a joined
+    // cell wider than its columns widens them evenly. Columns share the page
+    // by that, but a short column keeps all it needs.
+    const natural = Array.from({ length: columns }, () => lineHeight);
+    for (const block of blocks)
+      if (block.c0 === block.c1)
+        natural[block.c0] = Math.max(natural[block.c0]!, textWidth(block.text));
+    for (const block of blocks) {
+      if (block.c0 === block.c1) continue;
+      const span = block.c1 - block.c0 + 1;
+      const have =
+        natural.slice(block.c0, block.c1 + 1).reduce((sum, value) => sum + value, 0) +
+        (span - 1) * 2 * padX;
+      const extra = textWidth(block.text) - have;
+      if (extra > 0) for (let c = block.c0; c <= block.c1; c += 1) natural[c]! += extra / span;
+    }
     const room = width - columns * 2 * padX - rule;
     let widths = natural;
     if (natural.reduce((sum, value) => sum + value, 0) > room) {
@@ -395,59 +462,119 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     }
     const edges = [rule / 2];
     for (const value of widths) edges.push(edges[edges.length - 1]! + value + 2 * padX);
-    const total = edges[edges.length - 1]! - edges[0]!;
 
-    return rows.map((cells, rowIndex) => {
-      const laidOut = cells.map((cell, column) =>
-        cell
+    // A cell's lines, left-aligned at the width of its columns.
+    const laidOut = new Map(
+      blocks.map((block) => {
+        const room = edges[block.c1 + 1]! - edges[block.c0]! - 2 * padX;
+        const lines = block.text
           .split(/<br\s*\/?>/i)
-          // Lines come back left-aligned; the column's alignment is applied below.
-          .flatMap((part) => paragraph(part, widths[column]!, cellMetrics, 'left')),
+          .flatMap((part) => paragraph(part, room, cellMetrics, 'left'));
+        return [block, { lines, room }] as const;
+      }),
+    );
+    const contentHeight = (block: Block) =>
+      laidOut.get(block)!.lines.reduce((sum, line) => sum + line.above + line.below, 0);
+
+    // The first lines of a row's one-row cells share one baseline, as in an
+    // HTML table: a cell whose first line is less tall starts lower.
+    const offsets = new Map<Block, number>();
+    const heights = rows.map((_, row) => {
+      const single = blocks.filter((block) => block.r0 === row && block.r1 === row);
+      const firstAbove = Math.max(
+        0,
+        ...single.map((block) => laidOut.get(block)!.lines[0]?.above ?? 0),
       );
-      // The first lines of a row share one baseline, as in an HTML table: a
-      // cell whose first line is less tall starts lower.
-      const firstAbove = Math.max(...laidOut.map((lines) => lines[0]?.above ?? 0));
-      const offsets = laidOut.map((lines) => firstAbove - (lines[0]?.above ?? 0));
-      const heights = laidOut.map(
-        (lines, column) =>
-          offsets[column]! + lines.reduce((sum, line) => sum + line.above + line.below, 0),
-      );
-      const height = Math.max(...heights) + 2 * padY;
+      let height = cellLine + 2 * padY;
+      for (const block of single) {
+        const offset = firstAbove - (laidOut.get(block)!.lines[0]?.above ?? 0);
+        offsets.set(block, offset);
+        height = Math.max(height, offset + contentHeight(block) + 2 * padY);
+      }
+      return height;
+    });
+    // A cell across rows that needs more room than they have makes its last row taller.
+    for (const block of [...blocks].sort((a, b) => a.r1 - a.r0 - (b.r1 - b.r0))) {
+      if (block.r0 === block.r1) continue;
+      const have = heights.slice(block.r0, block.r1 + 1).reduce((sum, value) => sum + value, 0);
+      const need = contentHeight(block) + 2 * padY;
+      if (need > have) heights[block.r1]! += need - have;
+    }
+
+    // Rows tied by a cell across rows form one band, one line of the layout.
+    const bands: Array<[first: number, last: number]> = [];
+    for (let row = 0; row < rows.length; ) {
+      let last = row;
+      for (let r = row; r <= last; r += 1)
+        for (const block of blocks) if (block.r0 <= r && block.r1 > last) last = block.r1;
+      bands.push([row, last]);
+      row = last + 1;
+    }
+
+    const lines = bands.map(([first, last]) => {
+      const tops: number[] = [];
+      let height = 0;
+      for (let row = first; row <= last; row += 1) {
+        tops[row] = height;
+        height += heights[row]!;
+      }
       const items: BodyItem[] = [];
-      // The baseline of a row line is its bottom edge; everything sits above it.
+      // The baseline of a band's line is its bottom edge; everything sits above it.
       const top = -height;
-      if (header && rowIndex === 0)
-        items.push({ kind: 'shade', x: edges[0]!, y: top, width: total, height });
-      items.push(
-        {
-          kind: 'rule',
-          x: edges[0]! - rule / 2,
-          y: top - rule / 2,
-          width: total + rule,
-          height: rule,
-        },
-        { kind: 'rule', x: edges[0]! - rule / 2, y: -rule / 2, width: total + rule, height: rule },
-      );
-      for (const edge of edges)
-        items.push({ kind: 'rule', x: edge - rule / 2, y: top, width: rule, height });
-      laidOut.forEach((lines, column) => {
-        let y = top + padY + offsets[column]!;
-        for (const line of lines) {
-          const free = Math.max(0, widths[column]! - line.width);
-          const shift =
-            align[column] === 'center' ? free / 2 : align[column] === 'right' ? free : 0;
-          const left = edges[column]! + padX + shift;
+      const inBand = blocks.filter((block) => block.r0 >= first && block.r0 <= last);
+      const box = (block: Block) => {
+        const x = edges[block.c0]!;
+        const y = top + tops[block.r0]!;
+        let h = 0;
+        for (let row = block.r0; row <= block.r1; row += 1) h += heights[row]!;
+        return { x, y, width: edges[block.c1 + 1]! - x, height: h };
+      };
+      // The header is the first row and any row a header cell reaches down into.
+      if (header && first === 0)
+        for (const block of inBand) items.push({ kind: 'shade', ...box(block) });
+      // Each cell is outlined; an edge two cells share is drawn once.
+      const drawn = new Set<string>();
+      const ruleItem = (x: number, y: number, w: number, h: number) => {
+        const key = [x, y, w, h].map((value) => value.toFixed(2)).join(',');
+        if (drawn.has(key)) return;
+        drawn.add(key);
+        items.push({ kind: 'rule', x, y, width: w, height: h });
+      };
+      for (const block of inBand) {
+        const { x, y, width: w, height: h } = box(block);
+        ruleItem(x - rule / 2, y - rule / 2, w + rule, rule);
+        ruleItem(x - rule / 2, y + h - rule / 2, w + rule, rule);
+        ruleItem(x - rule / 2, y, rule, h);
+        ruleItem(x + w - rule / 2, y, rule, h);
+      }
+      for (const block of inBand) {
+        const { x, y: cellTop } = box(block);
+        const { lines: cellLines, room: cellRoom } = laidOut.get(block)!;
+        let y = cellTop + padY + (offsets.get(block) ?? 0);
+        for (const line of cellLines) {
+          const free = Math.max(0, cellRoom - line.width);
+          const column = align[block.c0];
+          const shift = column === 'center' ? free / 2 : column === 'right' ? free : 0;
           for (const item of line.items)
-            items.push({ ...item, x: left + item.x, y: y + line.above });
+            items.push({ ...item, x: x + padX + shift + item.x, y: y + line.above });
           y += line.above + line.below;
         }
-      });
-      return {
-        items,
-        above: height + (rowIndex === 0 ? margin : 0),
-        below: rowIndex === rows.length - 1 ? margin : 0,
-      };
+      }
+      return { items, above: height, below: 0 } as BodyLine;
     });
+
+    lines[0]!.above += margin;
+    lines[lines.length - 1]!.below += margin;
+    // The header rows are drawn again at the top of each later page.
+    if (header) {
+      const repeat: BodyLine = {
+        items: lines[0]!.items,
+        above: lines[0]!.above - margin,
+        below: 0,
+      };
+      for (const line of lines.slice(1)) line.repeat = repeat;
+    }
+    return lines;
   };
 
   /**

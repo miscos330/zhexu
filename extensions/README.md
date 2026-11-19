@@ -175,12 +175,17 @@ a shaded header and sets each column's alignment (`:---`, `:---:`, `---:`). In a
 cell, `\|` is a pipe, `<br>` a line break, and formulas work; a `|` inside a
 formula does not end the cell. Columns get the width of their longest line and
 share the page by it when they do not fit, a short column keeping all it needs;
-long cells wrap. The first lines of a row share one baseline. A row is not split
-across pages, and the header is not repeated on the next page. A course's table
-is written as such a table, with a header when the table's theme marks one; a
-table with merged cells stays rows of text separated by ` | `, because a pipe
-table cannot merge cells. Other Markdown (headings, emphasis, lists) is printed
-as written.
+long cells wrap. The first lines of a row share one baseline. A cell that is
+only `<` joins the cell to its left and one that is only `^` the cell above (`\<`
+and `\^` are those characters as text), so a cell can span columns and rows; a
+join that would not make a rectangle joins nothing and prints as written. Rows
+tied together by such a cell are not split across pages, and the header rows
+(the first row and any row a header cell reaches into) are drawn again at the
+top of each later page the table runs on. A course's table is written as such a
+table, with a header when the table's theme marks one and its merged cells
+marked; a table whose cells do not fit the HTML-table reading upstream stores
+stays rows of text separated by ` | `. Other Markdown (headings, emphasis, lists)
+is printed as written.
 
 Pictures are placed. A line that is only `![description](asset id)` is a
 picture: it is centred on lines of its own, as large as the column and half a

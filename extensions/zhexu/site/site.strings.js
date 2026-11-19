@@ -139,7 +139,7 @@ window.ZX_STRINGS = {
       'LaTeX in a handout and the formulas of a course are typeset, with the same layout and fonts as on a slide.',
     'open.now.tables.term': 'Tables',
     'open.now.tables.desc':
-      'Tables in a handout and in a course are drawn ruled, with a shaded header and long cells wrapped.',
+      'Tables in a handout and in a course are drawn ruled, with a shaded header, merged cells as one box, and the header repeated on each page.',
     'open.now.pictures.term': 'Pictures',
     'open.now.pictures.desc':
       'A course’s pictures are placed in its handout, read only from the course’s own assets, never from the web.',

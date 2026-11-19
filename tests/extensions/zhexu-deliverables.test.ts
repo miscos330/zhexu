@@ -562,8 +562,8 @@ describe('course handout text', () => {
     );
   });
 
-  it('writes a course table as a pipe table, with its header, or as rows when cells are merged', () => {
-    const table = (data: unknown[][], theme?: object) =>
+  it('writes a course table as a pipe table, its merged cells marked with < and ^', () => {
+    const table = (data: unknown[][], theme?: object, colWidths?: number[]) =>
       courseHandoutText(
         {
           name: 'T',
@@ -573,7 +573,9 @@ describe('course handout text', () => {
               type: 'slide',
               content: {
                 type: 'slide',
-                canvas: { elements: [{ type: 'table', top: 0, left: 0, theme, data }] },
+                canvas: {
+                  elements: [{ type: 'table', top: 0, left: 0, theme, data, colWidths }],
+                },
               },
             },
           ],
@@ -590,9 +592,34 @@ describe('course handout text', () => {
         { rowHeader: true },
       ),
     ).toBe('1. Table\n| Medium | n |\n| --- | --- |\n| Water | a\\|b<br>c |');
+    // A row lists only the cells that start in it; a cell takes the first free column.
     expect(table([[cell('Merged', { colspan: 2 })], [cell('a'), cell('b')]])).toBe(
-      '1. Table\nMerged\na | b',
+      '1. Table\n| Merged | < |\n| a | b |',
     );
+    expect(
+      table(
+        [
+          [cell('Group', { rowspan: 2 }), cell('x'), cell('y')],
+          [cell('1'), cell('2')],
+          [cell('<'), cell('Wide', { colspan: 2, rowspan: 2 })],
+          [cell('^')],
+        ],
+        { rowHeader: true },
+      ),
+    ).toBe(
+      '1. Table\n| Group | x | y |\n| --- | --- | --- |\n| ^ | 1 | 2 |\n| \\< | Wide | < |\n| \\^ | ^ | ^ |',
+    );
+    // Cells that would overlap, or more columns than the table declares: rows of text.
+    expect(
+      table(
+        [
+          [cell('a', { rowspan: 2 }), cell('b')],
+          [cell('c'), cell('d'), cell('e')],
+        ],
+        {},
+        [1, 1],
+      ),
+    ).toBe('1. Table\na | b\nc | d | e');
   });
 
   it('takes what an interactive page and a project page explain from their own fields', () => {

@@ -116,36 +116,59 @@ export function htmlToText(html: string): string {
 
 /**
  * A slide's table as a Markdown pipe table, which the renderer draws ruled; the
- * first row is the header when the table's theme says so. A pipe table cannot
- * merge cells, so a table with merged cells stays rows of text separated by
- * ` | `, as before.
+ * first row is the header when the table's theme says so. A merged cell is
+ * written once, the places it also covers as `<` (joined to the cell on the
+ * left) and `^` (joined to the cell above), which the renderer draws as one
+ * box. As upstream stores it, a row lists only the cells that start in it, and
+ * a cell takes the first column not already covered from above, as in an HTML
+ * table. A table that does not fit that reading stays rows of text.
  */
 function tableText(element: Record<string, unknown>): string {
   const rows = list(element.data).map((row) => list(row).filter(isRecord));
-  const merged = rows.some((row) =>
-    row.some((cell) => Number(cell.colspan ?? 1) > 1 || Number(cell.rowspan ?? 1) > 1),
-  );
   const cellText = (cell: Record<string, unknown>) => htmlToText(text(cell.text));
-  if (merged)
-    return rows
+  const asRows = () =>
+    rows
       .map((row) => row.map(cellText).join(' | '))
       .filter((row) => row.replace(/[| ]/g, ''))
       .join('\n');
-  const filled = rows
-    .map((row) => row.map(cellText))
-    .filter((cells) => cells.some((cell) => cell.trim()));
+  const span = (value: unknown) => Math.max(1, Math.trunc(Number(value ?? 1)) || 1);
+  const escape = (value: string) =>
+    value === '<' || value === '^'
+      ? `\\${value}`
+      : value.replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+
+  const grid: string[][] = [];
+  for (const [r, row] of rows.entries()) {
+    let c = 0;
+    for (const cell of row) {
+      while (grid[r]?.[c] !== undefined) c += 1;
+      const colspan = span(cell.colspan);
+      const rowspan = span(cell.rowspan);
+      for (let dr = 0; dr < rowspan; dr += 1)
+        for (let dc = 0; dc < colspan; dc += 1) {
+          const line = (grid[r + dr] ??= []);
+          // Two cells claiming one place: not a table this reading understands.
+          if (line[c + dc] !== undefined) return asRows();
+          line[c + dc] = dr === 0 && dc === 0 ? escape(cellText(cell)) : dr > 0 ? '^' : '<';
+        }
+      c += colspan;
+    }
+  }
+  const columns = Math.max(0, ...grid.map((line) => line?.length ?? 0));
+  const declared = list(element.colWidths).length;
+  if (declared && columns > declared) return asRows();
+  const filled = Array.from({ length: grid.length }, (_, r) =>
+    Array.from({ length: columns }, (_, c) => grid[r]?.[c] ?? ''),
+  ).filter((cells) => cells.some((cell) => cell.trim()));
   if (filled.length === 0) return '';
-  const columns = Math.max(...filled.map((cells) => cells.length));
-  const line = (cells: string[]) =>
-    `| ${Array.from({ length: columns }, (_, index) =>
-      (cells[index] ?? '').replace(/\|/g, '\\|').replace(/\n/g, '<br>'),
-    ).join(' | ')} |`;
-  const lines = filled.map(line);
+  const lines = filled.map((cells) => `| ${cells.join(' | ')} |`);
   const theme = isRecord(element.theme) ? element.theme : {};
   // A pipe table needs two rows; a single row is a header only with a body under it.
   if (theme.rowHeader === true && lines.length > 1)
     lines.splice(1, 0, `| ${Array<string>(columns).fill('---').join(' | ')} |`);
-  return lines.length > 1 ? lines.join('\n') : filled[0]!.join(' | ');
+  return lines.length > 1
+    ? lines.join('\n')
+    : rows.map((row) => row.map(cellText).join(' | ')).join('');
 }
 
 /**
