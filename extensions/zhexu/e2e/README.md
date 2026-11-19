@@ -1,11 +1,12 @@
 # End-to-end tests of the ZHEXU extension
 
-Two browser tests drive the real app through what the extension adds:
+Browser tests drive the real app through what the extension adds:
 
 | Test                 | What it does                                                                                    |
 | -------------------- | ----------------------------------------------------------------------------------------------- |
 | `handout.spec.ts`    | asks for a handout on the home page, waits for the card, downloads every file it links          |
 | `annotation.spec.ts` | attaches an image, asks for annotations, waits for the card, downloads the PNG and the PDF      |
+| `course-handout.spec.ts` | stores a course, exports it as a handout and as a worksheet, and checks that a course stored by another visitor is refused |
 
 The model is a scripted stand-in (`mock-model.mjs`): it answers a request by
 calling the extension's tools the way a model would, with fixed content. What

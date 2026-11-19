@@ -27,9 +27,9 @@
 - **扩展层**：新功能放在 [`extensions/`](/extensions/README.md) 下，只在上游代码里留几个很小的接入点，方便跟着上游升级。
 - **A4 讲义**：助手把回答交付成真实文件，包括 A4 PDF 和页面图片，可选手写体。[实现方式](/extensions/README.md#a4-handouts-zhexu)。
 - **图片标注**：助手查看你附上的图片，加上带编号的标注，导出 A4 的 PNG 和 PDF；原图不改动。[实现方式](/extensions/README.md#image-annotations-zhexu)。
-- **课程讲义**：把你已经保存的一门课导出成 A4 讲义：每页上的文字、讲解和测验题按页排好，答案放在最后；内容原样取自课程，不经过模型改写。也可以只导出测验题，做成一份练习。和 A4 讲义共用同一个开关。这一项目前只有单元测试，还没有端到端跑过。
+- **课程讲义**：把你已经保存的一门课导出成 A4 讲义：每页上的文字、讲解和测验题按页排好，答案放在最后；内容原样取自课程，不经过模型改写。也可以只导出测验题，做成一份练习。和 A4 讲义共用同一个开关。
 
-这两个功能默认关闭，各有一个开关（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有单元测试，也有[浏览器测试](/extensions/zhexu/e2e/README.md)：CI 会对着生产构建和 Docker 镜像各端到端跑一遍，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
+这些功能默认关闭，由两个开关控制（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有单元测试，也有[浏览器测试](/extensions/zhexu/e2e/README.md)：CI 会对着生产构建和 Docker 镜像各端到端跑一遍，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
 
 | 手写体讲义 | 图片标注 |
 | --- | --- |

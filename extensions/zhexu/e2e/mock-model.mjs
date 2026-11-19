@@ -90,6 +90,13 @@ function decide(body) {
         : '讲义已经生成，可以在上面的卡片里预览和下载。',
     };
   }
+  // "课程 <id>" names a saved course: its handout is made from the course itself.
+  const course = ask.match(/课程\s*([A-Za-z0-9_-]{6,})/);
+  if (course && has('create_course_handout'))
+    return {
+      tool: 'create_course_handout',
+      args: { courseId: course[1], ...(/练习/.test(ask) ? { content: 'questions' } : {}) },
+    };
   if (/讲义|导出|PDF|pdf/.test(ask) && tools.length) {
     if (/上一条|上面|刚才/.test(ask) && has('export_deliverable'))
       return {
