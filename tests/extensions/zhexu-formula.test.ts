@@ -12,6 +12,7 @@ import { createCanvas } from '@napi-rs/canvas';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   layoutBody,
+  tableCells,
   type BodyLayoutOptions,
   type BodyLine,
 } from '@/extensions/zhexu/deliverables/body-layout';
@@ -165,8 +166,15 @@ describe('a handout body with formulas', () => {
         fallback: TEXT_FAMILY,
       }),
   });
+  /** What a line holds: text, [formula]; a table's rules and shading are left out. */
   const kinds = (line: BodyLine) =>
-    line.items.map((item) => (item.kind === 'text' ? item.text : `[${item.formula.latex}]`));
+    line.items.flatMap((item) =>
+      item.kind === 'text'
+        ? [item.text]
+        : item.kind === 'formula'
+          ? [`[${item.formula.latex}]`]
+          : [],
+    );
 
   it('lays plain text out as the text wrapper does, one line height a line', () => {
     const body = '第一行\n\n第二段，价格是 $5 和 $10。\n' + '很长的一段话。'.repeat(40);
@@ -229,6 +237,83 @@ describe('a handout body with formulas', () => {
     // Past half size it would be unreadable: the source is printed instead.
     const longer = Array.from({ length: 200 }, (_, i) => `a_{${i + 1}}`).join('+');
     expect(layoutBody(`\\(${longer}\\)`, options(600)).untypeset).toBe(1);
+  });
+
+  it('splits a table row at its pipes, not at escaped ones or those in a formula', () => {
+    expect(tableCells('| a | b \\| c | $|x|=1$ | \\(\\|v\\|\\) |')).toEqual([
+      'a',
+      'b | c',
+      '$|x|=1$',
+      '\\(\\|v\\|\\)',
+    ]);
+    expect(tableCells('|  | only |')).toEqual(['', 'only']);
+  });
+
+  it('draws a pipe table as ruled rows: a header, column alignment, wrapped cells', () => {
+    const body = [
+      '介质如下：',
+      '| 介质 | 折射率 | 光速 |',
+      '| :--- | :---: | ---: |',
+      '| 水 | \\(1.33\\) | 2.25 |',
+      '| 玻璃 | 1.5 | 2.00 |',
+      '表后。',
+    ].join('\n');
+    const layout = layoutBody(body, options());
+    const lines = layout.sections[0]!;
+    expect(lines.map(kinds)).toEqual([
+      ['介质如下：'],
+      ['介质', '折射率', '光速'],
+      ['水', '[1.33]', '2.25'],
+      ['玻璃', '1.5', '2.00'],
+      ['表后。'],
+    ]);
+    expect(layout).toMatchObject({ tables: 1, formulas: 1, untypeset: 0 });
+    // Only the header row is shaded; every row is ruled.
+    expect(
+      lines.slice(1, 4).map((line) => line.items.some((item) => item.kind === 'shade')),
+    ).toEqual([true, false, false]);
+    expect(lines.slice(1, 4).every((line) => line.items.some((item) => item.kind === 'rule'))).toBe(
+      true,
+    );
+    // Columns are left, centre and right aligned: compare where "水"'s row puts each cell.
+    const row = lines[2]!.items.filter((item) => item.kind !== 'rule' && item.kind !== 'shade');
+    const rules = lines[2]!.items.flatMap((item) =>
+      item.kind === 'rule' && item.height > item.width ? [item] : [],
+    );
+    const edges = rules.map((rule) => rule.x + rule.width / 2);
+    expect(edges).toHaveLength(4);
+    const [water, index, speed] = row;
+    expect(water!.x - edges[0]!).toBeCloseTo(15, 0);
+    const indexWidth = index!.kind === 'formula' ? index!.formula.width : 0;
+    expect(index!.x - edges[1]!).toBeCloseTo(edges[2]! - (index!.x + indexWidth), 0);
+    expect(edges[3]! - (speed!.x + measure('2.25', font))).toBeCloseTo(15, 0);
+
+    // A long cell wraps inside its column; the table stays within the width.
+    const wide = layoutBody(
+      `| 现象 | 说明 |\n| 折断 | ${'光从水斜射入空气时发生折射。'.repeat(8)} |`,
+      options(600),
+    );
+    const [, second] = wide.sections[0]!;
+    const right = Math.max(
+      ...second!.items
+        .filter((item) => item.kind === 'rule')
+        .map((item) => item.x + (item as { width: number }).width),
+    );
+    expect(right).toBeLessThanOrEqual(600 + 1);
+    expect(second!.above).toBeGreaterThan(3 * 40);
+  });
+
+  it('leaves text with pipes alone unless it is a table', () => {
+    const body = '| 只有一行 |\n竖线 a | b 不在行首\n\n| 前 |\n后面不是表格';
+    const layout = layoutBody(body, options());
+    expect(layout.tables).toBe(0);
+    expect(layout.sections[0]!.map(kinds)).toEqual([
+      ['| 只有一行 |'],
+      ['竖线 a | b 不在行首'],
+      [],
+      ['| 前 |'],
+      ['后面不是表格'],
+    ]);
   });
 
   it('draws every formula of the browser record on a page', async () => {

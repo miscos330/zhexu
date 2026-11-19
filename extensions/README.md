@@ -169,9 +169,22 @@ same formulas and compare: the largest difference is under 0.1 pixel for a
 formula 100 pixels high. Run the script again after a KaTeX upgrade; a test
 fails while the record is from another KaTeX version.
 
+Tables are drawn ruled. A table is written as a Markdown pipe table: two or more
+lines that start and end with `|`; a line of dashes under the first row makes it
+a shaded header and sets each column's alignment (`:---`, `:---:`, `---:`). In a
+cell, `\|` is a pipe, `<br>` a line break, and formulas work; a `|` inside a
+formula does not end the cell. Columns get the width of their longest line and
+share the page by it when they do not fit, a short column keeping all it needs;
+long cells wrap. The first lines of a row share one baseline. A row is not split
+across pages, and the header is not repeated on the next page. A course's table
+is written as such a table, with a header when the table's theme marks one; a
+table with merged cells stays rows of text separated by ` | `, because a pipe
+table cannot merge cells. Other Markdown (headings, emphasis, lists) is printed
+as written.
+
 Not covered: subscript and superscript digits such as ₁ in plain text (no
-shipped text font has them; in a formula, write `x_1`), tables (printed as rows
-of text) and images. Text that needs more than sixteen pages is refused, not cut.
+shipped text font has them; in a formula, write `x_1`) and images. Text that
+needs more than sixteen pages is refused, not cut.
 
 ## Image annotations (ZHEXU)
 

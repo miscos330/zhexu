@@ -137,10 +137,13 @@ window.ZX_STRINGS = {
     'open.now.formulas.term': 'Typeset formulas',
     'open.now.formulas.desc':
       'LaTeX in a handout and the formulas of a course are typeset, with the same layout and fonts as on a slide.',
+    'open.now.tables.term': 'Tables',
+    'open.now.tables.desc':
+      'Tables in a handout and in a course are drawn ruled, with a shaded header and long cells wrapped.',
     'open.next.label': 'Planned',
-    'open.next.tables.term': 'Tables and pictures',
-    'open.next.tables.desc':
-      'A course’s tables are printed as rows of text and its pictures are left out for now; the plan is to draw both.',
+    'open.next.pictures.term': 'Pictures',
+    'open.next.pictures.desc':
+      'A course’s pictures are left out of a handout for now; the plan is to place them.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',

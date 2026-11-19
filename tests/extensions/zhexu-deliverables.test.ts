@@ -424,8 +424,9 @@ describe('course handout text', () => {
           '法线',
           // A formula element keeps its LaTeX, marked to be typeset on a line of its own.
           '\\[n_1 \\sin i = n_2 \\sin r\\]',
-          '介质 | 折射率',
-          '水 | 1.33',
+          // A table becomes a pipe table, which the renderer draws ruled.
+          '| 介质 | 折射率 |',
+          '| 水 | 1.33 |',
           '讲解: 同学们好，今天我们学习光的折射。',
           '先看一个现象。',
         ].join('\n'),
@@ -554,6 +555,39 @@ describe('course handout text', () => {
         '1. 解方程 \\(x^2-5x+6=0\\)\nA. \\(x=2\\) 或 \\(x=3\\)\nB. 无解' +
         DELIVERABLE_PAGE_BREAK +
         '答案与解析\n1. A\n解析: 因式分解得 \\[(x-2)(x-3)=0\\]',
+    );
+  });
+
+  it('writes a course table as a pipe table, with its header, or as rows when cells are merged', () => {
+    const table = (data: unknown[][], theme?: object) =>
+      courseHandoutText(
+        {
+          name: 'T',
+          scenes: [
+            {
+              title: 'Table',
+              type: 'slide',
+              content: {
+                type: 'slide',
+                canvas: { elements: [{ type: 'table', top: 0, left: 0, theme, data }] },
+              },
+            },
+          ],
+        },
+        'slides',
+      ).body;
+    const cell = (text: string, more: object = {}) => ({ text, colspan: 1, rowspan: 1, ...more });
+    expect(
+      table(
+        [
+          [cell('Medium'), cell('n')],
+          [cell('Water'), cell('a|b<br/>c')],
+        ],
+        { rowHeader: true },
+      ),
+    ).toBe('1. Table\n| Medium | n |\n| --- | --- |\n| Water | a\\|b<br>c |');
+    expect(table([[cell('Merged', { colspan: 2 })], [cell('a'), cell('b')]])).toBe(
+      '1. Table\nMerged\na | b',
     );
   });
 

@@ -107,6 +107,40 @@ export function htmlToText(html: string): string {
     .join('\n');
 }
 
+/**
+ * A slide's table as a Markdown pipe table, which the renderer draws ruled; the
+ * first row is the header when the table's theme says so. A pipe table cannot
+ * merge cells, so a table with merged cells stays rows of text separated by
+ * ` | `, as before.
+ */
+function tableText(element: Record<string, unknown>): string {
+  const rows = list(element.data).map((row) => list(row).filter(isRecord));
+  const merged = rows.some((row) =>
+    row.some((cell) => Number(cell.colspan ?? 1) > 1 || Number(cell.rowspan ?? 1) > 1),
+  );
+  const cellText = (cell: Record<string, unknown>) => htmlToText(text(cell.text));
+  if (merged)
+    return rows
+      .map((row) => row.map(cellText).join(' | '))
+      .filter((row) => row.replace(/[| ]/g, ''))
+      .join('\n');
+  const filled = rows
+    .map((row) => row.map(cellText))
+    .filter((cells) => cells.some((cell) => cell.trim()));
+  if (filled.length === 0) return '';
+  const columns = Math.max(...filled.map((cells) => cells.length));
+  const line = (cells: string[]) =>
+    `| ${Array.from({ length: columns }, (_, index) =>
+      (cells[index] ?? '').replace(/\|/g, '\\|').replace(/\n/g, '<br>'),
+    ).join(' | ')} |`;
+  const lines = filled.map(line);
+  const theme = isRecord(element.theme) ? element.theme : {};
+  // A pipe table needs two rows; a single row is a header only with a body under it.
+  if (theme.rowHeader === true && lines.length > 1)
+    lines.splice(1, 0, `| ${Array<string>(columns).fill('---').join(' | ')} |`);
+  return lines.length > 1 ? lines.join('\n') : filled[0]!.join(' | ');
+}
+
 /** What is written on a slide, top to bottom and left to right. */
 function slideText(content: Record<string, unknown>): string {
   const canvas = isRecord(content.canvas) ? content.canvas : {};
@@ -120,15 +154,7 @@ function slideText(content: Record<string, unknown>): string {
       else if (element.type === 'latex') {
         const latex = text(element.latex).trim();
         value = latex && `\\[${latex}\\]`;
-      } else if (element.type === 'table')
-        value = list(element.data)
-          .map((row) =>
-            list(row)
-              .map((cell) => (isRecord(cell) ? htmlToText(text(cell.text)) : ''))
-              .join(' | '),
-          )
-          .filter((row) => row.replace(/[| ]/g, ''))
-          .join('\n');
+      } else if (element.type === 'table') value = tableText(element);
       return {
         value,
         top: typeof element.top === 'number' ? element.top : 0,

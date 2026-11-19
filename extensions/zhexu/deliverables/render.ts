@@ -29,7 +29,14 @@ const MARGIN = 80;
 const MAX_PAGES = 16;
 /** Formulas are set at KaTeX's usual 1.2 times the printed text, whatever the body face. */
 const FORMULA_SIZE = 36;
-const PALETTE = { paper: '#FFFFFF', accent: '#14554E', ink: '#172824', muted: '#60716C' } as const;
+const PALETTE = {
+  paper: '#FFFFFF',
+  accent: '#14554E',
+  ink: '#172824',
+  muted: '#60716C',
+  /** A table's header row. */
+  shade: '#E6EFED',
+} as const;
 
 /** Upstream ships the text fonts for its video export; the handwriting face is ours. */
 const FONTS: ReadonlyArray<readonly [file: string, family: string]> = [
@@ -208,13 +215,17 @@ export async function renderDeliverable(
     );
     for (const { line, baseline } of pageLines)
       for (const item of line.items) {
-        if (item.kind === 'formula') {
-          item.formula.paint(painter, MARGIN + item.x, baseline);
-          continue;
+        const x = MARGIN + item.x;
+        const y = baseline + (item.y ?? 0);
+        if (item.kind === 'formula') item.formula.paint(painter, x, y);
+        else if (item.kind === 'rule' || item.kind === 'shade') {
+          ctx.fillStyle = item.kind === 'rule' ? PALETTE.muted : PALETTE.shade;
+          ctx.fillRect(x, y, item.width, item.height);
+        } else {
+          ctx.font = bodyFont;
+          ctx.fillStyle = PALETTE.ink;
+          ctx.fillText(item.text, x, y);
         }
-        ctx.font = bodyFont;
-        ctx.fillStyle = PALETTE.ink;
-        ctx.fillText(item.text, MARGIN + item.x, baseline);
       }
     ctx.fillStyle = PALETTE.muted;
     ctx.font = '21px ZhexuDocument, sans-serif';

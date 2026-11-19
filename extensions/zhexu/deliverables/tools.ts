@@ -293,7 +293,7 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
     label: 'Create downloadable document',
     executionMode: 'sequential',
     description:
-      'Create real private files from NEW content: an A4 PDF and page images the user can download. Not an outline: include the complete text the user asked for. At most 16 pages and 16000 UTF-8 bytes of arguments (below 4000 Chinese characters). style=handwriting sets the body in a Chinese running-hand face. Write formulas in LaTeX: \\( \\) inside a line, \\[ \\] on a line of its own; they are typeset. For content that already exists in the conversation, use export_deliverable instead of copying it into the arguments. Preserve facts; only missing noncritical details may be visible placeholders.',
+      'Create real private files from NEW content: an A4 PDF and page images the user can download. Not an outline: include the complete text the user asked for. At most 16 pages and 16000 UTF-8 bytes of arguments (below 4000 Chinese characters). style=handwriting sets the body in a Chinese running-hand face. Write formulas in LaTeX: \\( \\) inside a line, \\[ \\] on a line of its own; they are typeset. Write a table as a Markdown pipe table (| a | b | rows, a | --- | --- | line under the header row); it is drawn ruled. For content that already exists in the conversation, use export_deliverable instead of copying it into the arguments. Preserve facts; only missing noncritical details may be visible placeholders.',
     parameters: Type.Object(
       {
         kind: Type.Literal('document'),

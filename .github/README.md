@@ -30,6 +30,7 @@ Available now:
 - **My files**: a page in the rail that lists the handouts and annotated images the assistant has delivered in your conversations, ready to download. Available when either switch is on.
 - **Course handouts**: export a course you have saved as an A4 handout: what is written on each page, the narration and the quiz questions in page order, with the answers on a page of their own at the end. The text is taken from the course as it is, not rewritten by a model. The quiz questions alone make a worksheet: a line for the name, class and date at the top, room to write under open questions, and the answers on their own page. It shares the switch of A4 handouts.
 - **Typeset formulas**: LaTeX in a handout (`\(` `\)` inside a line, `\[` `\]` on a line of its own) and the formulas of a course are typeset, with the same layout and fonts as KaTeX gives them on a slide. A formula that cannot be drawn that way is printed as its LaTeX source. [How it works](/extensions/README.md#a4-handouts-zhexu).
+- **Tables**: a Markdown pipe table in a handout, and a table of a course, is drawn ruled, with a shaded header row, aligned columns and long cells wrapped. A course table with merged cells stays rows of text. [How it works](/extensions/README.md#a4-handouts-zhexu).
 
 They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. They have not been run with a real model yet.
 
@@ -41,7 +42,7 @@ These two pages are real output of the renderer, made from test content.
 
 Planned:
 
-- **Tables and pictures**: a course's tables are printed as rows of text and its pictures are left out of a handout for now; the plan is to draw both.
+- **Pictures**: a course's pictures are left out of a handout for now; the plan is to place them.
 
 The direction is printable material for teachers, which is where ZHEXU differs from upstream.
 
