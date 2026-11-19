@@ -96,8 +96,16 @@ OPENMAIC_AGENT_RUNTIME_ENABLED=true
 ZHEXU_DELIVERABLES_ENABLED=true      # read at request time, no rebuild
 ```
 
-Off by default: without the switch the agent has no handout tools and both
+Off by default: without the switch the agent has no handout tools and the
 endpoints answer 404.
+
+"My files" (`zhexu/files-page.tsx`, a rail page at `/workspace?view=zhexu-files`)
+lists what was delivered to the owner in every conversation, handouts and
+annotated images alike, with the same private download links the cards use. It
+stores nothing: the list is read from the session materials that carry the
+extension's provenance, through the store's owner-only listing of
+conversations, newest first and at most fifty conversations at a time. It is
+available when either switch is on and says so when neither is.
 
 | File in `zhexu/deliverables/` | What it holds                                                                    |
 | ----------------------------- | -------------------------------------------------------------------------------- |
@@ -108,7 +116,8 @@ endpoints answer 404.
 | `render.ts`                   | draws the pages (`@napi-rs/canvas`), builds the PDF (`pdf-lib`) and ZIP (`jszip`)  |
 | `storage.ts`                  | saves a file as a session material and records what it was made from             |
 | `latest-answer.ts`            | picks the answer "export the last answer" refers to                              |
-| `routes.ts`                   | the download and the verification endpoint                                       |
+| `routes.ts`                   | the download, the verification and the "My files" listing endpoint              |
+| `library.ts`                  | groups the delivered files of a conversation into entries for "My files"         |
 | `card.tsx`                    | the card in the conversation                                                     |
 | `enabled.ts`                  | the switch                                                                       |
 

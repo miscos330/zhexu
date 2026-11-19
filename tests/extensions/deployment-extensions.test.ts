@@ -16,7 +16,11 @@ import { DeploymentExtensions } from '@/extensions';
 import { resolveDeploymentExtension } from '@/extensions/config';
 import { deploymentMetadata } from '@/extensions/metadata';
 import { ZHEXU_BRAND } from '@/extensions/zhexu/brand';
-import { ZHEXU_ABOUT_VIEW, buildZhexuShellExtensions } from '@/extensions/zhexu/shell';
+import {
+  ZHEXU_ABOUT_VIEW,
+  ZHEXU_FILES_VIEW,
+  buildZhexuShellExtensions,
+} from '@/extensions/zhexu/shell';
 import { DEFAULT_BRAND, type BrandConfig } from '@/lib/brand/brand-config';
 import { useBrand } from '@/lib/brand/brand-context';
 import {
@@ -79,9 +83,11 @@ describe('ZHEXU shell slots', () => {
   });
 
   it('uses Chinese for Chinese locales and English for the rest', () => {
-    expect(buildZhexuShellExtensions('zh-CN').navItems?.[0]?.label).toBe('关于折序');
-    expect(buildZhexuShellExtensions('zh-TW').navItems?.[0]?.label).toBe('关于折序');
-    expect(buildZhexuShellExtensions('fr-FR').navItems?.[0]?.label).toBe('About ZHEXU');
+    const labels = (locale: string) =>
+      buildZhexuShellExtensions(locale).navItems?.map((item) => item.label);
+    expect(labels('zh-CN')).toEqual(['我的文件', '关于折序']);
+    expect(labels('zh-TW')).toEqual(['我的文件', '关于折序']);
+    expect(labels('fr-FR')).toEqual(['My files', 'About ZHEXU']);
   });
 
   it('ships every brand asset it references, with its provenance', () => {
@@ -148,7 +154,7 @@ describe('DeploymentExtensions', () => {
   it('adds the ZHEXU brand and slots inside the upstream provider', () => {
     const seen = capture('zhexu');
     expect(seen.brand).toEqual(ZHEXU_BRAND);
-    expect(seen.pages).toEqual([ZHEXU_ABOUT_VIEW]);
+    expect(seen.pages).toEqual([ZHEXU_FILES_VIEW, ZHEXU_ABOUT_VIEW]);
     expect(seen.menuIds).toEqual(['zhexu-about', 'zhexu-upstream']);
   });
 });

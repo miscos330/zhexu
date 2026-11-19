@@ -9,7 +9,7 @@
 
 import { useMemo, type ReactNode } from 'react';
 import Link from 'next/link';
-import { BookOpen, Info } from 'lucide-react';
+import { BookOpen, FolderDown, Info } from 'lucide-react';
 import { BrandProvider } from '@/lib/brand/brand-context';
 import {
   WorkbenchShellExtensionsProvider,
@@ -18,6 +18,7 @@ import {
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { ZhexuAboutPage } from './about-page';
 import { ZHEXU_BRAND, ZHEXU_LINKS } from './brand';
+import { ZhexuFilesPage } from './files-page';
 import { zhexuMessages } from './messages';
 import './theme.css';
 // Generated: upstream's literal violet values, repeated under the brand scope.
@@ -25,6 +26,8 @@ import './theme-upstream-literals.css';
 
 /** The rail page id; the page is addressable as `/workspace?view=zhexu-about`. */
 export const ZHEXU_ABOUT_VIEW = 'zhexu-about';
+/** The rail page of delivered files, addressable as `/workspace?view=zhexu-files`. */
+export const ZHEXU_FILES_VIEW = 'zhexu-files';
 
 const ABOUT_HREF = `/workspace?view=${ZHEXU_ABOUT_VIEW}`;
 
@@ -32,6 +35,12 @@ export function buildZhexuShellExtensions(locale: string): WorkbenchShellExtensi
   const m = zhexuMessages(locale);
   return {
     navItems: [
+      {
+        id: ZHEXU_FILES_VIEW,
+        label: m.filesNav,
+        icon: FolderDown,
+        render: () => <ZhexuFilesPage />,
+      },
       { id: ZHEXU_ABOUT_VIEW, label: m.aboutNav, icon: Info, render: () => <ZhexuAboutPage /> },
     ],
     accountMenuItems: [

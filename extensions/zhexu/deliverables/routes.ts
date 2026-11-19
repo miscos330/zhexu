@@ -1,10 +1,13 @@
 import { isAgentRuntimeConfigured } from '@/lib/config/feature-flags';
 import {
   getSessionMaterial,
+  listSessionMaterials,
   resolveOwnedSession,
   resolveSessionMaterialRawAsset,
 } from '@/lib/server/agent-runtime/session-materials';
+import { getAgentSessionStore } from '@/lib/server/agent-runtime/store';
 import { withRequestOwner } from '@/lib/server/identity/with-owner';
+import { workbenchSessionTitle } from '@/lib/workbench/session-title';
 import { zhexuImageAnnotationsEnabled } from '../annotations/enabled';
 import {
   DELIVERABLE_FORMAT_MIME,
@@ -12,14 +15,22 @@ import {
   DELIVERED_FILE_PROVENANCE,
 } from './contract';
 import { zhexuDeliverablesEnabled } from './enabled';
+import {
+  deliveredEntries,
+  LIBRARY_ENTRY_LIMIT,
+  LIBRARY_SESSION_LIMIT,
+  sortDeliveredEntries,
+  type DeliveredEntry,
+  type DeliveredLibrary,
+} from './library';
 import { buildDeliverableTools } from './tools';
 
 /**
- * The two HTTP endpoints of the handout feature. The files under
- * `app/api/extensions/zhexu/deliverables/` only forward to these, so the
- * feature's behavior stays in the extension.
+ * The HTTP endpoints of the handout feature. The files under
+ * `app/api/extensions/zhexu/` only forward to these, so the feature's behavior
+ * stays in the extension.
  *
- * Both answer 404 for anything the requesting owner may not see, including
+ * All answer 404 for anything the requesting owner may not see, including
  * "the feature is off": a caller learns nothing about other owners' sessions.
  */
 
@@ -106,5 +117,43 @@ export async function verifyDeliverable(req: Request): Promise<Response> {
     const headers = new Headers(responseHeaders);
     headers.set('Cache-Control', 'private, no-store');
     return Response.json({ delivery: details, modelCalls: 0 }, { headers });
+  });
+}
+
+/**
+ * GET what the extension has delivered to the requesting owner, across their
+ * conversations, newest first ("My files").
+ *
+ * The conversations come from the store's owner-only listing, so the answer
+ * never holds a file of another owner. It is a view: nothing is written, and a
+ * conversation whose materials cannot be read is left out, not an error for
+ * the whole page. At most `LIBRARY_SESSION_LIMIT` conversations are looked at.
+ */
+export async function listDeliveredFiles(req: Request): Promise<Response> {
+  if (!downloadsAvailable()) return notFound();
+  return withRequestOwner(req, async ({ ownerId }, responseHeaders) => {
+    const store = await getAgentSessionStore();
+    const sessions = (await store.listSessionsByOwner(ownerId))
+      .filter((session) => session.ownerId === ownerId)
+      .toSorted((a, b) => b.updatedAt - a.updatedAt);
+    const entries: DeliveredEntry[] = [];
+    for (const session of sessions.slice(0, LIBRARY_SESSION_LIMIT)) {
+      req.signal.throwIfAborted();
+      const materials = await listSessionMaterials(session.id, { limit: 100 }).catch(() => []);
+      entries.push(
+        ...deliveredEntries(
+          { id: session.id, title: workbenchSessionTitle(session) },
+          materials.filter((material) => material.sessionId === session.id),
+        ),
+      );
+    }
+    const sorted = sortDeliveredEntries(entries);
+    const body: DeliveredLibrary = {
+      entries: sorted.slice(0, LIBRARY_ENTRY_LIMIT),
+      truncated: sessions.length > LIBRARY_SESSION_LIMIT || sorted.length > LIBRARY_ENTRY_LIMIT,
+    };
+    const headers = new Headers(responseHeaders);
+    headers.set('Cache-Control', 'private, no-store');
+    return Response.json(body, { headers });
   });
 }

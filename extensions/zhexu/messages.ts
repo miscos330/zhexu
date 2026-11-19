@@ -28,6 +28,19 @@ export interface ZhexuMessages {
   readonly deliveryPages: (pages: number) => string;
   readonly annotationLabel: string;
   readonly annotationReview: string;
+  readonly filesNav: string;
+  readonly filesTitle: string;
+  readonly filesLead: string;
+  readonly filesLoading: string;
+  readonly filesEmpty: string;
+  readonly filesOff: string;
+  readonly filesError: string;
+  readonly filesRetry: string;
+  readonly filesTruncated: string;
+  readonly filesHandout: string;
+  readonly filesAnnotation: string;
+  readonly filesFrom: string;
+  readonly filesUntitledChat: string;
 }
 
 const ZH: ZhexuMessages = {
@@ -55,6 +68,19 @@ const ZH: ZhexuMessages = {
   deliveryPages: (pages) => `${pages} 页`,
   annotationLabel: '图片标注文件',
   annotationReview: '标注由 AI 辅助生成，使用前请核对位置。原图没有改动。',
+  filesNav: '我的文件',
+  filesTitle: '我的文件',
+  filesLead: '助手在各个对话里交付给你的讲义和标注图，最新的在前。',
+  filesLoading: '正在读取…',
+  filesEmpty: '还没有文件。在对话里让助手导出讲义或标注图片，文件会出现在这里。',
+  filesOff: '这个部署没有开启成品交付。',
+  filesError: '这次没能读到文件列表。',
+  filesRetry: '再试一次',
+  filesTruncated: '这里只列出了最近的一部分。更早的文件还在各自的对话里。',
+  filesHandout: '讲义',
+  filesAnnotation: '标注图',
+  filesFrom: '来自对话',
+  filesUntitledChat: '未命名对话',
 };
 
 const EN: ZhexuMessages = {
@@ -83,6 +109,22 @@ const EN: ZhexuMessages = {
   annotationLabel: 'Annotated image files',
   annotationReview:
     'The labels are AI-assisted: check the positions before use. The original image is unchanged.',
+  filesNav: 'My files',
+  filesTitle: 'My files',
+  filesLead:
+    'The handouts and annotated images the assistant has delivered in your conversations, newest first.',
+  filesLoading: 'Loading…',
+  filesEmpty:
+    'No files yet. Ask the assistant for a handout or to annotate an image in a conversation, and the files appear here.',
+  filesOff: 'Delivered files are not switched on in this deployment.',
+  filesError: 'The list of files could not be read this time.',
+  filesRetry: 'Try again',
+  filesTruncated:
+    'Only the most recent ones are listed. Older files are still in their conversations.',
+  filesHandout: 'Handout',
+  filesAnnotation: 'Annotated image',
+  filesFrom: 'From the conversation',
+  filesUntitledChat: 'Untitled conversation',
 };
 
 export function zhexuMessages(locale: string): ZhexuMessages {

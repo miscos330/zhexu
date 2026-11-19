@@ -131,12 +131,12 @@ window.ZX_STRINGS = {
     'open.now.annotations.term': 'Image annotations',
     'open.now.annotations.desc':
       'The assistant adds numbered notes to an image you attach and exports a PNG and a PDF; the original is not changed. Off by default.',
+    'open.now.files.term': 'My files',
+    'open.now.files.desc':
+      'One page that lists the handouts and annotated images delivered in your conversations.',
     'open.next.label': 'Planned',
     'open.next.worksheets.term': 'Worksheet layout',
     'open.next.worksheets.desc': 'Questions and answers on separate pages.',
-    'open.next.files.term': 'My files',
-    'open.next.files.desc':
-      'One page that lists the handouts and annotated images the assistant has delivered.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',
