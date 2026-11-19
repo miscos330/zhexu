@@ -37,6 +37,8 @@ export interface ZhexuMessages {
   readonly filesError: string;
   readonly filesRetry: string;
   readonly filesTruncated: string;
+  readonly filesMore: string;
+  readonly filesMoreError: string;
   readonly filesHandout: string;
   readonly filesAnnotation: string;
   readonly filesFrom: string;
@@ -77,6 +79,8 @@ const ZH: ZhexuMessages = {
   filesError: '这次没能读到文件列表。',
   filesRetry: '再试一次',
   filesTruncated: '这里只列出了最近的一部分。更早的文件还在各自的对话里。',
+  filesMore: '加载更早的文件',
+  filesMoreError: '没能读到更早的文件。再点一次重试。',
   filesHandout: '讲义',
   filesAnnotation: '标注图',
   filesFrom: '来自对话',
@@ -121,6 +125,8 @@ const EN: ZhexuMessages = {
   filesRetry: 'Try again',
   filesTruncated:
     'Only the most recent ones are listed. Older files are still in their conversations.',
+  filesMore: 'Load older files',
+  filesMoreError: 'Older files could not be read. Press again to retry.',
   filesHandout: 'Handout',
   filesAnnotation: 'Annotated image',
   filesFrom: 'From the conversation',

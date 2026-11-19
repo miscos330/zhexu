@@ -108,6 +108,60 @@ function literalPercents(latex: string): string {
   );
 }
 
+/** KaTeX sets a formula 1.21 times the text; a script in running text is set at the text's size. */
+const KATEX_SCALE = 1.21;
+
+const SUBSCRIPTS: Record<string, string> = {
+  '₀': '0',
+  '₁': '1',
+  '₂': '2',
+  '₃': '3',
+  '₄': '4',
+  '₅': '5',
+  '₆': '6',
+  '₇': '7',
+  '₈': '8',
+  '₉': '9',
+  '₊': '+',
+  '₋': '-',
+  '₌': '=',
+  '₍': '(',
+  '₎': ')',
+};
+const SUPERSCRIPTS: Record<string, string> = {
+  '⁰': '0',
+  '¹': '1',
+  '²': '2',
+  '³': '3',
+  '⁴': '4',
+  '⁵': '5',
+  '⁶': '6',
+  '⁷': '7',
+  '⁸': '8',
+  '⁹': '9',
+  '⁺': '+',
+  '⁻': '-',
+  '⁼': '=',
+  '⁽': '(',
+  '⁾': ')',
+  ⁿ: 'n',
+};
+/** Splits text into runs of script characters (kept by the capture) and the rest. */
+const SCRIPT_RUN = new RegExp(
+  `([${Object.keys(SUBSCRIPTS).join('')}]+|[${Object.keys(SUPERSCRIPTS).join('')}]+)`,
+  'u',
+);
+
+/** LaTeX for a run of subscript or superscript characters, or null for other text. */
+function scriptLatex(run: string): string | null {
+  const chars = Array.from(run);
+  if (chars.every((char) => char in SUBSCRIPTS))
+    return `{}_{${chars.map((char) => SUBSCRIPTS[char]).join('')}}`;
+  if (chars.every((char) => char in SUPERSCRIPTS))
+    return `{}^{${chars.map((char) => SUPERSCRIPTS[char]).join('')}}`;
+  return null;
+}
+
 /** Characters for formula placeholders while text is wrapped: Supplementary Private Use Area-B. */
 const PLACEHOLDER_START = 0x100000;
 
@@ -353,8 +407,19 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
 
     for (const segment of parseQuizMathText(row)) {
       if (segment.type === 'text') {
-        run += segment.value;
-        runHasContent ||= segment.value.length > 0;
+        // Subscript and superscript characters (H₂O, x²) are in none of the
+        // text fonts: each run of them is set as a KaTeX script instead.
+        for (const piece of segment.value.split(SCRIPT_RUN)) {
+          if (!piece) continue;
+          const script = scriptLatex(piece);
+          const formula = script && options.typeset(script, false, 1 / KATEX_SCALE);
+          if (formula) {
+            const mark = placeholder();
+            inline.set(mark, formula);
+            run += mark;
+          } else run += piece;
+          runHasContent = true;
+        }
         continue;
       }
       const fitted = fit(segment.value, segment.displayMode, room);

@@ -247,14 +247,59 @@ function interactiveText(content: Record<string, unknown>, labels: Labels): stri
 }
 
 /**
- * What a project page sets out: its description, learning objective and
- * milestones with their tasks. Only the project as designed is read (v2,
- * stored in the page); a v3 project lives in a separate package and gives
- * only the page's title.
+ * What a v3 project sets out, read by the caller from its own package (a v3
+ * page holds only a reference to it): the introduction, what the learner gains,
+ * and the milestones with their goals.
  */
-function projectText(content: Record<string, unknown>, labels: Labels): string {
+export interface ProjectSummary {
+  description: string;
+  gains: string[];
+  milestones: Array<{ title: string; goal: string }>;
+}
+
+/** The summary of a resolved v3 project definition; fields it lacks are left empty. */
+export function projectSummary(definition: unknown): ProjectSummary {
+  const project = isRecord(definition) ? definition : {};
+  const presentation = isRecord(project.presentation) ? project.presentation : {};
+  const hero = isRecord(presentation.hero) ? presentation.hero : {};
+  return {
+    description: text(hero.description).trim(),
+    gains: list(hero.gains)
+      .map((gain) => text(gain).trim())
+      .filter(Boolean),
+    milestones: list(project.milestones)
+      .filter(isRecord)
+      .map((milestone) => ({
+        title: text(milestone.title).trim(),
+        goal: text(milestone.goal).trim(),
+      }))
+      .filter((milestone) => milestone.title || milestone.goal),
+  };
+}
+
+function v3ProjectText(summary: ProjectSummary, labels: Labels): string {
+  const out: string[] = [];
+  if (summary.description) out.push(summary.description);
+  for (const gain of summary.gains) out.push(`· ${gain}`);
+  summary.milestones.forEach(({ title, goal }, index) =>
+    out.push(`${index + 1}. ${title && goal ? labelled(title, goal, labels) : title || goal}`),
+  );
+  return out.join('\n');
+}
+
+/**
+ * What a project page sets out: its description, learning objective and
+ * milestones with their tasks, from the project stored in the page (v2). A v3
+ * page holds only a reference; its text comes from `projects`, which the caller
+ * resolved for the owner, and the page gives only its title without it.
+ */
+function projectText(
+  content: Record<string, unknown>,
+  labels: Labels,
+  resolved?: ProjectSummary,
+): string {
   const project = isRecord(content.projectV2) ? content.projectV2 : undefined;
-  if (!project) return '';
+  if (!project) return resolved ? v3ProjectText(resolved, labels) : '';
   const out: string[] = [];
   const description = text(project.description).trim();
   if (description) out.push(description);
@@ -360,6 +405,8 @@ export function courseHandoutText(
   course: CourseForHandout,
   content: CourseHandoutContent = 'full',
   range: { from?: number; to?: number } = {},
+  /** v3 projects the caller resolved, by the id of their page. */
+  projects?: ReadonlyMap<string, ProjectSummary>,
 ): CourseHandoutText {
   const ordered = course.scenes.filter(isRecord).map((scene, index) => ({ scene, index }));
   ordered.sort((a, b) => {
@@ -416,7 +463,9 @@ export function courseHandoutText(
         if (written) lines.push(written);
       } else if (body.type === 'interactive' || body.type === 'pbl') {
         const written =
-          body.type === 'interactive' ? interactiveText(body, labels) : projectText(body, labels);
+          body.type === 'interactive'
+            ? interactiveText(body, labels)
+            : projectText(body, labels, projects?.get(text(scene.id)));
         if (written) lines.push(written);
       }
       if (content === 'full') {

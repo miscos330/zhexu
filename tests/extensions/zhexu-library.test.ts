@@ -69,6 +69,9 @@ import {
   deliveredEntries,
   LIBRARY_ENTRY_LIMIT,
   LIBRARY_SESSION_LIMIT,
+  libraryCursor,
+  libraryOrder,
+  parseLibraryCursor,
   sortDeliveredEntries,
   type DeliveredLibrary,
 } from '@/extensions/zhexu/deliverables/library';
@@ -235,14 +238,70 @@ describe('listing delivered files', () => {
     expect(body.entries.map((entry) => entry.sessionId)).toEqual(['s1']);
   });
 
-  it('looks at the most recent conversations only and says when there are more', async () => {
+  it('looks at a page of the most recent conversations and says where the next page starts', async () => {
     state.listed = Array.from({ length: LIBRARY_SESSION_LIMIT + 1 }, (_, index) =>
       session(`s${index}`, 'user:one', index),
     );
-    // Only the oldest conversation, the one past the limit, has a file.
+    // Only the oldest conversation, the one past the first page, has a file.
     state.materials = [{ sessionId: 's0', ...handout('mat_old', 'pdf') }];
-    const body = (await (await listDeliveredFiles(request())).json()) as DeliveredLibrary;
-    expect(body).toEqual({ entries: [], truncated: true });
-    expect(LIBRARY_ENTRY_LIMIT).toBeGreaterThan(0);
+    const first = (await (await listDeliveredFiles(request())).json()) as DeliveredLibrary;
+    expect(first).toEqual({ entries: [], truncated: true, next: '1~s1' });
+    const second = (await (
+      await listDeliveredFiles(
+        new Request(`http://localhost/api/extensions/zhexu/files?after=${first.next}`),
+      )
+    ).json()) as DeliveredLibrary;
+    expect(second.entries.map((entry) => entry.sessionId)).toEqual(['s0']);
+    expect(second).toMatchObject({ truncated: false });
+    expect(second.next).toBeUndefined();
+  });
+
+  it('ends a page at a whole conversation when the files would pass the limit', async () => {
+    state.listed = [session('busy', 'user:one', 3), session('next', 'user:one', 2)];
+    state.materials = [
+      ...Array.from({ length: LIBRARY_ENTRY_LIMIT }, (_, index) => ({
+        sessionId: 'busy',
+        ...handout(
+          `mat_b${index}`,
+          'pdf',
+          `${index}`.padStart(64, 'a').slice(-64),
+          `第 ${index} 份`,
+        ),
+      })),
+      { sessionId: 'next', ...handout('mat_n', 'pdf', OTHER, '下一页') },
+    ];
+    const first = (await (await listDeliveredFiles(request())).json()) as DeliveredLibrary;
+    expect(first.entries).toHaveLength(LIBRARY_ENTRY_LIMIT);
+    expect(first.entries.every((entry) => entry.sessionId === 'busy')).toBe(true);
+    expect(first.next).toBe('3~busy');
+    const second = (await (
+      await listDeliveredFiles(
+        new Request(`http://localhost/api/extensions/zhexu/files?after=${first.next}`),
+      )
+    ).json()) as DeliveredLibrary;
+    expect(second.entries.map((entry) => entry.title)).toEqual(['下一页']);
+  });
+
+  it('orders conversations active at the same time by id, so a page boundary loses none', () => {
+    const order = [
+      { id: 'b', updatedAt: 5 },
+      { id: 'a', updatedAt: 5 },
+      { id: 'c', updatedAt: 9 },
+    ].toSorted(libraryOrder);
+    expect(order.map((item) => item.id)).toEqual(['c', 'a', 'b']);
+    const cursor = parseLibraryCursor(libraryCursor(order[1]!))!;
+    expect(order.filter((item) => libraryOrder(item, cursor) > 0).map((item) => item.id)).toEqual([
+      'b',
+    ]);
+    expect(parseLibraryCursor('not a cursor')).toBeNull();
+    expect(parseLibraryCursor('12~has space')).toBeNull();
+  });
+
+  it('refuses a position that is not one, as a bad request', async () => {
+    const response = await listDeliveredFiles(
+      new Request('http://localhost/api/extensions/zhexu/files?after=%3Cscript%3E'),
+    );
+    expect(response.status).toBe(400);
+    expect(response.headers.get('Cache-Control')).toBe('private, no-store');
   });
 });

@@ -393,6 +393,24 @@ describe('a handout body with formulas', () => {
     }
   });
 
+  it('sets subscript and superscript characters as scripts, without growing the line', () => {
+    const layout = layoutBody('水是 H₂O，面积单位 m²，离子 SO₄²⁻。', options());
+    const [line] = layout.sections[0]!;
+    expect(kinds(line!)).toEqual([
+      '水是 H',
+      '[{}_{2}]',
+      'O，面积单位 m',
+      '[{}^{2}]',
+      '，离子 SO',
+      '[{}_{4}]',
+      '[{}^{2-}]',
+      '。',
+    ]);
+    expect(line!.above + line!.below).toBe(50);
+    // Not formulas the text wrote: they are not counted as such.
+    expect(layout.formulas).toBe(0);
+  });
+
   it('leaves text with pipes alone unless it is a table', () => {
     const body = '| 只有一行 |\n竖线 a | b 不在行首\n\n| 前 |\n后面不是表格';
     const layout = layoutBody(body, options());

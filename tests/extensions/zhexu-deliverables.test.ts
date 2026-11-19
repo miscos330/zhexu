@@ -37,7 +37,8 @@ interface ToolResult {
   content: Array<{ text: string }>;
 }
 
-function fixture() {
+/** The tools against an in-memory session; `extra` replaces dependencies (a course loader, a resolver). */
+function fixture(extra: Record<string, unknown> = {}) {
   const records = new Map<string, Record<string, unknown>>();
   const objects = new Map<string, { bytes: Buffer; mime: string }>();
   let next = 0;
@@ -87,6 +88,7 @@ function fixture() {
     list: async () => [...records.values()].reverse(),
     get: async (_sessionId: string, id: string) => records.get(id) ?? null,
     read: async (_sessionId: string, key: string) => objects.get(key) ?? null,
+    ...extra,
   } as never);
   const run = (name: string, input: unknown = {}, signal?: AbortSignal) =>
     tools
@@ -735,6 +737,54 @@ describe('course handout text', () => {
 });
 
 describe('course handout tool', () => {
+  it('reads a v3 project a page refers to, for the owner, and keeps just the title when it cannot', async () => {
+    const ref = { id: 'periscope', version: '1.0.0' };
+    const course = {
+      name: '项目课',
+      scenes: [
+        {
+          id: 'scene-a',
+          title: '设计潜望镜',
+          type: 'pbl',
+          content: { type: 'pbl', projectV3: ref },
+        },
+        {
+          id: 'scene-b',
+          title: '另一个项目',
+          type: 'pbl',
+          content: { type: 'pbl', projectV3: ref },
+        },
+      ],
+    };
+    const resolveProject = vi.fn(
+      async (_owner: string, _course: string, _ref: unknown, sceneId: string) => {
+        if (sceneId === 'scene-b') throw Error('unavailable');
+        return {
+          title: '潜望镜',
+          presentation: {
+            hero: { description: '用平面镜做一个潜望镜。', gains: ['光的反射', '动手制作'] },
+          },
+          milestones: [
+            { id: 'm1', title: '画光路', goal: '确定两面镜子的角度' },
+            { id: 'm2', title: '组装' },
+          ],
+        };
+      },
+    );
+    const f = fixture({ loadCourse: async () => course, resolveProject });
+    const made = await f.run('create_course_handout', { courseId: 'course-9', content: 'slides' });
+    expect(made.isError).not.toBe(true);
+    expect(resolveProject.mock.calls.map((call) => [call[0], call[1], call[3]])).toEqual([
+      ['user:one', 'course-9', 'scene-a'],
+      ['user:one', 'course-9', 'scene-b'],
+    ]);
+    expect(resolveProject.mock.calls[0]![2]).toEqual(ref);
+    const source = f.render.mock.calls[0][0] as DeliverableSource;
+    expect(source.body).toBe(
+      '1. 设计潜望镜\n用平面镜做一个潜望镜。\n· 光的反射\n· 动手制作\n1. 画光路：确定两面镜子的角度\n2. 组装\n\n2. 另一个项目',
+    );
+  });
+
   it('renders the saved text of an owned course without the model retyping it', async () => {
     const f = fixture();
     const made = await f.run('create_course_handout', { courseId: 'course-1' });

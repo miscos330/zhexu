@@ -27,7 +27,7 @@ Available now:
 - **Extension layer**: new features live under [`extensions/`](/extensions/README.md) and are added with a few small hooks into upstream code, so upgrades stay easy.
 - **A4 handouts**: the assistant hands an answer over as real files, an A4 PDF and page images, optionally in a Chinese handwriting face. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Image annotations**: the assistant looks at an image you attached and puts numbered labels on it, as an A4 PNG and PDF. The original image is kept unchanged. [How it works](/extensions/README.md#image-annotations-zhexu).
-- **My files**: a page in the rail that lists the handouts and annotated images the assistant has delivered in your conversations, ready to download. Available when either switch is on.
+- **My files**: a page in the rail that lists the handouts and annotated images the assistant has delivered in your conversations, ready to download, older ones a page at a time. Available when either switch is on.
 - **Course handouts**: export a course you have saved as an A4 handout: what is written on each page, the narration and the quiz questions in page order, with the answers on a page of their own at the end. The text is taken from the course as it is, not rewritten by a model. The quiz questions alone make a worksheet: a line for the name, class and date at the top, room to write under open questions, and the answers on their own page. It shares the switch of A4 handouts.
 - **Typeset formulas**: LaTeX in a handout (`\(` `\)` inside a line, `\[` `\]` on a line of its own) and the formulas of a course are typeset, with the same layout and fonts as KaTeX gives them on a slide. A formula that cannot be drawn that way is printed as its LaTeX source. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Tables**: a Markdown pipe table in a handout, and a table of a course, is drawn ruled, with a shaded header row, aligned columns, long cells wrapped and merged cells drawn as one box; a long table repeats its header on each page. [How it works](/extensions/README.md#a4-handouts-zhexu).
@@ -44,7 +44,7 @@ These two pages are real output of the renderer, made from test content.
 
 Planned:
 
-- **Newer project pages**: a project in the newer format (PBL v3) is kept in a package of its own and gives a handout only its title for now; the plan is to read its text too.
+- **Markdown in handouts**: headings, emphasis and lists that the assistant writes in Markdown are printed as written for now; the plan is to set them as headings, bold text and lists.
 
 The direction is printable material for teachers, which is where ZHEXU differs from upstream.
 

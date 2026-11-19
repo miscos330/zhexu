@@ -19,6 +19,9 @@ import {
   deliveredEntries,
   LIBRARY_ENTRY_LIMIT,
   LIBRARY_SESSION_LIMIT,
+  libraryCursor,
+  libraryOrder,
+  parseLibraryCursor,
   sortDeliveredEntries,
   type DeliveredEntry,
   type DeliveredLibrary,
@@ -132,25 +135,41 @@ export async function verifyDeliverable(req: Request): Promise<Response> {
 export async function listDeliveredFiles(req: Request): Promise<Response> {
   if (!downloadsAvailable()) return notFound();
   return withRequestOwner(req, async ({ ownerId }, responseHeaders) => {
+    const after = new URL(req.url).searchParams.get('after');
+    const cursor = after === null ? null : parseLibraryCursor(after);
+    if (after !== null && !cursor) {
+      const headers = new Headers(responseHeaders);
+      headers.set('Cache-Control', 'private, no-store');
+      return Response.json({ error: 'bad_cursor' }, { status: 400, headers });
+    }
     const store = await getAgentSessionStore();
     const sessions = (await store.listSessionsByOwner(ownerId))
       .filter((session) => session.ownerId === ownerId)
-      .toSorted((a, b) => b.updatedAt - a.updatedAt);
+      .toSorted(libraryOrder);
+    // This page: the conversations after the cursor, at most a page of them,
+    // and whole conversations only, so the next page starts where this one ends.
+    const remaining = cursor
+      ? sessions.filter((session) => libraryOrder(session, cursor) > 0)
+      : sessions;
     const entries: DeliveredEntry[] = [];
-    for (const session of sessions.slice(0, LIBRARY_SESSION_LIMIT)) {
+    let included = 0;
+    for (const session of remaining.slice(0, LIBRARY_SESSION_LIMIT)) {
       req.signal.throwIfAborted();
       const materials = await listSessionMaterials(session.id, { limit: 100 }).catch(() => []);
-      entries.push(
-        ...deliveredEntries(
-          { id: session.id, title: workbenchSessionTitle(session) },
-          materials.filter((material) => material.sessionId === session.id),
-        ),
+      const found = deliveredEntries(
+        { id: session.id, title: workbenchSessionTitle(session) },
+        materials.filter((material) => material.sessionId === session.id),
       );
+      if (included > 0 && entries.length + found.length > LIBRARY_ENTRY_LIMIT) break;
+      entries.push(...found);
+      included += 1;
     }
     const sorted = sortDeliveredEntries(entries);
+    const more = remaining.length > included;
     const body: DeliveredLibrary = {
       entries: sorted.slice(0, LIBRARY_ENTRY_LIMIT),
-      truncated: sessions.length > LIBRARY_SESSION_LIMIT || sorted.length > LIBRARY_ENTRY_LIMIT,
+      truncated: more || sorted.length > LIBRARY_ENTRY_LIMIT,
+      ...(more && included > 0 ? { next: libraryCursor(remaining[included - 1]!) } : {}),
     };
     const headers = new Headers(responseHeaders);
     headers.set('Cache-Control', 'private, no-store');

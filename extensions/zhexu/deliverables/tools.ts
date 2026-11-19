@@ -19,7 +19,7 @@ import {
   type DeliverableFile,
   type DeliverableSource,
 } from './contract';
-import { courseHandoutText } from './course-source';
+import { courseHandoutText, projectSummary, type ProjectSummary } from './course-source';
 import { loadOwnedCourse } from './course-store';
 import { renderDeliverable, type DeliverableImageReader } from './render';
 import { persistDeliverableMaterial } from './storage';
@@ -42,6 +42,8 @@ const RECORD_PREFIX = 'zhexu-deliverable-';
 const RECORD_MAX_BYTES = 40000;
 /** A run may render at most this many handouts, so a loop cannot fill the session. */
 const RENDERS_PER_RUN = 2;
+/** A course handout looks up at most this many v3 projects. */
+const MAX_PROJECTS = 20;
 
 const storedSchema = z
   .object({
@@ -90,12 +92,70 @@ export interface DeliverableToolDeps {
    * asset rule). Defaults to the server asset pool; nothing remote is read.
    */
   readImage?: DeliverableImageReader;
+  /**
+   * The definition of a v3 project a course page refers to, as this owner may
+   * read it; throws when it is not available. Defaults to upstream's resolver.
+   */
+  resolveProject?: (
+    ownerId: string,
+    courseId: string,
+    ref: unknown,
+    sceneId: string,
+  ) => Promise<unknown>;
   /** A course of this owner by id; `null` for one that is missing or someone else's. */
   loadCourse?: typeof loadOwnedCourse;
 }
 
 export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
   let rendered = 0;
+
+  /**
+   * The v3 projects a course's pages refer to, by page id, resolved for this
+   * owner through upstream's resolver (which checks the course is the owner's).
+   * A project that cannot be resolved is left out, and its page gives only its
+   * title. At most `MAX_PROJECTS` are looked up.
+   */
+  const v3Projects = async (
+    courseId: string,
+    course: { scenes: readonly unknown[] },
+    signal?: AbortSignal,
+  ): Promise<Map<string, ProjectSummary>> => {
+    const found = new Map<string, ProjectSummary>();
+    const pages = course.scenes.flatMap((scene) => {
+      if (typeof scene !== 'object' || scene === null) return [];
+      const page = scene as { id?: unknown; content?: unknown };
+      const content = (page.content ?? {}) as {
+        type?: unknown;
+        projectV2?: unknown;
+        projectV3?: unknown;
+      };
+      return content.type === 'pbl' &&
+        !content.projectV2 &&
+        content.projectV3 &&
+        typeof page.id === 'string'
+        ? [{ id: page.id, ref: content.projectV3 }]
+        : [];
+    });
+    if (pages.length === 0) return found;
+    const resolve =
+      deps.resolveProject ??
+      (async (ownerId: string, stageId: string, ref: unknown, sceneId: string) => {
+        // Loaded only for a course that has a v3 project: the resolver is server-only.
+        const { resolveProject } = await import('@/lib/server/pbl-v3/project-resolver');
+        const { isPBLV3Reference } = await import('@openmaic/dsl');
+        if (!isPBLV3Reference(ref)) throw Error('not a project reference');
+        return (await resolveProject(ownerId, stageId, ref, undefined, sceneId)).definition;
+      });
+    for (const { id, ref } of pages.slice(0, MAX_PROJECTS)) {
+      signal?.throwIfAborted();
+      try {
+        found.set(id, projectSummary(await resolve(deps.ownerId, courseId, ref, id)));
+      } catch {
+        // Unavailable or not this owner's: the page keeps just its title.
+      }
+    }
+    return found;
+  };
 
   const owned = async (signal?: AbortSignal) => {
     signal?.throwIfAborted();
@@ -366,10 +426,13 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
         const course = await (deps.loadCourse ?? loadOwnedCourse)(deps.ownerId, params.courseId);
         signal?.throwIfAborted();
         if (!course) throw Error('deliverable_course_not_found');
-        const text = courseHandoutText(course, params.content ?? 'full', {
-          from: params.fromScene,
-          to: params.toScene,
-        });
+        const projects = await v3Projects(params.courseId, course, signal);
+        const text = courseHandoutText(
+          course,
+          params.content ?? 'full',
+          { from: params.fromScene, to: params.toScene },
+          projects,
+        );
         if (!text.scenes) throw Error('deliverable_course_range');
         if (!text.body.trim())
           throw Error(

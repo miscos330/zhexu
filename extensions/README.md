@@ -82,7 +82,9 @@ face. The conversation shows a card with a preview, the download links and a
 "Check files" button.
 
 `create_course_handout` makes the same files from one of the owner's saved
-courses: what is written on each page, the narration, the quiz questions, and what an interactive page (its widget's description and steps) or a project page (its goal, milestones and tasks) sets out, in
+courses: what is written on each page, the narration, the quiz questions, and what an interactive page (its widget's description and steps) or a project page (its goal, milestones and tasks; for a v3 project, read for
+the owner through upstream's `resolveProject`, its introduction, gains and
+milestones) sets out, in
 page order, with the answers at the end. The text is taken from the course as
 it is saved; no model writes or shortens it, and a course too long for sixteen
 pages is refused with a hint to export a range of pages. `content=slides`
@@ -107,8 +109,12 @@ lists what was delivered to the owner in every conversation, handouts and
 annotated images alike, with the same private download links the cards use. It
 stores nothing: the list is read from the session materials that carry the
 extension's provenance, through the store's owner-only listing of
-conversations, newest first and at most fifty conversations at a time. It is
-available when either switch is on and says so when neither is.
+conversations, newest first, fifty conversations (and at most 200 files, whole
+conversations only) a page. "Load older files" asks for the next page after
+the last conversation shown (`?after=`, a position rather than a page number,
+so a conversation that becomes active meanwhile is not listed twice). It is
+available when either switch is on and says so when neither is. The browser
+tests also open it 375 pixels wide and check that nothing scrolls sideways.
 
 | File in `zhexu/deliverables/` | What it holds                                                                    |
 | ----------------------------- | -------------------------------------------------------------------------------- |
@@ -201,9 +207,13 @@ placed leaves a visible note (`［图片未放入：description］`, or English 
 English text). A course's pictures are written as such lines, a background left
 out; one held as a URL or data URL is written `![](-)` and so shows the note.
 
-Not covered: subscript and superscript digits such as ₁ in plain text (no
-shipped text font has them; in a formula, write `x_1`), and a picture inside a
-line of text. Text that needs more than sixteen pages is refused, not cut.
+Subscript and superscript characters in plain text (H₂O, m², SO₄²⁻) are in none
+of the shipped text fonts, so each run of them is set as a KaTeX script at the
+text's size; the line keeps its height.
+
+Not covered: a picture inside a line of text, and Markdown other than tables
+(headings, emphasis, lists are printed as written). Text that needs more than
+sixteen pages is refused, not cut.
 
 ## Image annotations (ZHEXU)
 

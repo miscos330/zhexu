@@ -52,6 +52,23 @@ test('a delivered handout is listed on the My files page and downloads from ther
     const head = (await response.body()).subarray(0, 4).toString('latin1');
     if (link.name.endsWith('.pdf')) expect(head, link.name).toBe('%PDF');
   }
+  // One conversation: nothing older to load.
+  await expect(files.getByTestId('zhexu-files-more')).toHaveCount(0);
+
+  // On a phone the page fits the screen: no sideways scrolling, every
+  // download button whole and inside it.
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.reload();
+  await expect(files).toHaveAttribute('data-state', 'ready');
+  await expect(entry).toBeVisible();
+  const fits = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+  expect(fits).toBe(true);
+  for (const link of await entry.locator('a[download]').all()) {
+    const box = await link.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(375);
+  }
 });
 
 test('a visitor with no files sees an empty page', async ({ page }) => {

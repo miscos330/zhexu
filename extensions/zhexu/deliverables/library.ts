@@ -30,12 +30,41 @@ export interface DeliveredLibrary {
   entries: DeliveredEntry[];
   /** True when the owner has more conversations or files than one answer lists. */
   truncated: boolean;
+  /** Where the next page starts (`?after=`), when there are more conversations. */
+  next?: string;
 }
 
 /** Conversations looked at for one listing, newest first. */
 export const LIBRARY_SESSION_LIMIT = 50;
 /** Entries one listing returns. */
 export const LIBRARY_ENTRY_LIMIT = 200;
+
+interface Ordered {
+  id: string;
+  updatedAt: number;
+}
+
+/** The listing's order: most recently active conversation first, then by id. */
+export function libraryOrder(a: Ordered, b: Ordered): number {
+  return b.updatedAt - a.updatedAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+}
+
+const CURSOR = /^(\d{1,16})~([^\s~]{1,200})$/;
+
+/**
+ * A page of the listing ends after a conversation; the next page starts after
+ * it in the listing's order. A position, not a page number: a conversation that
+ * becomes active meanwhile moves to the front instead of shifting later pages.
+ */
+export function libraryCursor(session: Ordered): string {
+  return `${Math.max(0, Math.trunc(session.updatedAt))}~${session.id}`;
+}
+
+/** The position a cursor names, or null for anything that is not one. */
+export function parseLibraryCursor(value: string): Ordered | null {
+  const match = CURSOR.exec(value);
+  return match ? { updatedAt: Number(match[1]), id: match[2]! } : null;
+}
 
 const PROVENANCE = /^urn:zhexu:(deliverable|annotation):([^:]{1,128}):(pdf|png|zip):[a-f0-9]{64}$/;
 const MATERIAL_ID = /^mat_[a-z0-9]{1,96}$/;
