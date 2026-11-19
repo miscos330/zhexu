@@ -11,6 +11,7 @@ import sharp from 'sharp';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { deploymentAgentTools } from '@/extensions/agent-tools';
 import {
+  DELIVERABLE_PAGE_BREAK,
   DELIVERABLE_TOOL_NAMES,
   deliverableDownloadUrl,
   deliverableVerifyUrl,
@@ -436,8 +437,10 @@ describe('course handout text', () => {
           'B. 更小',
           '2. 举一个生活中的折射现象。',
         ].join('\n'),
+      ].join('\n\n') +
+        // The answers start on a page of their own.
+        DELIVERABLE_PAGE_BREAK +
         ['答案与解析', '1. B', '解析: 光从空气进入水中时向法线偏折。'].join('\n'),
-      ].join('\n\n'),
     );
   });
 
@@ -448,15 +451,42 @@ describe('course handout text', () => {
     expect(body).not.toContain('同学们好');
   });
 
-  it('makes a worksheet: the questions first, the answers after them', () => {
+  it('makes a worksheet: a name line, the questions, and the answers on their own page', () => {
     const text = courseHandoutText(COURSE, 'questions');
     expect(text.title).toBe('光的折射 练习');
     expect(text.body).toBe(
       [
+        '姓名：________　班级：________　日期：________',
         ['1. 光从空气斜射入水中，折射角与入射角相比？', 'A. 更大', 'B. 更小'].join('\n'),
         '2. 举一个生活中的折射现象。',
+      ].join('\n\n') +
+        DELIVERABLE_PAGE_BREAK +
         ['答案与解析', '1. B', '解析: 光从空气进入水中时向法线偏折。'].join('\n'),
-      ].join('\n\n'),
+    );
+    // A worksheet without answers has no page break and no empty answer page.
+    const quiz = (questions: unknown[]) => ({
+      name: 'Refraction',
+      scenes: [{ type: 'quiz', content: { type: 'quiz', questions } }],
+    });
+    expect(
+      courseHandoutText(quiz([{ question: 'Name one refraction effect.' }]), 'questions').body,
+    ).toBe('Name: ________   Class: ________   Date: ________\n\n1. Name one refraction effect.');
+    // A question without options gets room to write under it, and one whose
+    // only answer is its explanation shows that explanation as the answer.
+    expect(
+      courseHandoutText(
+        quiz([
+          { question: 'Why does a straw look bent?', analysis: 'Light bends as it leaves water.' },
+          { question: 'Name one refraction effect.' },
+        ]),
+        'questions',
+      ).body,
+    ).toBe(
+      'Name: ________   Class: ________   Date: ________\n\n' +
+        '1. Why does a straw look bent?\n\n\n\n\n' +
+        '2. Name one refraction effect.' +
+        DELIVERABLE_PAGE_BREAK +
+        'Answers\n1. Light bends as it leaves water.',
     );
   });
 
@@ -609,6 +639,32 @@ describe('handout renderer', () => {
     const zip = await JSZip.loadAsync(files.find((file) => file.format === 'zip')!.bytes);
     expect(Object.keys(zip.files)).toHaveLength(pages);
     expect(zip.file('page-01.png')).not.toBeNull();
+  });
+
+  it('starts a new page at a page break, and adds no empty page for a trailing one', async () => {
+    const render = async (body: string) =>
+      (await renderDeliverable({ kind: 'document', title: '练习', body, style: 'standard' }))[0]!
+        .pages;
+    expect(await render('题目')).toBe(1);
+    expect(await render(`题目${DELIVERABLE_PAGE_BREAK}答案`)).toBe(2);
+    expect(await render(`题目\n${DELIVERABLE_PAGE_BREAK}\n答案${DELIVERABLE_PAGE_BREAK}`)).toBe(2);
+    expect(
+      await render(
+        `${DELIVERABLE_PAGE_BREAK}${DELIVERABLE_PAGE_BREAK}题目${DELIVERABLE_PAGE_BREAK}`,
+      ),
+    ).toBe(1);
+    // The two pages hold different text: the second is not a copy of the first.
+    const files = await renderDeliverable({
+      kind: 'document',
+      title: '练习',
+      body: `题目${DELIVERABLE_PAGE_BREAK}答案`,
+      style: 'standard',
+    });
+    const zip = await JSZip.loadAsync(files.find((file) => file.format === 'zip')!.bytes);
+    const [first, second] = await Promise.all(
+      ['page-01.png', 'page-02.png'].map((name) => zip.file(name)!.async('nodebuffer')),
+    );
+    expect(first.equals(second)).toBe(false);
   });
 
   it('refuses text that needs more than sixteen pages instead of dropping any of it', async () => {

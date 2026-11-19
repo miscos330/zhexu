@@ -28,7 +28,7 @@ Available now:
 - **A4 handouts**: the assistant hands an answer over as real files, an A4 PDF and page images, optionally in a Chinese handwriting face. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Image annotations**: the assistant looks at an image you attached and puts numbered labels on it, as an A4 PNG and PDF. The original image is kept unchanged. [How it works](/extensions/README.md#image-annotations-zhexu).
 - **My files**: a page in the rail that lists the handouts and annotated images the assistant has delivered in your conversations, ready to download. Available when either switch is on.
-- **Course handouts**: export a course you have saved as an A4 handout: what is written on each page, the narration and the quiz questions in page order, with the answers at the end. The text is taken from the course as it is, not rewritten by a model. The quiz questions alone make a worksheet. It shares the switch of A4 handouts.
+- **Course handouts**: export a course you have saved as an A4 handout: what is written on each page, the narration and the quiz questions in page order, with the answers on a page of their own at the end. The text is taken from the course as it is, not rewritten by a model. The quiz questions alone make a worksheet: a line for the name, class and date at the top, room to write under open questions, and the answers on their own page. It shares the switch of A4 handouts.
 
 They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. They have not been run with a real model yet.
 
@@ -40,7 +40,7 @@ These two pages are real output of the renderer, made from test content.
 
 Planned:
 
-- **Worksheet layout**: questions and answers on separate pages.
+- **Typeset formulas**: a formula in a handout is printed as its LaTeX source for now; the plan is to typeset it.
 
 The direction is printable material for teachers, which is where ZHEXU differs from upstream.
 

@@ -13,6 +13,12 @@ export const DELIVERABLE_MIME = 'application/vnd.zhexu.deliverable+json';
 /** Largest file a handout may produce or serve. */
 export const DELIVERABLE_MAX_FILE_BYTES = 16 * 1024 * 1024;
 
+/**
+ * A form feed in the body of a handout: what follows starts on a new page. A
+ * worksheet uses it to keep its answers off the page of questions.
+ */
+export const DELIVERABLE_PAGE_BREAK = '\f';
+
 export const deliverableSourceSchema = z
   .object({
     kind: z.literal('document'),

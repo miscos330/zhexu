@@ -319,7 +319,7 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
     label: 'Create a handout from a course',
     executionMode: 'sequential',
     description:
-      "Turn one of the user's own saved courses into real private files: an A4 PDF and page images. The text comes from the course as it is saved (what is written on each page, the narration, the quiz questions); nothing is rewritten or added and no model is called, so do not retype the course in any argument. courseId is the id of the course. content=full (default) includes the narration, slides only what is written on the pages, questions makes a worksheet: the quiz questions first and the answers after them. A long course that does not fit in 16 pages is refused: export it in parts with fromScene and toScene (1-based page numbers, inclusive) or use content=slides.",
+      "Turn one of the user's own saved courses into real private files: an A4 PDF and page images. The text comes from the course as it is saved (what is written on each page, the narration, the quiz questions); nothing is rewritten or added and no model is called, so do not retype the course in any argument. courseId is the id of the course. content=full (default) includes the narration, slides only what is written on the pages, questions makes a worksheet: a line for the student's name, the quiz questions, and the answers on a page of their own. A long course that does not fit in 16 pages is refused: export it in parts with fromScene and toScene (1-based page numbers, inclusive) or use content=slides.",
     parameters: Type.Object(
       {
         courseId: Type.String({ minLength: 1, maxLength: 200 }),

@@ -5,7 +5,13 @@
  * narration and the quiz questions are taken from the course as it was saved,
  * in page order. The shapes below name only the fields that are read, so a
  * course written by a newer format still gives what it has of them.
+ *
+ * The answers start on a new page, so a page of questions can be handed out
+ * without them. The only words that are not the course's own are the labels
+ * ("Notes", "Answers") and, on a worksheet, a line for the student's name.
  */
+
+import { DELIVERABLE_PAGE_BREAK } from './contract';
 
 export type CourseHandoutContent = 'full' | 'slides' | 'questions';
 
@@ -29,6 +35,7 @@ interface Labels {
   exercises: string;
   answers: string;
   worksheet: string;
+  nameLine: string;
   untitled: string;
   analysis: string;
 }
@@ -38,6 +45,7 @@ const ZH: Labels = {
   exercises: '练习',
   answers: '答案与解析',
   worksheet: '练习',
+  nameLine: '姓名：________　班级：________　日期：________',
   untitled: '未命名',
   analysis: '解析',
 };
@@ -46,6 +54,7 @@ const EN: Labels = {
   exercises: 'Exercises',
   answers: 'Answers',
   worksheet: 'Worksheet',
+  nameLine: 'Name: ________   Class: ________   Date: ________',
   untitled: 'Untitled',
   analysis: 'Explanation',
 };
@@ -153,7 +162,7 @@ function questions(content: Record<string, unknown>): Question[] {
  * The handout text of a course.
  *
  * - `full`: every page with its text and the narration, quiz questions where
- *   they come, and the answers at the end.
+ *   they come, and the answers on a page of their own at the end.
  * - `slides`: the same without the narration.
  * - `questions`: a worksheet, the quiz questions first and the answers after.
  *
@@ -184,16 +193,20 @@ export function courseHandoutText(
   const ask = (found: Question[]): string[] =>
     found.map((question) => {
       asked += 1;
-      if (question.answer || question.analysis)
+      if (question.answer)
         answers.push(
           [
-            `${asked}. ${question.answer}`.trim(),
+            `${asked}. ${question.answer}`,
             question.analysis && `${labels.analysis}: ${question.analysis}`,
           ]
             .filter(Boolean)
             .join('\n'),
         );
-      return [`${asked}. ${question.ask}`, ...question.options].join('\n');
+      // A question without a fixed answer: its explanation is the answer.
+      else if (question.analysis) answers.push(`${asked}. ${question.analysis}`);
+      // On a worksheet, a question without options gets room to write under it.
+      const room = content === 'questions' && !question.options.length ? ['', '', ''] : [];
+      return [`${asked}. ${question.ask}`, ...question.options, ...room].join('\n');
     });
 
   if (content === 'questions') {
@@ -221,14 +234,17 @@ export function courseHandoutText(
       blocks.push(lines.join('\n'));
     });
   }
-  if (answers.length) blocks.push([labels.answers, ...answers].join('\n'));
+  if (content === 'questions' && blocks.length) blocks.unshift(labels.nameLine);
+  const main = blocks.join('\n\n').replace(/\n+$/, '');
+  const key = answers.length ? [labels.answers, ...answers].join('\n') : '';
 
   return {
     title:
       content === 'questions'
         ? `${name || labels.untitled} ${labels.worksheet}`
         : name || labels.untitled,
-    body: blocks.join('\n\n'),
+    // The answers start on a page of their own.
+    body: main && key ? main + DELIVERABLE_PAGE_BREAK + key : main || key,
     scenes: picked.length,
     questions: asked,
   };

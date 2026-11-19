@@ -86,7 +86,9 @@ page order, with the answers at the end. The text is taken from the course as
 it is saved; no model writes or shortens it, and a course too long for sixteen
 pages is refused with a hint to export a range of pages. `content=slides`
 leaves the narration out and `content=questions` makes a worksheet of the quiz
-questions. A course is loaded only when it is in the owner's own list, because
+questions: a line for the name, room to write under a question without options,
+and the answers on a page of their own (a form feed in the text is a page
+break for the renderer; the answers of a full handout start on a new page too). A course is loaded only when it is in the owner's own list, because
 upstream's store reads a course for anyone who holds its id. The browser tests store a course, export it both ways and check that a course
 of another visitor is refused.
 

@@ -135,8 +135,9 @@ window.ZX_STRINGS = {
     'open.now.files.desc':
       'One page that lists the handouts and annotated images delivered in your conversations.',
     'open.next.label': 'Planned',
-    'open.next.worksheets.term': 'Worksheet layout',
-    'open.next.worksheets.desc': 'Questions and answers on separate pages.',
+    'open.next.formulas.term': 'Typeset formulas',
+    'open.next.formulas.desc':
+      'A formula in a handout is printed as its LaTeX source for now; the plan is to typeset it.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',

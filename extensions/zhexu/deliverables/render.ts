@@ -2,6 +2,7 @@ import path from 'node:path';
 import {
   DELIVERABLE_FORMAT_MIME,
   DELIVERABLE_MAX_FILE_BYTES,
+  DELIVERABLE_PAGE_BREAK,
   deliverableSourceSchema,
   type DeliverableFormat,
   type DeliverableSource,
@@ -110,11 +111,20 @@ export async function renderDeliverable(
 
   const bodySize = source.style === 'handwriting' ? 38 : 30;
   const bodyLineHeight = Math.ceil(bodySize * 1.65);
-  const bodyLines = wrap(source.body, bodySize, bodyWidth, bodyFamily);
   const linesPerPage = Math.floor((height - heading.bodyTop - 90) / bodyLineHeight);
-  if (Math.ceil(bodyLines.length / linesPerPage) > MAX_PAGES) throw Error('deliverable_page_limit');
+  // A page break in the text starts a new page; text that does not fit a page
+  // runs on to the next one. A break with nothing after it adds no empty page.
+  const pages: string[][] = [];
+  for (const part of source.body.split(DELIVERABLE_PAGE_BREAK)) {
+    const section = part.replace(/^[\r\n]+|[\r\n]+$/g, '');
+    if (!section.trim()) continue;
+    const lines = wrap(section, bodySize, bodyWidth, bodyFamily);
+    for (let start = 0; start < lines.length; start += linesPerPage)
+      pages.push(lines.slice(start, start + linesPerPage));
+  }
+  if (pages.length > MAX_PAGES) throw Error('deliverable_page_limit');
 
-  for (let start = 0; start < bodyLines.length; start += linesPerPage) {
+  for (const pageLines of pages) {
     signal?.throwIfAborted();
     const index = pageImages.length;
     ctx.fillStyle = PALETTE.paper;
@@ -127,9 +137,9 @@ export async function renderDeliverable(
       ctx.fillText(line, MARGIN + 10, 100 + i * heading.lineHeight),
     );
     ctx.font = `${bodySize}px ${bodyFamily}, sans-serif`;
-    bodyLines
-      .slice(start, start + linesPerPage)
-      .forEach((line, i) => ctx.fillText(line, MARGIN, heading.bodyTop + i * bodyLineHeight));
+    pageLines.forEach((line, i) =>
+      ctx.fillText(line, MARGIN, heading.bodyTop + i * bodyLineHeight),
+    );
     ctx.fillStyle = PALETTE.muted;
     ctx.font = '21px ZhexuDocument, sans-serif';
     ctx.fillText(`ZHEXU · ${index + 1}`, MARGIN, height - 48);
