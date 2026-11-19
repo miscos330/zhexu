@@ -75,7 +75,14 @@ async function seedCourse(page: Page, name: string): Promise<string> {
       },
       scenes: [
         slide(stageId, 0, '什么是折射', '光的传播方向发生偏折', '今天我们学习光的折射。'),
-        slide(stageId, 1, '折射规律', '入射角增大，折射角也增大', '注意两个角的关系。'),
+        slide(
+          stageId,
+          1,
+          '折射规律',
+          // An inline formula, stored the way upstream's editor stores one; the handout typesets it.
+          '入射角增大，折射角也增大：<span data-inline-math="n_1\\sin i=n_2\\sin r">n_1\\sin i=n_2\\sin r</span>',
+          '注意两个角的关系。',
+        ),
         {
           id: `${stageId}-quiz`,
           stageId,
@@ -90,10 +97,11 @@ async function seedCourse(page: Page, name: string): Promise<string> {
               {
                 id: 'q1',
                 type: 'single',
-                question: '光从空气斜射入水中，折射角与入射角相比？',
+                question:
+                  '光从空气斜射入水中（$n=\\frac{\\sin i}{\\sin r}>1$），折射角与入射角相比？',
                 options: [
                   { label: '更大', value: 'A' },
-                  { label: '更小', value: 'B' },
+                  { label: '更小，$r<i$', value: 'B' },
                 ],
                 answer: ['B'],
                 points: 1,

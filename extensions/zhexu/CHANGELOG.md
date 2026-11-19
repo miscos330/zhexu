@@ -6,6 +6,18 @@ A release of this edition is tagged `zhexu-v<version>`. The plain `v<version>` t
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Features
+
+- Formulas in handouts are typeset. In a handout's text, LaTeX between `\(` and `\)` stays in its line and LaTeX between `\[` and `\]` gets a line of its own (`$` and `$$` work too; a lone `$` pair only counts when it holds a formula, so prices stay text). A course handout marks the course's formulas the same way: the formula elements of a slide, inline formulas in its text, and quiz text wherever upstream's quiz view shows a formula. KaTeX lays each formula out as it does on a slide, and the renderer draws that layout with KaTeX's own fonts. A formula wider than the page is shrunk to fit, down to half size. A formula that cannot be drawn this way is printed as its LaTeX source, as before. Text without formulas is laid out exactly as before.
+
+### How it was checked
+
+- A browser record of 66 formulas, each inline and on its own line, made with KaTeX in Chromium: the tests draw the same formulas and compare every glyph, rule and SVG. The largest difference is under 0.1 pixel for a formula 100 pixels high.
+- Handouts of plain text produce byte-identical page images before and after this change (four sources, seven pages, both faces).
+- The course in the browser tests now holds formulas, so the production build and the Docker image typeset them in CI.
+
 ## [0.1.0-rc.1] - 2026-11-19
 
 The first release candidate for 0.1.0, the first release of this edition. It is a candidate because no run has used a real model yet; see "How it was checked". Built on upstream `main` at `a985fc4d`, which is 1.5.0-rc.3 and the changes upstream has made since.

@@ -134,10 +134,13 @@ window.ZX_STRINGS = {
     'open.now.files.term': 'My files',
     'open.now.files.desc':
       'One page that lists the handouts and annotated images delivered in your conversations.',
+    'open.now.formulas.term': 'Typeset formulas',
+    'open.now.formulas.desc':
+      'LaTeX in a handout and the formulas of a course are typeset, with the same layout and fonts as on a slide.',
     'open.next.label': 'Planned',
-    'open.next.formulas.term': 'Typeset formulas',
-    'open.next.formulas.desc':
-      'A formula in a handout is printed as its LaTeX source for now; the plan is to typeset it.',
+    'open.next.tables.term': 'Tables and pictures',
+    'open.next.tables.desc':
+      'A course’s tables are printed as rows of text and its pictures are left out for now; the plan is to draw both.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',

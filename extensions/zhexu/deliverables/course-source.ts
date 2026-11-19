@@ -9,8 +9,14 @@
  * The answers start on a new page, so a page of questions can be handed out
  * without them. The only words that are not the course's own are the labels
  * ("Notes", "Answers") and, on a worksheet, a line for the student's name.
+ *
+ * Formulas keep their LaTeX and are marked for the renderer, which typesets
+ * them: a formula element of a slide stands on a line of its own (`\[ \]`), a
+ * formula inside slide text stays in its line (`\( \)`), and quiz text is
+ * marked where upstream's quiz view shows a formula.
  */
 
+import { renderQuizMathText } from '@/lib/quiz/math-text';
 import { DELIVERABLE_PAGE_BREAK } from './contract';
 
 export type CourseHandoutContent = 'full' | 'slides' | 'questions';
@@ -73,9 +79,17 @@ const ENTITIES: Record<string, string> = {
   apos: "'",
 };
 
-/** The text of a rich-text fragment, one line per block; markup is dropped. */
+/**
+ * The text of a rich-text fragment, one line per block; markup is dropped. An
+ * inline formula (stored by upstream as `<span data-inline-math="LATEX">`)
+ * becomes `\(LATEX\)`.
+ */
 export function htmlToText(html: string): string {
   return html
+    .replace(
+      /<span\b[^>]*?\sdata-inline-math\s*=\s*(["'])([\s\S]*?)\1[^>]*>[\s\S]*?<\/span\s*>/gi,
+      (_whole, _quote: string, latex: string) => `\\(${latex}\\)`,
+    )
     .replace(/<\s*br\s*\/?>/gi, '\n')
     .replace(/<\/\s*(p|div|li|h[1-6]|tr|blockquote)\s*>/gi, '\n')
     .replace(/<li[^>]*>/gi, '· ')
@@ -103,8 +117,10 @@ function slideText(content: Record<string, unknown>): string {
       if (element.type === 'text') value = htmlToText(text(element.content));
       else if (element.type === 'shape' && isRecord(element.text))
         value = htmlToText(text(element.text.content));
-      else if (element.type === 'latex') value = text(element.latex).trim();
-      else if (element.type === 'table')
+      else if (element.type === 'latex') {
+        const latex = text(element.latex).trim();
+        value = latex && `\\[${latex}\\]`;
+      } else if (element.type === 'table')
         value = list(element.data)
           .map((row) =>
             list(row)
@@ -141,19 +157,39 @@ interface Question {
   analysis: string;
 }
 
+/**
+ * Quiz text with its formulas delimited where upstream's quiz view shows them
+ * (it also recognises an undelimited formula such as `x^2+1=0`). `block`: a
+ * formula the quiz shows on a line of its own stays there; options keep
+ * theirs in the line.
+ */
+function quizText(value: string, block: boolean): string {
+  return renderQuizMathText(value)
+    .map((segment) =>
+      segment.type === 'text'
+        ? segment.value
+        : block && segment.displayMode
+          ? `\\[${segment.value}\\]`
+          : `\\(${segment.value}\\)`,
+    )
+    .join('');
+}
+
 function questions(content: Record<string, unknown>): Question[] {
   return list(content.questions)
     .filter(isRecord)
     .map((question) => ({
-      ask: htmlToText(text(question.question)),
+      ask: quizText(htmlToText(text(question.question)), true),
       options: list(question.options)
         .filter(isRecord)
-        .map((option) => `${text(option.value)}. ${htmlToText(text(option.label))}`.trim())
+        .map((option) =>
+          `${text(option.value)}. ${quizText(htmlToText(text(option.label)), false)}`.trim(),
+        )
         .filter((option) => option !== '.'),
       answer: list(question.answer)
         .filter((value): value is string => typeof value === 'string')
         .join(', '),
-      analysis: htmlToText(text(question.analysis)),
+      analysis: quizText(htmlToText(text(question.analysis)), true),
     }))
     .filter((question) => question.ask);
 }

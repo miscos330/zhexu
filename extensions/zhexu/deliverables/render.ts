@@ -2,11 +2,12 @@ import path from 'node:path';
 import {
   DELIVERABLE_FORMAT_MIME,
   DELIVERABLE_MAX_FILE_BYTES,
-  DELIVERABLE_PAGE_BREAK,
   deliverableSourceSchema,
   type DeliverableFormat,
   type DeliverableSource,
 } from './contract';
+import { layoutBody, plainLineAbove, type BodyLine } from './body-layout';
+import { KATEX_FONTS, typesetFormula, type FormulaPainter } from './formula';
 import { wrapDeliverableText } from './text-layout';
 
 /**
@@ -26,6 +27,8 @@ export interface RenderedDeliverable {
 const PAGE = { width: 1240, height: 1754 } as const;
 const MARGIN = 80;
 const MAX_PAGES = 16;
+/** Formulas are set at KaTeX's usual 1.2 times the printed text, whatever the body face. */
+const FORMULA_SIZE = 36;
 const PALETTE = { paper: '#FFFFFF', accent: '#14554E', ink: '#172824', muted: '#60716C' } as const;
 
 /** Upstream ships the text fonts for its video export; the handwriting face is ours. */
@@ -41,6 +44,8 @@ const FONTS: ReadonlyArray<readonly [file: string, family: string]> = [
   ['public/vendor/video-export/fonts/KaTeX_Main-Regular.woff2', 'ZhexuDocumentMath'],
   ['public/vendor/video-export/fonts/KaTeX_Math-Italic.woff2', 'ZhexuDocumentGreek'],
   ['public/extensions/zhexu/fonts/LongCang-Regular.ttf', 'ZhexuHandwriting'],
+  // Formulas are typeset with KaTeX's fonts, which upstream ships alongside.
+  ...KATEX_FONTS,
 ];
 
 /** The printed face and its fallbacks, in order; a character is drawn by the first font that has it. */
@@ -73,7 +78,7 @@ export async function renderDeliverable(
   const source = deliverableSourceSchema.parse(value);
   signal?.throwIfAborted();
   await registerFonts();
-  const { createCanvas } = await import('@napi-rs/canvas');
+  const { createCanvas, Path2D } = await import('@napi-rs/canvas');
   const { PDFDocument } = await import('pdf-lib');
 
   const { width, height } = PAGE;
@@ -111,18 +116,83 @@ export async function renderDeliverable(
 
   const bodySize = source.style === 'handwriting' ? 38 : 30;
   const bodyLineHeight = Math.ceil(bodySize * 1.65);
+  const bodyFont = `${bodySize}px ${bodyFamily}, sans-serif`;
   const linesPerPage = Math.floor((height - heading.bodyTop - 90) / bodyLineHeight);
+  const room = linesPerPage * bodyLineHeight;
+  const plainAbove = plainLineAbove(bodyLineHeight);
+  const measureIn = (font: string) => (text: string) => {
+    ctx.font = font;
+    return ctx.measureText(text).width;
+  };
+  const body = layoutBody(source.body, {
+    width: bodyWidth,
+    lineHeight: bodyLineHeight,
+    measure: measureIn(bodyFont),
+    typeset: (latex, display, scale) =>
+      typesetFormula(latex, {
+        display,
+        size: FORMULA_SIZE * scale,
+        color: PALETTE.ink,
+        fallback: TEXT_FAMILY,
+        measure: (text, font) => measureIn(font)(text),
+      }),
+  });
   // A page break in the text starts a new page; text that does not fit a page
   // runs on to the next one. A break with nothing after it adds no empty page.
-  const pages: string[][] = [];
-  for (const part of source.body.split(DELIVERABLE_PAGE_BREAK)) {
-    const section = part.replace(/^[\r\n]+|[\r\n]+$/g, '');
-    if (!section.trim()) continue;
-    const lines = wrap(section, bodySize, bodyWidth, bodyFamily);
-    for (let start = 0; start < lines.length; start += linesPerPage)
-      pages.push(lines.slice(start, start + linesPerPage));
+  // Plain lines are one line height apart, their first baseline at the top of
+  // the body; a line with a tall formula takes the room it needs.
+  const pages: Array<Array<{ line: BodyLine; baseline: number }>> = [];
+  for (const lines of body.sections) {
+    let page: Array<{ line: BodyLine; baseline: number }> = [];
+    let used = 0;
+    for (const line of lines) {
+      const pitch = line.above + line.below;
+      if (page.length && used + pitch > room + 0.001) {
+        pages.push(page);
+        page = [];
+        used = 0;
+      }
+      page.push({ line, baseline: heading.bodyTop + used + (line.above - plainAbove) });
+      used += pitch;
+    }
+    if (page.length) pages.push(page);
   }
   if (pages.length > MAX_PAGES) throw Error('deliverable_page_limit');
+  const painter: FormulaPainter = {
+    text(text, font, x, baseline, color) {
+      ctx.font = font;
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, baseline);
+    },
+    rect(x, y, width, rectHeight, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, width, rectHeight);
+    },
+    path(d, matrix, clip, color) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(clip.x, clip.y, clip.width, clip.height);
+      ctx.clip();
+      ctx.transform(...matrix);
+      ctx.fillStyle = color;
+      ctx.fill(new Path2D(d));
+      ctx.restore();
+    },
+    line(from, to, lineWidth, clip, color) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(clip.x, clip.y, clip.width, clip.height);
+      ctx.clip();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.lineCap = 'butt';
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(to.x, to.y);
+      ctx.stroke();
+      ctx.restore();
+    },
+  };
 
   for (const pageLines of pages) {
     signal?.throwIfAborted();
@@ -136,10 +206,16 @@ export async function renderDeliverable(
     heading.lines.forEach((line, i) =>
       ctx.fillText(line, MARGIN + 10, 100 + i * heading.lineHeight),
     );
-    ctx.font = `${bodySize}px ${bodyFamily}, sans-serif`;
-    pageLines.forEach((line, i) =>
-      ctx.fillText(line, MARGIN, heading.bodyTop + i * bodyLineHeight),
-    );
+    for (const { line, baseline } of pageLines)
+      for (const item of line.items) {
+        if (item.kind === 'formula') {
+          item.formula.paint(painter, MARGIN + item.x, baseline);
+          continue;
+        }
+        ctx.font = bodyFont;
+        ctx.fillStyle = PALETTE.ink;
+        ctx.fillText(item.text, MARGIN + item.x, baseline);
+      }
     ctx.fillStyle = PALETTE.muted;
     ctx.font = '21px ZhexuDocument, sans-serif';
     ctx.fillText(`ZHEXU · ${index + 1}`, MARGIN, height - 48);

@@ -117,6 +117,8 @@ available when either switch is on and says so when neither is.
 | `course-source.ts`            | turns a saved course into the text of a handout or a worksheet                   |
 | `course-store.ts`             | loads a course only if it is in the owner's own list                             |
 | `render.ts`                   | draws the pages (`@napi-rs/canvas`), builds the PDF (`pdf-lib`) and ZIP (`jszip`)  |
+| `body-layout.ts`              | breaks the body into lines, with its formulas in them or on lines of their own   |
+| `formula.ts`                  | typesets a formula: KaTeX's layout, drawn on the canvas with KaTeX's fonts        |
 | `storage.ts`                  | saves a file as a session material and records what it was made from             |
 | `latest-answer.ts`            | picks the answer "export the last answer" refers to                              |
 | `routes.ts`                   | the download, the verification and the "My files" listing endpoint              |
@@ -145,9 +147,31 @@ Text fonts are the ones upstream ships for its video export
 Greek letters and common math signs. The handwriting face is Long Cang (SIL OFL
 1.1) in `public/extensions/zhexu/fonts/`.
 
-Not covered: subscript and superscript digits such as ₁ (no shipped font has
-them), formulas (text is drawn as written, LaTeX is not typeset), tables and
-images. Text that needs more than sixteen pages is refused, not cut.
+Formulas are typeset. In a handout's text, LaTeX between `\(` and `\)` (or `$`
+and `$`) stays in its line and LaTeX between `\[` and `\]` (or `$$` and `$$`)
+gets a line of its own, the delimiters upstream's quiz view reads; a lone `$`
+pair only counts when what is between looks like a formula, so prices stay
+text. A course's formulas are marked the same way: formula elements of a slide,
+inline formulas in its text, and quiz text wherever the quiz view shows a
+formula. KaTeX lays each formula out, as on a slide, and `formula.ts` draws
+that layout on the canvas with KaTeX's own fonts (upstream ships them), applying
+the rules of `katex.css` itself since there is no browser. A formula wider than
+the page is shrunk to fit, down to half size. A formula KaTeX cannot parse, or
+that uses something `formula.ts` does not know (a vertical rule in an array,
+chemistry with `\ce`, a big operator in `\mathclap`), is printed as its LaTeX
+source. Text without formulas is laid out exactly as before.
+
+What is drawn is checked against a browser: `zhexu/scripts/capture-katex-layout.mjs`
+renders 66 formulas with KaTeX in Chromium, inline and on their own line, and
+records where every glyph, rule and SVG lands
+(`tests/extensions/fixtures/katex-browser-layout.json`). The tests draw the
+same formulas and compare: the largest difference is under 0.1 pixel for a
+formula 100 pixels high. Run the script again after a KaTeX upgrade; a test
+fails while the record is from another KaTeX version.
+
+Not covered: subscript and superscript digits such as ₁ in plain text (no
+shipped text font has them; in a formula, write `x_1`), tables (printed as rows
+of text) and images. Text that needs more than sixteen pages is refused, not cut.
 
 ## Image annotations (ZHEXU)
 

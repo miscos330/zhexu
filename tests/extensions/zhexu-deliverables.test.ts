@@ -422,7 +422,8 @@ describe('course handout text', () => {
           '光的折射 & 现象',
           '传播方向发生偏折',
           '法线',
-          'n_1 \\sin i = n_2 \\sin r',
+          // A formula element keeps its LaTeX, marked to be typeset on a line of its own.
+          '\\[n_1 \\sin i = n_2 \\sin r\\]',
           '介质 | 折射率',
           '水 | 1.33',
           '讲解: 同学们好，今天我们学习光的折射。',
@@ -513,6 +514,47 @@ describe('course handout text', () => {
       ],
     });
     expect(text.body).toBe('1. Intro\nNotes: Hello.\n\n2. Lab');
+  });
+
+  it('marks the formulas of a course for typesetting, keeping their LaTeX', () => {
+    // Slide text stores an inline formula as a span with its source.
+    expect(
+      htmlToText(
+        '<p>折射定律 <span data-inline-math="n_1\\sin i&lt;n_2">n_1\\sin i&lt;n_2</span> 成立</p>',
+      ),
+    ).toBe('折射定律 \\(n_1\\sin i<n_2\\) 成立');
+    const text = courseHandoutText(
+      {
+        name: '函数',
+        scenes: [
+          {
+            type: 'quiz',
+            content: {
+              type: 'quiz',
+              questions: [
+                {
+                  // The quiz view shows an undelimited formula as one; so does the handout.
+                  question: '解方程 x^2-5x+6=0',
+                  options: [
+                    { value: 'A', label: '$x=2$ 或 $x=3$' },
+                    { value: 'B', label: '无解' },
+                  ],
+                  answer: ['A'],
+                  analysis: '因式分解得 $$(x-2)(x-3)=0$$',
+                },
+              ],
+            },
+          },
+        ],
+      },
+      'questions',
+    );
+    expect(text.body).toBe(
+      '姓名：________　班级：________　日期：________\n\n' +
+        '1. 解方程 \\(x^2-5x+6=0\\)\nA. \\(x=2\\) 或 \\(x=3\\)\nB. 无解' +
+        DELIVERABLE_PAGE_BREAK +
+        '答案与解析\n1. A\n解析: 因式分解得 \\[(x-2)(x-3)=0\\]',
+    );
   });
 
   it('reduces rich text to its words', () => {
