@@ -1,0 +1,235 @@
+/**
+ * Turns a saved course into the text of a handout.
+ *
+ * Nothing here calls a model or adds a word: the text on the pages, the
+ * narration and the quiz questions are taken from the course as it was saved,
+ * in page order. The shapes below name only the fields that are read, so a
+ * course written by a newer format still gives what it has of them.
+ */
+
+export type CourseHandoutContent = 'full' | 'slides' | 'questions';
+
+export interface CourseForHandout {
+  name: string;
+  description?: string;
+  scenes: readonly unknown[];
+}
+
+export interface CourseHandoutText {
+  title: string;
+  body: string;
+  /** Pages of the course that went into the text. */
+  scenes: number;
+  /** Quiz questions that went into the text. */
+  questions: number;
+}
+
+interface Labels {
+  notes: string;
+  exercises: string;
+  answers: string;
+  worksheet: string;
+  untitled: string;
+  analysis: string;
+}
+
+const ZH: Labels = {
+  notes: '讲解',
+  exercises: '练习',
+  answers: '答案与解析',
+  worksheet: '练习',
+  untitled: '未命名',
+  analysis: '解析',
+};
+const EN: Labels = {
+  notes: 'Notes',
+  exercises: 'Exercises',
+  answers: 'Answers',
+  worksheet: 'Worksheet',
+  untitled: 'Untitled',
+  analysis: 'Explanation',
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+const text = (value: unknown): string => (typeof value === 'string' ? value : '');
+const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+
+const ENTITIES: Record<string, string> = {
+  nbsp: ' ',
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+};
+
+/** The text of a rich-text fragment, one line per block; markup is dropped. */
+export function htmlToText(html: string): string {
+  return html
+    .replace(/<\s*br\s*\/?>/gi, '\n')
+    .replace(/<\/\s*(p|div|li|h[1-6]|tr|blockquote)\s*>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '· ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, name: string) => {
+      if (name[0] !== '#') return ENTITIES[name.toLowerCase()] ?? whole;
+      const code = /^#x/i.test(name) ? parseInt(name.slice(2), 16) : Number(name.slice(1));
+      return Number.isFinite(code) && code > 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : whole;
+    })
+    .split('\n')
+    .map((line) => line.replace(/[ \t ]+/g, ' ').trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
+/** What is written on a slide, top to bottom and left to right. */
+function slideText(content: Record<string, unknown>): string {
+  const canvas = isRecord(content.canvas) ? content.canvas : {};
+  const placed = list(canvas.elements)
+    .filter(isRecord)
+    .map((element) => {
+      let value = '';
+      if (element.type === 'text') value = htmlToText(text(element.content));
+      else if (element.type === 'shape' && isRecord(element.text))
+        value = htmlToText(text(element.text.content));
+      else if (element.type === 'latex') value = text(element.latex).trim();
+      else if (element.type === 'table')
+        value = list(element.data)
+          .map((row) =>
+            list(row)
+              .map((cell) => (isRecord(cell) ? htmlToText(text(cell.text)) : ''))
+              .join(' | '),
+          )
+          .filter((row) => row.replace(/[| ]/g, ''))
+          .join('\n');
+      return {
+        value,
+        top: typeof element.top === 'number' ? element.top : 0,
+        left: typeof element.left === 'number' ? element.left : 0,
+      };
+    })
+    .filter((item) => item.value);
+  placed.sort((a, b) => a.top - b.top || a.left - b.left);
+  return placed.map((item) => item.value).join('\n');
+}
+
+/** What the teacher says on a page: its speech actions, in order. */
+function narration(scene: Record<string, unknown>): string {
+  return list(scene.actions)
+    .filter(isRecord)
+    .filter((action) => action.type === 'speech')
+    .map((action) => text(action.text).trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
+interface Question {
+  ask: string;
+  options: string[];
+  answer: string;
+  analysis: string;
+}
+
+function questions(content: Record<string, unknown>): Question[] {
+  return list(content.questions)
+    .filter(isRecord)
+    .map((question) => ({
+      ask: htmlToText(text(question.question)),
+      options: list(question.options)
+        .filter(isRecord)
+        .map((option) => `${text(option.value)}. ${htmlToText(text(option.label))}`.trim())
+        .filter((option) => option !== '.'),
+      answer: list(question.answer)
+        .filter((value): value is string => typeof value === 'string')
+        .join(', '),
+      analysis: htmlToText(text(question.analysis)),
+    }))
+    .filter((question) => question.ask);
+}
+
+/**
+ * The handout text of a course.
+ *
+ * - `full`: every page with its text and the narration, quiz questions where
+ *   they come, and the answers at the end.
+ * - `slides`: the same without the narration.
+ * - `questions`: a worksheet, the quiz questions first and the answers after.
+ *
+ * `from` and `to` are 1-based page numbers, inclusive.
+ */
+export function courseHandoutText(
+  course: CourseForHandout,
+  content: CourseHandoutContent = 'full',
+  range: { from?: number; to?: number } = {},
+): CourseHandoutText {
+  const ordered = course.scenes.filter(isRecord).map((scene, index) => ({ scene, index }));
+  ordered.sort((a, b) => {
+    const left = typeof a.scene.order === 'number' ? a.scene.order : a.index;
+    const right = typeof b.scene.order === 'number' ? b.scene.order : b.index;
+    return left - right || a.index - b.index;
+  });
+  const from = Math.max(1, Math.trunc(range.from ?? 1));
+  const to = Math.min(ordered.length, Math.trunc(range.to ?? ordered.length));
+  const picked = ordered.slice(from - 1, Math.max(from - 1, to));
+
+  const name = course.name.trim();
+  const sample = name + picked.map(({ scene }) => text(scene.title)).join('');
+  const labels = /\p{Script=Han}/u.test(sample) ? ZH : EN;
+
+  const blocks: string[] = [];
+  const answers: string[] = [];
+  let asked = 0;
+  const ask = (found: Question[]): string[] =>
+    found.map((question) => {
+      asked += 1;
+      if (question.answer || question.analysis)
+        answers.push(
+          [
+            `${asked}. ${question.answer}`.trim(),
+            question.analysis && `${labels.analysis}: ${question.analysis}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        );
+      return [`${asked}. ${question.ask}`, ...question.options].join('\n');
+    });
+
+  if (content === 'questions') {
+    for (const { scene } of picked) {
+      const body = isRecord(scene.content) ? scene.content : {};
+      if (body.type === 'quiz') blocks.push(...ask(questions(body)));
+    }
+  } else {
+    const description = text(course.description).trim();
+    if (description && from === 1) blocks.push(description);
+    picked.forEach(({ scene }, offset) => {
+      const body = isRecord(scene.content) ? scene.content : {};
+      const lines = [`${from + offset}. ${text(scene.title).trim() || labels.untitled}`];
+      if (body.type === 'quiz') {
+        const found = ask(questions(body));
+        if (found.length) lines.push(`${labels.exercises}`, ...found);
+      } else if (body.type === 'slide') {
+        const written = slideText(body);
+        if (written) lines.push(written);
+      }
+      if (content === 'full') {
+        const spoken = narration(scene);
+        if (spoken) lines.push(`${labels.notes}: ${spoken}`);
+      }
+      blocks.push(lines.join('\n'));
+    });
+  }
+  if (answers.length) blocks.push([labels.answers, ...answers].join('\n'));
+
+  return {
+    title:
+      content === 'questions'
+        ? `${name || labels.untitled} ${labels.worksheet}`
+        : name || labels.untitled,
+    body: blocks.join('\n\n'),
+    scenes: picked.length,
+    questions: asked,
+  };
+}

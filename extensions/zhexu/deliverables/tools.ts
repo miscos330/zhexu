@@ -18,6 +18,8 @@ import {
   type DeliverableFile,
   type DeliverableSource,
 } from './contract';
+import { courseHandoutText } from './course-source';
+import { loadOwnedCourse } from './course-store';
 import { renderDeliverable } from './render';
 import { persistDeliverableMaterial } from './storage';
 import { deriveDeliverableTitle } from './text-layout';
@@ -82,6 +84,8 @@ export interface DeliverableToolDeps {
   read?: typeof resolveSessionMaterialRawAsset;
   persist?: typeof persistDeliverableMaterial;
   render?: typeof renderDeliverable;
+  /** A course of this owner by id; `null` for one that is missing or someone else's. */
+  loadCourse?: typeof loadOwnedCourse;
 }
 
 export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
@@ -310,6 +314,69 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
     },
   };
 
+  const fromCourse = {
+    name: 'create_course_handout',
+    label: 'Create a handout from a course',
+    executionMode: 'sequential',
+    description:
+      "Turn one of the user's own saved courses into real private files: an A4 PDF and page images. The text comes from the course as it is saved (what is written on each page, the narration, the quiz questions); nothing is rewritten or added and no model is called, so do not retype the course in any argument. courseId is the id of the course. content=full (default) includes the narration, slides only what is written on the pages, questions makes a worksheet: the quiz questions first and the answers after them. A long course that does not fit in 16 pages is refused: export it in parts with fromScene and toScene (1-based page numbers, inclusive) or use content=slides.",
+    parameters: Type.Object(
+      {
+        courseId: Type.String({ minLength: 1, maxLength: 200 }),
+        content: Type.Optional(
+          Type.Union([Type.Literal('full'), Type.Literal('slides'), Type.Literal('questions')]),
+        ),
+        fromScene: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
+        toScene: Type.Optional(Type.Integer({ minimum: 1, maximum: 10000 })),
+        style: styleParameter,
+      },
+      { additionalProperties: false },
+    ),
+    async execute(
+      _callId: string,
+      params: {
+        courseId: string;
+        content?: 'full' | 'slides' | 'questions';
+        fromScene?: number;
+        toScene?: number;
+        style?: 'standard' | 'handwriting';
+      },
+      signal?: AbortSignal,
+    ) {
+      try {
+        await owned(signal);
+        if (params.fromScene && params.toScene && params.fromScene > params.toScene)
+          throw Error('deliverable_course_range');
+        const course = await (deps.loadCourse ?? loadOwnedCourse)(deps.ownerId, params.courseId);
+        signal?.throwIfAborted();
+        if (!course) throw Error('deliverable_course_not_found');
+        const text = courseHandoutText(course, params.content ?? 'full', {
+          from: params.fromScene,
+          to: params.toScene,
+        });
+        if (!text.scenes) throw Error('deliverable_course_range');
+        if (!text.body.trim())
+          throw Error(
+            params.content === 'questions'
+              ? 'deliverable_course_no_questions'
+              : 'deliverable_course_empty',
+          );
+        const source = deliverableSourceSchema.safeParse({
+          kind: 'document',
+          title: text.title.slice(0, 160),
+          body: text.body,
+          style: params.style ?? 'standard',
+        });
+        // The source is the course's own text: too much of it is a reason to
+        // export a part, never to shorten it here.
+        if (!source.success) throw Error('deliverable_course_too_long');
+        return await save(source.data, signal);
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  };
+
   const exportTool = {
     name: 'export_deliverable',
     label: 'Export existing content',
@@ -449,5 +516,5 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
     },
   };
 
-  return [create, exportTool, readTool, verifyTool] as unknown as AgentTool[];
+  return [create, fromCourse, exportTool, readTool, verifyTool] as unknown as AgentTool[];
 }

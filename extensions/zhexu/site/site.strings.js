@@ -125,14 +125,15 @@ window.ZX_STRINGS = {
     'open.now.handouts.term': 'A4 handouts',
     'open.now.handouts.desc':
       'The assistant delivers an answer as an A4 PDF and page images, in a handwriting font if you like. Off by default.',
+    'open.now.course.term': 'Course handouts',
+    'open.now.course.desc':
+      'Export a saved course as an A4 handout or a worksheet, with the text taken from the course as it is. Shares the switch of A4 handouts.',
     'open.now.annotations.term': 'Image annotations',
     'open.now.annotations.desc':
       'The assistant adds numbered notes to an image you attach and exports a PNG and a PDF; the original is not changed. Off by default.',
     'open.next.label': 'Planned',
-    'open.next.course.term': 'Course handouts',
-    'open.next.course.desc': 'Export a finished course as an A4 handout.',
-    'open.next.worksheets.term': 'Worksheets',
-    'open.next.worksheets.desc': 'A worksheet layout: a page of questions and a page of answers.',
+    'open.next.worksheets.term': 'Worksheet layout',
+    'open.next.worksheets.desc': 'Questions and answers on separate pages.',
     'open.next.files.term': 'My files',
     'open.next.files.desc':
       'One page that lists the handouts and annotated images the assistant has delivered.',

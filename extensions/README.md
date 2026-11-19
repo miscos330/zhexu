@@ -80,6 +80,16 @@ a ZIP of every page. `style=handwriting` sets the body in a Chinese running-hand
 face. The conversation shows a card with a preview, the download links and a
 "Check files" button.
 
+`create_course_handout` makes the same files from one of the owner's saved
+courses: what is written on each page, the narration and the quiz questions, in
+page order, with the answers at the end. The text is taken from the course as
+it is saved; no model writes or shortens it, and a course too long for sixteen
+pages is refused with a hint to export a range of pages. `content=slides`
+leaves the narration out and `content=questions` makes a worksheet of the quiz
+questions. A course is loaded only when it is in the owner's own list, because
+upstream's store reads a course for anyone who holds its id. This tool has unit
+tests only so far: it has not run end to end, with the stand-in or a real model.
+
 ```env
 # .env.local, on top of the two variables above
 OPENMAIC_AGENT_RUNTIME_ENABLED=true
@@ -92,7 +102,9 @@ endpoints answer 404.
 | File in `zhexu/deliverables/` | What it holds                                                                    |
 | ----------------------------- | -------------------------------------------------------------------------------- |
 | `contract.ts`                 | the source schema, formats, tool names and links; shared by server and browser   |
-| `tools.ts`                    | `create_deliverable`, `export_deliverable`, `read_deliverable`, `verify_deliverable` |
+| `tools.ts`                    | `create_deliverable`, `create_course_handout`, `export_deliverable`, `read_deliverable`, `verify_deliverable` |
+| `course-source.ts`            | turns a saved course into the text of a handout or a worksheet                   |
+| `course-store.ts`             | loads a course only if it is in the owner's own list                             |
 | `render.ts`                   | draws the pages (`@napi-rs/canvas`), builds the PDF (`pdf-lib`) and ZIP (`jszip`)  |
 | `storage.ts`                  | saves a file as a session material and records what it was made from             |
 | `latest-answer.ts`            | picks the answer "export the last answer" refers to                              |

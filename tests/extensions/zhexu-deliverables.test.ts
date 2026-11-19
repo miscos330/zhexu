@@ -17,6 +17,11 @@ import {
   isDeliverableDownloadUrl,
   type DeliverableSource,
 } from '@/extensions/zhexu/deliverables/contract';
+import {
+  courseHandoutText,
+  htmlToText,
+  type CourseForHandout,
+} from '@/extensions/zhexu/deliverables/course-source';
 import { latestExportableAnswer } from '@/extensions/zhexu/deliverables/latest-answer';
 import {
   renderDeliverable,
@@ -67,6 +72,9 @@ function fixture() {
       return record;
     },
   );
+  const loadCourse = vi.fn(async (ownerId: string, courseId: string) =>
+    ownerId === 'user:one' && courseId === 'course-1' ? COURSE : null,
+  );
   const tools = buildDeliverableTools({
     sessionId: 's1',
     ownerId: 'user:one',
@@ -74,6 +82,7 @@ function fixture() {
     resolveSession: owned,
     render,
     persist,
+    loadCourse,
     list: async () => [...records.values()].reverse(),
     get: async (_sessionId: string, id: string) => records.get(id) ?? null,
     read: async (_sessionId: string, key: string) => objects.get(key) ?? null,
@@ -82,13 +91,92 @@ function fixture() {
     tools
       .find((tool) => tool.name === name)!
       .execute('c1', input as never, signal) as unknown as Promise<ToolResult>;
-  return { tools, run, render, persist, owned, records, objects, answer };
+  return { tools, run, render, persist, owned, records, objects, answer, loadCourse };
 }
 
 const DOC = { kind: 'document', title: 'stable', body: 'unchanged' };
 
+/** A saved course the way the store returns it: pages out of order, rich text, a quiz. */
+const COURSE: CourseForHandout = {
+  name: '光的折射',
+  description: '面向初二学生的一节短课。',
+  scenes: [
+    {
+      id: 'quiz',
+      order: 3,
+      title: '小测',
+      type: 'quiz',
+      content: {
+        type: 'quiz',
+        questions: [
+          {
+            id: 'q1',
+            type: 'single',
+            question: '<p>光从空气斜射入水中，折射角与入射角相比？</p>',
+            options: [
+              { value: 'A', label: '更大' },
+              { value: 'B', label: '更小' },
+            ],
+            answer: ['B'],
+            analysis: '光从空气进入水中时向法线偏折。',
+          },
+          { id: 'q2', type: 'short_answer', question: '举一个生活中的折射现象。' },
+        ],
+      },
+    },
+    {
+      id: 'intro',
+      order: 1,
+      title: '什么是折射',
+      type: 'slide',
+      content: {
+        type: 'slide',
+        canvas: {
+          elements: [
+            { type: 'text', top: 200, left: 40, content: '<p>传播方向发生偏折</p>' },
+            { type: 'image', top: 0, left: 0, src: 'x.png' },
+            {
+              type: 'text',
+              top: 40,
+              left: 40,
+              content: '<h1>光的折射&nbsp;&amp;&nbsp;现象</h1>',
+            },
+            { type: 'shape', top: 300, left: 40, text: { content: '<p>法线</p>' } },
+            { type: 'latex', top: 400, left: 40, latex: 'n_1 \\sin i = n_2 \\sin r' },
+            {
+              type: 'table',
+              top: 500,
+              left: 40,
+              data: [
+                [{ text: '介质' }, { text: '折射率' }],
+                [{ text: '水' }, { text: '1.33' }],
+              ],
+            },
+          ],
+        },
+      },
+      actions: [
+        { type: 'spotlight', elementId: 'e1' },
+        { type: 'speech', text: '同学们好，今天我们学习光的折射。' },
+        { type: 'speech', text: '先看一个现象。' },
+      ],
+    },
+    {
+      id: 'law',
+      order: 2,
+      title: '',
+      type: 'slide',
+      content: {
+        type: 'slide',
+        canvas: { elements: [{ type: 'text', top: 0, left: 0, content: '折射规律' }] },
+      },
+      actions: [{ type: 'speech', text: '入射角增大，折射角也增大。' }],
+    },
+  ],
+};
+
 describe('handout tools', () => {
-  it('offers exactly the four handout tools', () => {
+  it('offers exactly the handout tools the contract names', () => {
     expect(fixture().tools.map((tool) => tool.name)).toEqual([...DELIVERABLE_TOOL_NAMES]);
   });
 
@@ -318,6 +406,170 @@ describe('handout tools', () => {
     expect(out.isError).not.toBe(true);
     expect(out.details.deliveryState).toBe('delivered');
     expect(String(out.details.title).length).toBeLessThan(60);
+  });
+});
+
+describe('course handout text', () => {
+  it('lays a course out in page order with what is written, said and asked', () => {
+    const text = courseHandoutText(COURSE);
+    expect(text).toMatchObject({ title: '光的折射', scenes: 3, questions: 2 });
+    expect(text.body).toBe(
+      [
+        '面向初二学生的一节短课。',
+        [
+          '1. 什么是折射',
+          '光的折射 & 现象',
+          '传播方向发生偏折',
+          '法线',
+          'n_1 \\sin i = n_2 \\sin r',
+          '介质 | 折射率',
+          '水 | 1.33',
+          '讲解: 同学们好，今天我们学习光的折射。',
+          '先看一个现象。',
+        ].join('\n'),
+        ['2. 未命名', '折射规律', '讲解: 入射角增大，折射角也增大。'].join('\n'),
+        [
+          '3. 小测',
+          '练习',
+          '1. 光从空气斜射入水中，折射角与入射角相比？',
+          'A. 更大',
+          'B. 更小',
+          '2. 举一个生活中的折射现象。',
+        ].join('\n'),
+        ['答案与解析', '1. B', '解析: 光从空气进入水中时向法线偏折。'].join('\n'),
+      ].join('\n\n'),
+    );
+  });
+
+  it('leaves the narration out for slides only', () => {
+    const { body } = courseHandoutText(COURSE, 'slides');
+    expect(body).toContain('传播方向发生偏折');
+    expect(body).not.toContain('讲解');
+    expect(body).not.toContain('同学们好');
+  });
+
+  it('makes a worksheet: the questions first, the answers after them', () => {
+    const text = courseHandoutText(COURSE, 'questions');
+    expect(text.title).toBe('光的折射 练习');
+    expect(text.body).toBe(
+      [
+        ['1. 光从空气斜射入水中，折射角与入射角相比？', 'A. 更大', 'B. 更小'].join('\n'),
+        '2. 举一个生活中的折射现象。',
+        ['答案与解析', '1. B', '解析: 光从空气进入水中时向法线偏折。'].join('\n'),
+      ].join('\n\n'),
+    );
+  });
+
+  it('exports a part of a course and numbers its pages as the course does', () => {
+    const text = courseHandoutText(COURSE, 'slides', { from: 2, to: 2 });
+    expect(text.scenes).toBe(1);
+    expect(text.body).toBe('2. 未命名\n折射规律');
+    expect(courseHandoutText(COURSE, 'full', { from: 9 }).scenes).toBe(0);
+  });
+
+  it('labels an English course in English and survives pages it cannot read', () => {
+    const text = courseHandoutText({
+      name: 'Refraction',
+      scenes: [
+        null,
+        'not a scene',
+        {
+          title: 'Intro',
+          type: 'slide',
+          content: { type: 'slide' },
+          actions: [{ type: 'speech', text: 'Hello.' }],
+        },
+        { title: 'Lab', type: 'interactive', content: { type: 'interactive', html: '<b>x</b>' } },
+      ],
+    });
+    expect(text.body).toBe('1. Intro\nNotes: Hello.\n\n2. Lab');
+  });
+
+  it('reduces rich text to its words', () => {
+    expect(
+      htmlToText('<p>a&lt;b &#38; c&#x4e2d;</p><ul><li>one</li><li>two<br/>three</li></ul>'),
+    ).toBe('a<b & c中\n· one\n· two\nthree');
+    expect(htmlToText('  plain   text  ')).toBe('plain text');
+    expect(htmlToText('&unknown; &#0;')).toBe('&unknown; &#0;');
+  });
+});
+
+describe('course handout tool', () => {
+  it('renders the saved text of an owned course without the model retyping it', async () => {
+    const f = fixture();
+    const made = await f.run('create_course_handout', { courseId: 'course-1' });
+    expect(made.isError).not.toBe(true);
+    expect(made.details).toMatchObject({ deliveryState: 'delivered', title: '光的折射' });
+    expect(f.loadCourse).toHaveBeenCalledWith('user:one', 'course-1');
+    const source = f.render.mock.calls[0][0] as DeliverableSource;
+    expect(source.body).toBe(courseHandoutText(COURSE).body);
+    expect(source.style).toBe('standard');
+    const files = made.details.files as Array<{ download: string }>;
+    expect(files.every((file) => isDeliverableDownloadUrl(file.download))).toBe(true);
+  });
+
+  it('makes a handwritten worksheet of a part of the course', async () => {
+    const f = fixture();
+    const made = await f.run('create_course_handout', {
+      courseId: 'course-1',
+      content: 'questions',
+      fromScene: 3,
+      style: 'handwriting',
+    });
+    expect(made.details).toMatchObject({ title: '光的折射 练习', style: 'handwriting' });
+  });
+
+  it('treats a course that is missing or someone else’s as not found, and writes nothing', async () => {
+    const f = fixture();
+    const made = await f.run('create_course_handout', { courseId: 'course-of-another-owner' });
+    expect(made).toMatchObject({
+      isError: true,
+      details: { reason: 'deliverable_course_not_found' },
+    });
+    expect(f.render).not.toHaveBeenCalled();
+    expect(f.persist).not.toHaveBeenCalled();
+  });
+
+  it('refuses a session of another owner before it looks for the course', async () => {
+    const f = fixture();
+    f.owned.mockResolvedValueOnce({ id: 's1', ownerId: 'user:two' });
+    const made = await f.run('create_course_handout', { courseId: 'course-1' });
+    expect(made).toMatchObject({ isError: true, details: { reason: 'deliverable_not_found' } });
+    expect(f.loadCourse).not.toHaveBeenCalled();
+  });
+
+  it('says why when there is nothing to export', async () => {
+    const f = fixture();
+    const reason = async (input: Record<string, unknown>) =>
+      ((await f.run('create_course_handout', { courseId: 'course-1', ...input })).details
+        .reason as string) ?? 'delivered';
+    expect(await reason({ fromScene: 3, toScene: 2 })).toBe('deliverable_course_range');
+    expect(await reason({ fromScene: 9 })).toBe('deliverable_course_range');
+    expect(await reason({ content: 'questions', toScene: 2 })).toBe(
+      'deliverable_course_no_questions',
+    );
+    expect(f.render).not.toHaveBeenCalled();
+  });
+
+  it('refuses a course too long for one handout instead of shortening it', async () => {
+    const f = fixture();
+    f.loadCourse.mockResolvedValueOnce({
+      ...COURSE,
+      scenes: [
+        {
+          title: '长篇',
+          type: 'slide',
+          content: { type: 'slide' },
+          actions: [{ type: 'speech', text: '讲'.repeat(20001) }],
+        },
+      ],
+    });
+    const made = await f.run('create_course_handout', { courseId: 'course-1' });
+    expect(made).toMatchObject({
+      isError: true,
+      details: { reason: 'deliverable_course_too_long' },
+    });
+    expect(f.render).not.toHaveBeenCalled();
   });
 });
 

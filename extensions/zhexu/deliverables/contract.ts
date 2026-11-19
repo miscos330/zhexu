@@ -50,6 +50,7 @@ export interface DeliverableFile {
 
 export const DELIVERABLE_TOOL_NAMES = [
   'create_deliverable',
+  'create_course_handout',
   'export_deliverable',
   'read_deliverable',
   'verify_deliverable',
@@ -61,6 +62,7 @@ export const DELIVERABLE_TOOL_NAMES = [
  */
 export const DELIVERABLE_CARD_TOOL_NAMES: readonly string[] = [
   'create_deliverable',
+  'create_course_handout',
   'export_deliverable',
   'verify_deliverable',
   'annotate_image',

@@ -27,6 +27,7 @@ Available now:
 - **Extension layer**: new features live under [`extensions/`](/extensions/README.md) and are added with a few small hooks into upstream code, so upgrades stay easy.
 - **A4 handouts**: the assistant hands an answer over as real files, an A4 PDF and page images, optionally in a Chinese handwriting face. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Image annotations**: the assistant looks at an image you attached and puts numbered labels on it, as an A4 PNG and PDF. The original image is kept unchanged. [How it works](/extensions/README.md#image-annotations-zhexu).
+- **Course handouts**: export a course you have saved as an A4 handout: what is written on each page, the narration and the quiz questions in page order, with the answers at the end. The text is taken from the course as it is, not rewritten by a model. The quiz questions alone make a worksheet. It shares the switch of A4 handouts. This one has unit tests only so far; it has not run end to end.
 
 Both are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. They have not been run with a real model yet.
 
@@ -38,8 +39,7 @@ These two pages are real output of the renderer, made from test content.
 
 Planned:
 
-- **Course handouts**: export a finished course as an A4 handout.
-- **Worksheets**: a worksheet layout, a page of questions and a page of answers.
+- **Worksheet layout**: questions and answers on separate pages.
 - **My files**: one page that lists the handouts and annotated images the assistant has delivered.
 
 The direction is printable material for teachers, which is where ZHEXU differs from upstream.
@@ -97,9 +97,9 @@ Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts th
 
 An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`, and problems with them as issues in this repository.
 
-What this fork has sent upstream so far (status as of 2026-11-17):
+What this fork has sent upstream so far (status as of 2026-11-19):
 
-- [#2286](https://github.com/THU-MAIC/OpenMAIC/pull/2286), pull request, open: six test files that failed on Windows.
+- [#2286](https://github.com/THU-MAIC/OpenMAIC/pull/2286), pull request, merged on 2026-11-17: six test files that failed on Windows.
 - [#2285](https://github.com/THU-MAIC/OpenMAIC/issues/2285), bug report, accepted by a maintainer: the standalone build output included the whole repository.
 - [#2306](https://github.com/THU-MAIC/OpenMAIC/discussions/2306), idea, open: let a deployment change the workbench accent colour.
 
