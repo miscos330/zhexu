@@ -51,6 +51,7 @@ extensions/
     tool-cards.tsx the cards of those tools
     deliverables/  A4 handouts, see below
     annotations/   image annotations, see below
+    CHANGELOG.md   what each release of this edition changes
   agent-tools.ts   server seam: the active extension's agent tools
   tool-cards.tsx   client seam: the active extension's tool cards
 app/api/extensions/zhexu/  route files that forward to extensions/zhexu/
