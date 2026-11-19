@@ -100,6 +100,7 @@ pnpm dev
 这个仓库到目前为止提给上游的内容（状态截至 2026-11-19）：
 
 - [#2286](https://github.com/THU-MAIC/OpenMAIC/pull/2286)，pull request，已于 2026-11-17 合并：修复 Windows 上失败的六个测试文件。
+- [#2355](https://github.com/THU-MAIC/OpenMAIC/pull/2355)，pull request，等待审查：在 Windows 上跳过依赖 POSIX 系统的沙箱 shell 和 Python 测试。
 - [#2285](https://github.com/THU-MAIC/OpenMAIC/issues/2285)，Bug 报告，维护者已接受：独立构建产物里带上了整个仓库。
 - [#2306](https://github.com/THU-MAIC/OpenMAIC/discussions/2306)，功能想法，讨论中：让部署方可以更改工作台的强调色。
 

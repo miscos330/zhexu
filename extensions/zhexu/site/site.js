@@ -116,7 +116,7 @@
     renderTheme();
   }
 
-  /** With `data-repo` set on <html>, the source button, clone command and license link go live. */
+  /** With `data-repo` set on <html>, the source button, clone command, license and releases links go live. */
   function wireRepository() {
     const repo = (root.dataset.repo || '')
       .trim()
@@ -137,6 +137,10 @@
     document.getElementById('zx-repo-note').hidden = true;
     // HEAD is the repository's default branch, whatever it is called.
     document.getElementById('zx-license').href = `${repo}/blob/HEAD/LICENSE`;
+    // Releases exist only where the source does, so the link stays hidden without it.
+    const releases = document.getElementById('zx-releases');
+    releases.href = `${repo}/releases`;
+    releases.hidden = false;
   }
 
   /** A strip or code block that scrolls sideways must be reachable from the keyboard. */

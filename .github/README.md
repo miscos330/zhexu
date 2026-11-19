@@ -100,6 +100,7 @@ An improvement that is not specific to ZHEXU belongs upstream, where everyone ge
 What this fork has sent upstream so far (status as of 2026-11-19):
 
 - [#2286](https://github.com/THU-MAIC/OpenMAIC/pull/2286), pull request, merged on 2026-11-17: six test files that failed on Windows.
+- [#2355](https://github.com/THU-MAIC/OpenMAIC/pull/2355), pull request, open: skip the sandbox shell and Python tests on Windows, which need a POSIX system.
 - [#2285](https://github.com/THU-MAIC/OpenMAIC/issues/2285), bug report, accepted by a maintainer: the standalone build output included the whole repository.
 - [#2306](https://github.com/THU-MAIC/OpenMAIC/discussions/2306), idea, open: let a deployment change the workbench accent colour.
 

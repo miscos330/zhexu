@@ -156,6 +156,7 @@ window.ZX_STRINGS = {
 
     'footer.note': 'ZHEXU is released under the MIT license. Built on THU-MAIC/OpenMAIC.',
     'footer.upstream': 'OpenMAIC upstream',
+    'footer.releases': 'Releases',
     'footer.license': 'License',
   },
 };

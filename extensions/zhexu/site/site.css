@@ -241,6 +241,11 @@ a {
   color: inherit;
 }
 
+/* A class that sets `display` would otherwise show an element marked hidden. */
+[hidden] {
+  display: none !important;
+}
+
 button {
   font: inherit;
   color: inherit;
