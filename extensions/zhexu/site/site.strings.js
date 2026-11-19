@@ -140,10 +140,13 @@ window.ZX_STRINGS = {
     'open.now.tables.term': 'Tables',
     'open.now.tables.desc':
       'Tables in a handout and in a course are drawn ruled, with a shaded header and long cells wrapped.',
+    'open.now.pictures.term': 'Pictures',
+    'open.now.pictures.desc':
+      'A course’s pictures are placed in its handout, read only from the course’s own assets, never from the web.',
     'open.next.label': 'Planned',
-    'open.next.pictures.term': 'Pictures',
-    'open.next.pictures.desc':
-      'A course’s pictures are left out of a handout for now; the plan is to place them.',
+    'open.next.interactive.term': 'Interactive and project pages',
+    'open.next.interactive.desc':
+      'A course’s interactive and project-based pages give a handout only their title for now; the plan is to take their text.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',

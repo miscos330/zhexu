@@ -287,6 +287,8 @@ describe('handout tools', () => {
     expect(f.render).toHaveBeenCalledWith(
       expect.objectContaining({ body: '原文：保护环境，建设美好家园。', style: 'handwriting' }),
       undefined,
+      // The renderer gets a reader for pictures, scoped to this owner.
+      { readImage: expect.any(Function) },
     );
   });
 
@@ -419,6 +421,8 @@ describe('course handout text', () => {
         '面向初二学生的一节短课。',
         [
           '1. 什么是折射',
+          // A picture held as a path, not a course asset: marked as not included.
+          '![](-)',
           '光的折射 & 现象',
           '传播方向发生偏折',
           '法线',

@@ -16,6 +16,7 @@
  * marked where upstream's quiz view shows a formula.
  */
 
+import { isConcreteMediaAddress } from '@openmaic/dsl';
 import { renderQuizMathText } from '@/lib/quiz/math-text';
 import { DELIVERABLE_PAGE_BREAK } from './contract';
 
@@ -141,6 +142,20 @@ function tableText(element: Record<string, unknown>): string {
   return lines.length > 1 ? lines.join('\n') : filled[0]!.join(' | ');
 }
 
+/**
+ * A slide picture as a picture line for the renderer: `![](asset id)`, which it
+ * reads from the owner's asset pool. A background is left out. A picture held
+ * as a URL or a data URL is not read (nothing remote is fetched, and a data URL
+ * would not fit the handout's text), so it becomes `![](-)`, which the renderer
+ * marks as a picture that was not included.
+ */
+function pictureLine(element: Record<string, unknown>): string {
+  if (element.imageType === 'background') return '';
+  const src = text(element.src).trim();
+  if (!src) return '';
+  return isConcreteMediaAddress(src) || /[\s()[\]]/.test(src) ? '![](-)' : `![](${src})`;
+}
+
 /** What is written on a slide, top to bottom and left to right. */
 function slideText(content: Record<string, unknown>): string {
   const canvas = isRecord(content.canvas) ? content.canvas : {};
@@ -149,6 +164,7 @@ function slideText(content: Record<string, unknown>): string {
     .map((element) => {
       let value = '';
       if (element.type === 'text') value = htmlToText(text(element.content));
+      else if (element.type === 'image') value = pictureLine(element);
       else if (element.type === 'shape' && isRecord(element.text))
         value = htmlToText(text(element.text.content));
       else if (element.type === 'latex') {

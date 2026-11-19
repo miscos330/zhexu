@@ -182,9 +182,23 @@ table with merged cells stays rows of text separated by ` | `, because a pipe
 table cannot merge cells. Other Markdown (headings, emphasis, lists) is printed
 as written.
 
+Pictures are placed. A line that is only `![description](asset id)` is a
+picture: it is centred on lines of its own, as large as the column and half a
+page allow and never more than twice its size. The renderer reads it through
+upstream's `resolveOwnedAsset`, so the rule is the persistence route's (the
+owner's own assets, legacy shared ones, and other owners' committed assets a
+live course references). Nothing remote is read: a URL, a data URL or a path
+(upstream's `isConcreteMediaAddress`) is never handed to the reader. Only PNG,
+JPEG, WebP and GIF are decoded, recognised by their signature; the size their
+header declares is checked before decoding (at most 40 million pixels), with at
+most 8 MiB a picture, 32 MiB and 24 pictures a handout. A picture that cannot be
+placed leaves a visible note (`［图片未放入：description］`, or English for an
+English text). A course's pictures are written as such lines, a background left
+out; one held as a URL or data URL is written `![](-)` and so shows the note.
+
 Not covered: subscript and superscript digits such as ₁ in plain text (no
-shipped text font has them; in a formula, write `x_1`) and images. Text that
-needs more than sixteen pages is refused, not cut.
+shipped text font has them; in a formula, write `x_1`), and a picture inside a
+line of text. Text that needs more than sixteen pages is refused, not cut.
 
 ## Image annotations (ZHEXU)
 

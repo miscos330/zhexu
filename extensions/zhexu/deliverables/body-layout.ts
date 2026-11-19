@@ -19,6 +19,10 @@ import { wrapDeliverableText } from './text-layout';
  * end the cell. Each table row is one line of the layout, so a page break falls
  * between rows.
  *
+ * A picture is a line that is only `![description](asset id)`: it is drawn
+ * centred on lines of its own. A picture the renderer could not read leaves a
+ * visible note in its place.
+ *
  * Plain text comes out exactly as before formulas and tables were drawn: the
  * same line breaks and one line height per line. A line only grows when a
  * formula in it needs the room.
@@ -30,6 +34,8 @@ export type BodyItem = (
   /** A table rule (`width` by `height`), and a header row's shading. */
   | { kind: 'rule'; width: number; height: number }
   | { kind: 'shade'; width: number; height: number }
+  /** A picture, its top-left corner at (x, y), drawn `width` by `height`. */
+  | { kind: 'image'; ref: string; width: number; height: number }
 ) & {
   x: number;
   /** Offset from the line's baseline, downwards; 0 when absent. */
@@ -52,6 +58,10 @@ export interface BodyLayoutOptions {
   measure(text: string): number;
   /** Typeset LaTeX at `scale` times the normal formula size, or null. */
   typeset(latex: string, display: boolean, scale: number): TypesetFormula | null;
+  /** Size of a picture that was read and decoded, or null when it could not be. */
+  image?(ref: string): { width: number; height: number } | null;
+  /** Tallest a picture may be drawn. */
+  imageHeight?: number;
 }
 
 export interface BodyLayout {
@@ -62,6 +72,9 @@ export interface BodyLayout {
   untypeset: number;
   /** Tables drawn. */
   tables: number;
+  /** Pictures placed, and pictures that could not be. */
+  images: number;
+  missingImages: number;
 }
 
 /** Share of a plain line's height above its baseline. */
@@ -108,6 +121,12 @@ interface Table {
   header: boolean;
   align: Align[];
 }
+
+/**
+ * A picture: a line that is only `![description](reference)`. The reference
+ * is a course asset id; the renderer reads it, and nothing remote.
+ */
+export const IMAGE_ROW = /^\s*!\[([^\]\n]*)\]\(\s*([^()\s]+)\s*\)\s*$/;
 
 const TABLE_ROW = /^\s*\|.*\|\s*$/;
 const DIVIDER_CELL = /^\s*(:?)-{3,}(:?)\s*$/;
@@ -194,6 +213,8 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
   let formulas = 0;
   let untypeset = 0;
   let tables = 0;
+  let images = 0;
+  let missingImages = 0;
 
   /** The formula at full size, or shrunk to fit `room`; null to print its source. */
   const fit = (latex: string, display: boolean, room: number) => {
@@ -429,6 +450,53 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     });
   };
 
+  /**
+   * A picture on lines of its own, centred, as large as its pixels allow up
+   * to the column width and `imageHeight` (never more than twice its size).
+   * One that could not be read or decoded leaves a visible note instead, in
+   * the language of the text.
+   */
+  const image = (description: string, ref: string): BodyLine[] => {
+    const size = options.image?.(ref);
+    if (!size || !(size.width > 0) || !(size.height > 0)) {
+      missingImages += 1;
+      const han = /\p{Script=Han}/u.test(body);
+      const note = han
+        ? `［图片未放入${description ? `：${description}` : ''}］`
+        : `[Picture not included${description ? `: ${description}` : ''}]`;
+      return paragraph(note, width, plain, 'center').map(({ items, above, below }) => ({
+        items,
+        above,
+        below,
+      }));
+    }
+    images += 1;
+    const scale = Math.min(
+      width / size.width,
+      (options.imageHeight ?? Number.POSITIVE_INFINITY) / size.height,
+      2,
+    );
+    const drawn = { width: size.width * scale, height: size.height * scale };
+    const margin = lineHeight * TABLE.margin;
+    return [
+      {
+        items: [
+          {
+            kind: 'image',
+            ref,
+            x: (width - drawn.width) / 2,
+            y: -drawn.height,
+            width: drawn.width,
+            height: drawn.height,
+          },
+        ],
+        // The baseline of a picture's line is its bottom edge.
+        above: drawn.height + margin,
+        below: margin,
+      },
+    ];
+  };
+
   const sections: BodyLine[][] = [];
   for (const part of body.split(DELIVERABLE_PAGE_BREAK)) {
     const section = part.replace(/^[\r\n]+|[\r\n]+$/g, '');
@@ -436,6 +504,11 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     const lines: BodyLine[] = [];
     const rows = section.replace(/\r\n?/g, '\n').split('\n');
     for (let index = 0; index < rows.length; index += 1) {
+      const picture = IMAGE_ROW.exec(rows[index]!);
+      if (picture) {
+        lines.push(...image(picture[1]!, picture[2]!));
+        continue;
+      }
       const found = readTable(rows, index);
       if (found) {
         lines.push(...table(found.table));
@@ -447,5 +520,5 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     }
     sections.push(lines);
   }
-  return { sections, formulas, untypeset, tables };
+  return { sections, formulas, untypeset, tables, images, missingImages };
 }

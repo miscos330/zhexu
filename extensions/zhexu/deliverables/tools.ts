@@ -3,6 +3,7 @@ import { Type } from 'typebox';
 import { z } from 'zod';
 import type { AgentTool } from '@earendil-works/pi-agent-core';
 import { createLogger } from '@/lib/logger';
+import { resolveOwnedAsset } from '@/lib/persistence/resolve-server-asset';
 import {
   getSessionMaterial,
   listSessionMaterials,
@@ -20,7 +21,7 @@ import {
 } from './contract';
 import { courseHandoutText } from './course-source';
 import { loadOwnedCourse } from './course-store';
-import { renderDeliverable } from './render';
+import { renderDeliverable, type DeliverableImageReader } from './render';
 import { persistDeliverableMaterial } from './storage';
 import { deriveDeliverableTitle } from './text-layout';
 
@@ -84,6 +85,11 @@ export interface DeliverableToolDeps {
   read?: typeof resolveSessionMaterialRawAsset;
   persist?: typeof persistDeliverableMaterial;
   render?: typeof renderDeliverable;
+  /**
+   * Reads a picture a handout names, as this owner may read it (upstream's
+   * asset rule). Defaults to the server asset pool; nothing remote is read.
+   */
+  readImage?: DeliverableImageReader;
   /** A course of this owner by id; `null` for one that is missing or someone else's. */
   loadCourse?: typeof loadOwnedCourse;
 }
@@ -179,7 +185,17 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
       }
     }
     if (rendered++ >= RENDERS_PER_RUN) throw Error('deliverable_run_limit');
-    const outputs = await (deps.render ?? renderDeliverable)(source, signal).catch((error) => {
+    const readImage: DeliverableImageReader =
+      deps.readImage ??
+      (async (ref, maxBytes) => {
+        const connection = process.env.DATABASE_URL;
+        if (!connection) return null;
+        const read = await resolveOwnedAsset(ref, deps.ownerId, connection, maxBytes);
+        return read.status === 'resolved' ? { bytes: read.buffer } : null;
+      });
+    const outputs = await (deps.render ?? renderDeliverable)(source, signal, {
+      readImage,
+    }).catch((error) => {
       signal?.throwIfAborted();
       if (error instanceof Error && /^deliverable_[a-z_]+$/.test(error.message)) throw error;
       // The model only gets a reason code; the cause goes to the server log.
@@ -319,7 +335,7 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
     label: 'Create a handout from a course',
     executionMode: 'sequential',
     description:
-      "Turn one of the user's own saved courses into real private files: an A4 PDF and page images. The text comes from the course as it is saved (what is written on each page, the narration, the quiz questions); nothing is rewritten or added and no model is called, so do not retype the course in any argument. courseId is the id of the course. content=full (default) includes the narration, slides only what is written on the pages, questions makes a worksheet: a line for the student's name, the quiz questions, and the answers on a page of their own. A long course that does not fit in 16 pages is refused: export it in parts with fromScene and toScene (1-based page numbers, inclusive) or use content=slides.",
+      "Turn one of the user's own saved courses into real private files: an A4 PDF and page images. The text comes from the course as it is saved (what is written on each page, its pictures, tables and formulas, the narration, the quiz questions); nothing is rewritten or added and no model is called, so do not retype the course in any argument. courseId is the id of the course. content=full (default) includes the narration, slides only what is written on the pages, questions makes a worksheet: a line for the student's name, the quiz questions, and the answers on a page of their own. A long course that does not fit in 16 pages is refused: export it in parts with fromScene and toScene (1-based page numbers, inclusive) or use content=slides.",
     parameters: Type.Object(
       {
         courseId: Type.String({ minLength: 1, maxLength: 200 }),

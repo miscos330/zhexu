@@ -1,4 +1,7 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+import sharp from 'sharp';
 
 /**
  * A saved course, exported as a handout and as a worksheet.
@@ -21,7 +24,14 @@ async function dismissTour(page: Page) {
   await expect(page.getByTestId('workspace-tour')).toHaveCount(0);
 }
 
-const slide = (stageId: string, order: number, title: string, text: string, said: string) => ({
+const slide = (
+  stageId: string,
+  order: number,
+  title: string,
+  text: string,
+  said: string,
+  more: object[] = [],
+) => ({
   id: `${stageId}-s${order}`,
   stageId,
   type: 'slide',
@@ -51,6 +61,7 @@ const slide = (stageId: string, order: number, title: string, text: string, said
           width: 900,
           height: 100,
         },
+        ...more,
       ],
     },
   },
@@ -62,6 +73,25 @@ async function seedCourse(page: Page, name: string): Promise<string> {
   // The workspace packages are ESM-only while Playwright loads specs as CommonJS.
   const { DSL_VERSION } = await import('@openmaic/dsl');
   const stageId = `zhexu-e2e-${crypto.randomUUID().slice(0, 8)}`;
+  // A picture in the course's own asset pool, uploaded as the page's owner;
+  // the handout reads it back through that owner's pool.
+  const upload = await page.request.post('/api/persistence/assets', {
+    // An allocation takes its metadata first, then the bytes, both as files.
+    multipart: {
+      meta: {
+        name: 'metadata.json',
+        mimeType: 'application/json',
+        buffer: Buffer.from(JSON.stringify({ contentType: 'image/png' })),
+      },
+      bytes: {
+        name: 'asset',
+        mimeType: 'image/png',
+        buffer: readFileSync(join(__dirname, '..', 'fixtures', 'cell-diagram.png')),
+      },
+    },
+  });
+  expect(upload.status(), await upload.text()).toBe(201);
+  const { id: pictureId } = (await upload.json()) as { id: string };
   const response = await page.request.put(`/api/persistence/documents/${stageId}`, {
     data: {
       dslVersion: DSL_VERSION,
@@ -74,7 +104,19 @@ async function seedCourse(page: Page, name: string): Promise<string> {
         updatedAt: 1785900000000,
       },
       scenes: [
-        slide(stageId, 0, '什么是折射', '光的传播方向发生偏折', '今天我们学习光的折射。'),
+        slide(stageId, 0, '什么是折射', '光的传播方向发生偏折', '今天我们学习光的折射。', [
+          {
+            type: 'image',
+            id: `image-${stageId}`,
+            src: pictureId,
+            fixedRatio: true,
+            left: 50,
+            top: 200,
+            width: 400,
+            height: 300,
+            rotate: 0,
+          },
+        ]),
         slide(
           stageId,
           1,
@@ -123,7 +165,11 @@ async function ask(page: Page, prompt: string) {
   await page.getByTestId('pro-launch-start').click();
 }
 
-async function downloadAll(page: Page, card: ReturnType<Page['getByTestId']>) {
+async function downloadAll(
+  page: Page,
+  card: ReturnType<Page['getByTestId']>,
+): Promise<Map<string, Buffer>> {
+  const bodies = new Map<string, Buffer>();
   const files = await card.locator('a[download]').evaluateAll((links) =>
     links.map((link) => ({
       href: link.getAttribute('href') ?? '',
@@ -137,7 +183,20 @@ async function downloadAll(page: Page, card: ReturnType<Page['getByTestId']>) {
     const head = (await response.body()).subarray(0, 4).toString('latin1');
     if (file.name.endsWith('.pdf')) expect(head, file.name).toBe('%PDF');
     if (file.name.endsWith('.png')) expect(head, file.name).toBe('\u0089PNG');
+    bodies.set(file.name, await response.body());
   }
+  return bodies;
+}
+
+/** Pixels of the cell diagram's purple nucleus, which nothing else on a page has. */
+async function nucleusPixels(png: Buffer): Promise<number> {
+  const { data, info } = await sharp(png).raw().toBuffer({ resolveWithObject: true });
+  let count = 0;
+  for (let i = 0; i < data.length; i += info.channels) {
+    const [r, g, b] = [data[i]!, data[i + 1]!, data[i + 2]!];
+    if (r > 120 && r < 160 && g > 95 && g < 125 && b > 160 && b < 195) count += 1;
+  }
+  return count;
 }
 
 test('a saved course becomes a handout whose files download', async ({ page }) => {
@@ -153,7 +212,11 @@ test('a saved course becomes a handout whose files download', async ({ page }) =
   await expect(card).toBeVisible();
   await expect(card).toHaveAttribute('data-delivery-state', 'delivered');
   await expect(card).toContainText(name);
-  await downloadAll(page, card);
+  const files = await downloadAll(page, card);
+  // The first page carries the course's picture, read from the owner's asset pool.
+  const firstPage = [...files].find(([fileName]) => fileName.endsWith('.png'))?.[1];
+  expect(firstPage).toBeDefined();
+  expect(await nucleusPixels(firstPage!)).toBeGreaterThan(5_000);
 });
 
 test('the quiz of a saved course becomes a worksheet', async ({ page }) => {
