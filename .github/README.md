@@ -32,6 +32,7 @@ Available now:
 - **Typeset formulas**: LaTeX in a handout (`\(` `\)` inside a line, `\[` `\]` on a line of its own) and the formulas of a course are typeset, with the same layout and fonts as KaTeX gives them on a slide. A formula that cannot be drawn that way is printed as its LaTeX source. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Tables**: a Markdown pipe table in a handout, and a table of a course, is drawn ruled, with a shaded header row, aligned columns and long cells wrapped. A course table with merged cells stays rows of text. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Pictures**: a course's pictures are placed in its handout, read from the owner's course assets; nothing remote is fetched. A picture that cannot be placed leaves a visible note. [How it works](/extensions/README.md#a4-handouts-zhexu).
+- **Interactive and project pages**: a course's interactive page gives a handout what its widget explains (the concept or task, the description, the steps, the nodes of a diagram); a project page its description, learning objective, milestones and tasks. The page's program is not printed.
 
 They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. They have not been run with a real model yet.
 
@@ -43,7 +44,7 @@ These two pages are real output of the renderer, made from test content.
 
 Planned:
 
-- **Interactive and project pages**: a course's interactive pages and project-based (PBL) pages give a handout only their title for now; the plan is to take their text.
+- **Newer project pages**: a project in the newer format (PBL v3) is kept in a package of its own and gives a handout only its title for now; the plan is to read its text too.
 
 The direction is printable material for teachers, which is where ZHEXU differs from upstream.
 

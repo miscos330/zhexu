@@ -143,10 +143,13 @@ window.ZX_STRINGS = {
     'open.now.pictures.term': 'Pictures',
     'open.now.pictures.desc':
       'A course’s pictures are placed in its handout, read only from the course’s own assets, never from the web.',
+    'open.now.interactive.term': 'Interactive and project pages',
+    'open.now.interactive.desc':
+      'An interactive page gives what its widget explains and its steps; a project page its goal, milestones and tasks.',
     'open.next.label': 'Planned',
-    'open.next.interactive.term': 'Interactive and project pages',
-    'open.next.interactive.desc':
-      'A course’s interactive and project-based pages give a handout only their title for now; the plan is to take their text.',
+    'open.next.projects.term': 'Newer project pages',
+    'open.next.projects.desc':
+      'A project in the newer format is kept in a package of its own and gives a handout only its title for now; the plan is to read its text too.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',

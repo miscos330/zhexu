@@ -595,6 +595,109 @@ describe('course handout text', () => {
     );
   });
 
+  it('takes what an interactive page and a project page explain from their own fields', () => {
+    const text = courseHandoutText(
+      {
+        name: '光的折射',
+        scenes: [
+          {
+            title: '折射模拟',
+            type: 'interactive',
+            content: {
+              type: 'interactive',
+              html: '<button>开始</button><script>run()</script>',
+              widgetConfig: {
+                type: 'simulation',
+                concept: '折射定律',
+                description: '拖动滑块改变入射角，观察折射角的变化。',
+                variables: [{ name: 'i', label: '入射角' }],
+              },
+            },
+          },
+          {
+            title: '实验步骤',
+            type: 'interactive',
+            content: {
+              type: 'interactive',
+              html: '<p>x</p>',
+              widgetConfig: {
+                type: 'procedural-skill',
+                task: '测量水的折射率',
+                description: '按步骤完成测量。',
+                steps: [
+                  { id: 's1', title: '放置玻璃砖', description: '把玻璃砖放在白纸上。' },
+                  { id: 's2', title: '记录角度', description: '' },
+                ],
+              },
+            },
+          },
+          {
+            title: '概念图',
+            type: 'interactive',
+            content: {
+              type: 'interactive',
+              widgetConfig: {
+                type: 'diagram',
+                description: '折射的成因。',
+                nodes: [
+                  { id: 'a', label: '光速变化', details: '介质不同，光速不同' },
+                  { id: 'b', label: '方向偏折' },
+                ],
+              },
+            },
+          },
+          {
+            title: '项目：设计潜望镜',
+            type: 'pbl',
+            content: {
+              type: 'pbl',
+              projectV2: {
+                title: '设计潜望镜',
+                description: '用平面镜设计一个简易潜望镜。',
+                learningObjective: '理解光的反射在生活中的应用',
+                milestones: [
+                  {
+                    id: 'm2',
+                    title: '制作',
+                    order: 1,
+                    microtasks: [{ id: 't2', title: '组装镜筒', order: 0 }],
+                  },
+                  {
+                    id: 'm1',
+                    title: '设计',
+                    description: '画出光路图',
+                    order: 0,
+                    microtasks: [
+                      { id: 't1b', title: '确定镜面角度', order: 1 },
+                      { id: 't1a', title: '画光路', order: 0 },
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+          // A v3 project lives in its own package: only the title.
+          {
+            title: '新版项目',
+            type: 'pbl',
+            content: { type: 'pbl', projectV3: { id: 'p', version: '1' } },
+          },
+        ],
+      },
+      'slides',
+    );
+    expect(text.body).toBe(
+      [
+        '1. 折射模拟\n折射定律\n拖动滑块改变入射角，观察折射角的变化。',
+        '2. 实验步骤\n测量水的折射率\n按步骤完成测量。\n1. 放置玻璃砖：把玻璃砖放在白纸上。\n2. 记录角度',
+        '3. 概念图\n折射的成因。\n· 光速变化：介质不同，光速不同\n· 方向偏折',
+        '4. 项目：设计潜望镜\n用平面镜设计一个简易潜望镜。\n学习目标：理解光的反射在生活中的应用\n' +
+          '1. 设计：画出光路图\n  · 画光路\n  · 确定镜面角度\n2. 制作\n  · 组装镜筒',
+        '5. 新版项目',
+      ].join('\n\n'),
+    );
+  });
+
   it('reduces rich text to its words', () => {
     expect(
       htmlToText('<p>a&lt;b &#38; c&#x4e2d;</p><ul><li>one</li><li>two<br/>three</li></ul>'),

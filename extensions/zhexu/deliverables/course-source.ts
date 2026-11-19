@@ -45,6 +45,8 @@ interface Labels {
   nameLine: string;
   untitled: string;
   analysis: string;
+  goal: string;
+  separator: string;
 }
 
 const ZH: Labels = {
@@ -55,6 +57,8 @@ const ZH: Labels = {
   nameLine: '姓名：________　班级：________　日期：________',
   untitled: '未命名',
   analysis: '解析',
+  goal: '学习目标',
+  separator: '：',
 };
 const EN: Labels = {
   notes: 'Notes',
@@ -64,6 +68,8 @@ const EN: Labels = {
   nameLine: 'Name: ________   Class: ________   Date: ________',
   untitled: 'Untitled',
   analysis: 'Explanation',
+  goal: 'Learning objective',
+  separator: ': ',
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -180,6 +186,87 @@ function slideText(content: Record<string, unknown>): string {
     .filter((item) => item.value);
   placed.sort((a, b) => a.top - b.top || a.left - b.left);
   return placed.map((item) => item.value).join('\n');
+}
+
+/** `label: value`, or just the value when there is no label. */
+const labelled = (label: string, value: string, labels: Labels) =>
+  label ? `${label}${labels.separator}${value}` : value;
+
+/**
+ * What an interactive page explains, from its widget's own fields: the concept
+ * of a simulation or the task of a procedure, the description, the steps of a
+ * procedure and the nodes of a diagram. The page's HTML is a program, not text
+ * to print, so a page without widget fields gives only its title.
+ */
+function interactiveText(content: Record<string, unknown>, labels: Labels): string {
+  const widget = isRecord(content.widgetConfig) ? content.widgetConfig : {};
+  const out: string[] = [];
+  for (const key of ['concept', 'task', 'description']) {
+    const value = text(widget[key]).trim();
+    if (value && !out.includes(value)) out.push(value);
+  }
+  list(widget.steps)
+    .filter(isRecord)
+    .forEach((step, index) => {
+      const title = text(step.title).trim();
+      const detail = text(step.description).trim();
+      if (title || detail)
+        out.push(
+          `${index + 1}. ${title && detail ? labelled(title, detail, labels) : title || detail}`,
+        );
+    });
+  for (const node of list(widget.nodes).filter(isRecord)) {
+    const label = text(node.label).trim();
+    const details = text(node.details).trim();
+    if (label) out.push(`· ${details ? labelled(label, details, labels) : label}`);
+  }
+  return out.join('\n');
+}
+
+/**
+ * What a project page sets out: its description, learning objective and
+ * milestones with their tasks. Only the project as designed is read (v2,
+ * stored in the page); a v3 project lives in a separate package and gives
+ * only the page's title.
+ */
+function projectText(content: Record<string, unknown>, labels: Labels): string {
+  const project = isRecord(content.projectV2) ? content.projectV2 : undefined;
+  if (!project) return '';
+  const out: string[] = [];
+  const description = text(project.description).trim();
+  if (description) out.push(description);
+  const goal = text(project.learningObjective).trim();
+  if (goal) out.push(labelled(labels.goal, goal, labels));
+  const milestones = list(project.milestones)
+    .filter(isRecord)
+    .map((milestone, index) => ({ milestone, index }))
+    .sort(
+      (a, b) =>
+        (typeof a.milestone.order === 'number' ? a.milestone.order : a.index) -
+          (typeof b.milestone.order === 'number' ? b.milestone.order : b.index) ||
+        a.index - b.index,
+    );
+  milestones.forEach(({ milestone }, index) => {
+    const title = text(milestone.title).trim();
+    const detail = text(milestone.description).trim();
+    if (!title && !detail) return;
+    out.push(
+      `${index + 1}. ${title && detail ? labelled(title, detail, labels) : title || detail}`,
+    );
+    const tasks = list(milestone.microtasks)
+      .filter(isRecord)
+      .map((task, order) => ({ task, order }))
+      .sort(
+        (a, b) =>
+          (typeof a.task.order === 'number' ? a.task.order : a.order) -
+            (typeof b.task.order === 'number' ? b.task.order : b.order) || a.order - b.order,
+      );
+    for (const { task } of tasks) {
+      const name = text(task.title).trim();
+      if (name) out.push(`  · ${name}`);
+    }
+  });
+  return out.join('\n');
 }
 
 /** What the teacher says on a page: its speech actions, in order. */
@@ -303,6 +390,10 @@ export function courseHandoutText(
         if (found.length) lines.push(`${labels.exercises}`, ...found);
       } else if (body.type === 'slide') {
         const written = slideText(body);
+        if (written) lines.push(written);
+      } else if (body.type === 'interactive' || body.type === 'pbl') {
+        const written =
+          body.type === 'interactive' ? interactiveText(body, labels) : projectText(body, labels);
         if (written) lines.push(written);
       }
       if (content === 'full') {

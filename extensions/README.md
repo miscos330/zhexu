@@ -82,7 +82,7 @@ face. The conversation shows a card with a preview, the download links and a
 "Check files" button.
 
 `create_course_handout` makes the same files from one of the owner's saved
-courses: what is written on each page, the narration and the quiz questions, in
+courses: what is written on each page, the narration, the quiz questions, and what an interactive page (its widget's description and steps) or a project page (its goal, milestones and tasks) sets out, in
 page order, with the answers at the end. The text is taken from the course as
 it is saved; no model writes or shortens it, and a course too long for sixteen
 pages is refused with a hint to export a range of pages. `content=slides`
