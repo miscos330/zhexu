@@ -14,6 +14,8 @@ English | [简体中文](/.github/README-zh.md)
 
 ZHEXU is a downstream edition of [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC), which the THU-MAIC team open-sourced under the MIT license. The classroom, the pages and the exports all come from upstream. This repository adds its own brand, theme and extensions on top. Improvements that are not specific to ZHEXU go back upstream instead of staying here.
 
+This repository started as a GitHub fork of OpenMAIC and left the fork network on 2026-11-20, so that it shows up in search as a project of its own. Its history is unchanged, and upstream is still merged in the same way. Pull requests for upstream are now made from a separate fork, [miscos330/OpenMAIC](https://github.com/miscos330/OpenMAIC).
+
 The upstream README is kept unchanged at the root of this repository. [README.md](/README.md) describes everything the classroom can do, with all of its setup options.
 
 ## Status
@@ -101,7 +103,7 @@ Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts th
 
 An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`, and problems with them as issues in this repository.
 
-What this fork has sent upstream so far (status as of 2026-11-20):
+What this repository has sent upstream so far (status as of 2026-11-20):
 
 - [#2286](https://github.com/THU-MAIC/OpenMAIC/pull/2286), pull request, merged on 2026-11-17: six test files that failed on Windows.
 - [#2355](https://github.com/THU-MAIC/OpenMAIC/pull/2355), pull request, merged on 2026-11-20: skip the sandbox shell and Python tests on Windows, which need a POSIX system.

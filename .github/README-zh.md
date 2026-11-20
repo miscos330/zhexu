@@ -14,6 +14,8 @@
 
 折序是 [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC) 的下游版本。OpenMAIC 由 THU-MAIC 团队以 MIT 许可开源，课堂、课件和导出这些能力都来自上游。本仓库在上面加自己的品牌、主题和扩展。不是折序专用的改进会提交回上游，不留在这里。
 
+本仓库原是 OpenMAIC 在 GitHub 上的 fork，2026-11-20 离开了 fork 网络，好让它在搜索里作为独立项目出现。提交历史没有变，跟上游的合并方式也照旧。给上游提的 pull request 改从另一个 fork [miscos330/OpenMAIC](https://github.com/miscos330/OpenMAIC) 发出。
+
 上游的 README 原样保留在仓库根目录。[README-zh.md](/README-zh.md) 里有课堂的全部功能和各种配置方式。
 
 ## 现状
