@@ -20,7 +20,7 @@
 
 ## 现状
 
-这是早期版本。第一个候选版本是 2026-11-19 的 [0.1.0-rc.1](https://github.com/miscos330/zhexu/releases/tag/zhexu-v0.1.0-rc.1)；每个版本改了什么见[变更记录](/extensions/zhexu/CHANGELOG.md)。
+这是早期版本。最新的候选版本是 2026-11-21 的 [0.1.0-rc.2](https://github.com/miscos330/zhexu/releases/tag/zhexu-v0.1.0-rc.2)；每个版本改了什么见[变更记录](/extensions/zhexu/CHANGELOG.md)。
 
 已经有：
 
