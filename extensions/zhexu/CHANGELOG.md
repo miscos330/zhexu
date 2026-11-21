@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.0-rc.2] - 2026-11-21
+
+The second release candidate for 0.1.0. Handouts now draw formulas, tables and pictures, and a course handout takes in a course's interactive and project pages. It is still a candidate because no run has used a real model; see "How it was checked". Built on upstream `main` at `ce7f05a8` (1.5.0-rc.3 and the changes upstream has made since).
+
 ### Features
 
 - Formulas in handouts are typeset. In a handout's text, LaTeX between `\(` and `\)` stays in its line and LaTeX between `\[` and `\]` gets a line of its own (`$` and `$$` work too; a lone `$` pair only counts when it holds a formula, so prices stay text). A course handout marks the course's formulas the same way: the formula elements of a slide, inline formulas in its text, and quiz text wherever upstream's quiz view shows a formula. KaTeX lays each formula out as it does on a slide, and the renderer draws that layout with KaTeX's own fonts. A formula wider than the page is shrunk to fit, down to half size. A formula that cannot be drawn this way is printed as its LaTeX source, as before. Text without formulas is laid out exactly as before.
@@ -22,7 +26,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - A browser record of 66 formulas, each inline and on its own line, made with KaTeX in Chromium: the tests draw the same formulas and compare every glyph, rule and SVG. The largest difference is under 0.1 pixel for a formula 100 pixels high.
 - Handouts of plain text produce byte-identical page images before and after these changes (four sources, seven pages, both faces), and lines with a `|` that do not form a table stay text.
-- The course in the browser tests now holds formulas, so the production build and the Docker image typeset them in CI.
+- The course in the browser tests now holds formulas and a picture uploaded through upstream's asset API, so the production build and the Docker image typeset formulas and place a picture in CI.
+- 295 unit tests under `tests/extensions/` and the same 7 browser tests, against a production build and the Docker image.
+- As before, a scripted stand-in took the place of the model in every run. How a real model uses the tools, and what it writes into a handout, is not checked.
+
+### Known limits
+
+- A formula that KaTeX's layout cannot be drawn from (an unknown command or style) is printed as its LaTeX source. Other Markdown marks, such as headings, bold and list bullets, are printed as written.
+- Only pictures stored in the owner's assets are placed; a link to a picture elsewhere leaves a note instead.
+- A handout has at most sixteen pages. Longer text is refused, not cut; a course can be exported as a range of pages.
+- The annotation tools are offered only to a model that upstream's built-in registry declares vision-capable.
+- The brand does not reach the classic home page, the favicon, and upstream strings that name the product.
+
+### Repository
+
+- The repository left GitHub's fork network of OpenMAIC on 2026-11-20 and is now a project of its own. Its history is unchanged; pull requests for upstream come from a separate fork.
 
 ## [0.1.0-rc.1] - 2026-11-19
 
