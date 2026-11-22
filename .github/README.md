@@ -101,7 +101,7 @@ Six upstream files are touched, each by a few lines: `app/layout.tsx` mounts the
 
 ## Contributing
 
-An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`, and problems with them as issues in this repository.
+An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`, and problems with them as issues in this repository. Taking part here follows the [code of conduct](/.github/CODE_OF_CONDUCT.md).
 
 What this repository has sent upstream so far (status as of 2026-11-20):
 

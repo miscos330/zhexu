@@ -101,7 +101,7 @@ pnpm dev
 
 ## 参与贡献
 
-不是折序专用的改进应该提给上游，这样所有人都能用上，做法见 OpenMAIC 的 [CONTRIBUTING.md](/CONTRIBUTING.md)。对扩展、主题或展示页的修改，欢迎在这里向 `zhexu` 分支提 pull request；它们的问题可以在本仓库提议题。
+不是折序专用的改进应该提给上游，这样所有人都能用上，做法见 OpenMAIC 的 [CONTRIBUTING.md](/CONTRIBUTING.md)。对扩展、主题或展示页的修改，欢迎在这里向 `zhexu` 分支提 pull request；它们的问题可以在本仓库提议题。在这里参与请遵守[行为准则](/.github/CODE_OF_CONDUCT.md)（英文，Contributor Covenant 2.0）。
 
 这个仓库到目前为止提给上游的内容（状态截至 2026-11-20）：
 

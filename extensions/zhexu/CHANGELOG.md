@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Documentation
 
 - A new sample handout page, with a chemical equation, inline formulas, a table with merged cells and a picture, in the README and on the showcase page next to the handwriting and annotation samples. A test renders it from fixed content when `ZHEXU_RENDER_SAMPLES=1` is set, so it can be made again.
+- A code of conduct, the Contributor Covenant 2.0, in `.github/CODE_OF_CONDUCT.md`. Reports go through an issue in this repository; one that should not be public asks there for a private channel, or goes to GitHub.
 
 ### Upstream files touched
 
