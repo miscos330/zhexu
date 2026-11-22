@@ -167,3 +167,13 @@ html.dark[data-brand='zhexu'] .ws-tour {
 html.dark[data-brand='zhexu'] img[src^='/extensions/zhexu/zhexu-']:not(.ws-wordmark) {
   filter: invert(1) hue-rotate(180deg) brightness(1.08);
 }
+
+/* 5. Upstream's GitHub pill ------------------------------------------------
+   The workspace hero links to upstream's repository with upstream's star
+   count. Under this brand it would read as this edition's own count, so it is
+   hidden; the home note under the composer and the about page name OpenMAIC
+   and link to it. */
+
+html[data-brand='zhexu'] .ws-gh-pill {
+  display: none;
+}

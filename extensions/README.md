@@ -26,7 +26,8 @@ rebuild after changing it. Unknown values select nothing.
 | Rail pages, account menu entries, account summary, home section   | `WorkbenchShellExtensionsProvider`                                   | `lib/workbench/shell-extensions.tsx`            |
 | Sign-in identity, guide course                                    | the same provider (`identity`, `guideCourse`); not used yet          | `lib/workbench/shell-extensions.tsx`            |
 | Colours                                                           | custom properties scoped to `html[data-brand='<id>']`                | `app/globals.css`, Tailwind's colour scales     |
-| Browser tab title, description                                    | `extensions/metadata.ts`                                             | the `metadata` export of `app/layout.tsx`       |
+| Browser tab title, description, tab icon                          | `extensions/metadata.ts`                                             | the `metadata` export of `app/layout.tsx`       |
+| Upstream strings that name the product                            | `extensions/locale.ts`                                               | `lib/i18n/load-resource.ts`                     |
 | Agent tools of its own                                            | `extensions/agent-tools.ts`, called once per run                     | `lib/server/agent-runtime/runner.ts`            |
 | What the conversation shows for a finished call of such a tool    | `extensions/tool-cards.tsx`                                          | `components/workbench/chat/action-cluster.tsx`  |
 | HTTP endpoints of its own                                         | route files under `app/api/extensions/<id>/` that only forward       | none                                            |
@@ -37,7 +38,8 @@ rebuild after changing it. Unknown values select nothing.
 extensions/
   config.ts        which extension is active (server and client safe)
   index.tsx        mounts the active extension inside the root layout's provider
-  metadata.ts      page title and description per extension
+  metadata.ts      page title, description and tab icon per extension
+  locale.ts        renames the product in upstream's strings for the active extension
   zhexu/
     brand.ts       BrandConfig and links
     messages.ts    the extension's own strings (Chinese, English fallback)
@@ -68,7 +70,9 @@ The only upstream files touched are `app/layout.tsx` (two imports, the
 appends the extension's tools to the run's own), `components/workbench/chat/action-cluster.tsx`
 (one import and a wrapper that puts the extension's cards under a row of tool
 calls, where they stay in view when the row folds) and `.env.example` (one
-section at the end). `Dockerfile` and `docker-compose.yml` take
+section at the end), `lib/i18n/load-resource.ts` (one import and one call that
+renames the product in each locale bundle) and `app/classic-home.tsx` (the logo
+and the footer read `useBrand()`, as the workspace already does). `Dockerfile` and `docker-compose.yml` take
 `NEXT_PUBLIC_DEPLOYMENT_EXTENSION` as one more build argument. Outside the code, the issue forms in
 `.github/ISSUE_TEMPLATE/` (`bug_report.yml`, `config.yml`) ask about this
 repository and point everything else upstream.
@@ -278,10 +282,8 @@ out of date.
 ## Not covered yet
 
 - Literal colours in upstream TSX (inline styles, share images, video export).
-- The classic home page (`app/classic-home.tsx`), which hard-codes the OpenMAIC
-  logo; the brand shows in the workbench shell.
-- Upstream locale strings that name the product ("Welcome to OpenMAIC" in the
-  first-run tour, "About OpenMAIC" in the account menu) and the favicon.
+- The tab icon in browsers that do not read SVG icons (Safari): Next always
+  lists upstream's `app/favicon.ico` first, and the brand mark is an SVG.
 - A real model: every run so far, on a development machine and in CI (a
   production build and the Docker image, see `zhexu/e2e/README.md`), used a
   scripted stand-in that calls the tools with fixed content. How a real model

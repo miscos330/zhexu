@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Features
+
+- The brand reaches the rest of the app. Upstream's strings that name the product (the welcome tour, the account menu's about entry, the sandbox settings, the achievement image) say 折序 ZHEXU; the two that name OpenMAIC itself (a built-in skill ships with OpenMAIC, the official skill download) stay. The classic home page shows the brand's logo and name. The browser tab shows the brand mark in browsers that read SVG icons. Upstream's GitHub pill on the workspace home, which showed upstream's star count, is hidden; the home note and the about page name and link OpenMAIC.
+
+### Upstream files touched
+
+`lib/i18n/load-resource.ts` (one import and one call) and `app/classic-home.tsx` (the logo and footer read `useBrand()`).
+
 ## [0.1.0-rc.2] - 2026-11-21
 
 The second release candidate for 0.1.0. Handouts now draw formulas, tables and pictures, and a course handout takes in a course's interactive and project pages. It is still a candidate because no run has used a real model; see "How it was checked". Built on upstream `main` at `ce7f05a8` (1.5.0-rc.3 and the changes upstream has made since).

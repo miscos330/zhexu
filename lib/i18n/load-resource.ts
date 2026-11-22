@@ -1,4 +1,5 @@
 import { workbenchResourceFor } from './workbench';
+import { brandLocaleResource } from '@/extensions/locale';
 
 export type TranslationResource = Record<string, unknown>;
 
@@ -27,5 +28,8 @@ function deepMerge(base: TranslationResource, overlay: TranslationResource): Tra
  */
 export async function loadLocaleResource(language: string): Promise<TranslationResource> {
   const localeModule = await import(`./locales/${language}.json`);
-  return deepMerge(localeModule.default, { workbench: workbenchResourceFor(language) });
+  // A deployment extension may rename the product (see `extensions/README.md`).
+  return brandLocaleResource(
+    deepMerge(localeModule.default, { workbench: workbenchResourceFor(language) }),
+  );
 }

@@ -92,7 +92,7 @@ Models, Docker and the other options are covered in the upstream [Quick Start](/
 | [`tests/extensions/`](/tests/extensions) | Tests for all of the above |
 | [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | The checks that run on this branch |
 
-Four upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, and `.env.example` documents the switches. `Dockerfile` and `docker-compose.yml` take the extension as one more build argument. The issue forms under `.github/ISSUE_TEMPLATE/` are changed as well, so that an issue opened here is about this repository and anything else is pointed upstream.
+Six upstream files are touched, each by a few lines: `app/layout.tsx` mounts the extension, `lib/server/agent-runtime/runner.ts` adds the extension's tools to a run, `components/workbench/chat/action-cluster.tsx` shows its cards in the conversation, `lib/i18n/load-resource.ts` puts the product name into upstream's strings, `app/classic-home.tsx` takes its logo from the brand, and `.env.example` documents the switches. `Dockerfile` and `docker-compose.yml` take the extension as one more build argument. The issue forms under `.github/ISSUE_TEMPLATE/` are changed as well, so that an issue opened here is about this repository and anything else is pointed upstream.
 
 ## Branches
 

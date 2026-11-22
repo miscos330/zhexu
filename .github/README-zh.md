@@ -92,7 +92,7 @@ pnpm dev
 | [`tests/extensions/`](/tests/extensions) | 以上内容的测试 |
 | [`.github/workflows/zhexu-ci.yml`](/.github/workflows/zhexu-ci.yml) | 这个分支上运行的检查 |
 
-上游文件改了四个，每个只有几行：`app/layout.tsx` 挂载扩展；`lib/server/agent-runtime/runner.ts` 把扩展的工具加进一次运行；`components/workbench/chat/action-cluster.tsx` 在对话里显示扩展的卡片；`.env.example` 说明各个开关。`Dockerfile` 和 `docker-compose.yml` 各多了一个构建参数，用来带上扩展。另外改了 `.github/ISSUE_TEMPLATE/` 下的议题表单，让在这里提的议题针对本仓库，其他问题指向上游。
+上游文件改了六个，每个只有几行：`app/layout.tsx` 挂载扩展；`lib/server/agent-runtime/runner.ts` 把扩展的工具加进一次运行；`components/workbench/chat/action-cluster.tsx` 在对话里显示扩展的卡片；`lib/i18n/load-resource.ts` 把上游文字里的产品名换成本版本的；`app/classic-home.tsx` 的标志改从品牌配置读取；`.env.example` 说明各个开关。`Dockerfile` 和 `docker-compose.yml` 各多了一个构建参数，用来带上扩展。另外改了 `.github/ISSUE_TEMPLATE/` 下的议题表单，让在这里提的议题针对本仓库，其他问题指向上游。
 
 ## 分支
 
