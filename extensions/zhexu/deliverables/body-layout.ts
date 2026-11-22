@@ -1,6 +1,14 @@
 import { parseQuizMathText } from '@/lib/quiz/math-text';
 import { DELIVERABLE_PAGE_BREAK } from './contract';
 import type { TypesetFormula } from './formula';
+import {
+  HEADING,
+  indentWidth,
+  inlinePieces,
+  LIST_ITEM,
+  THEMATIC_BREAK,
+  type InlinePiece,
+} from './markdown';
 import { wrapDeliverableText } from './text-layout';
 
 /**
@@ -29,7 +37,14 @@ import { wrapDeliverableText } from './text-layout';
  */
 
 export type BodyItem = (
-  | { kind: 'text'; text: string }
+  | {
+      kind: 'text';
+      text: string;
+      /** Emphasis, and a heading's size as a multiple of the body size; plain text has none. */
+      bold?: true;
+      italic?: true;
+      scale?: number;
+    }
   | { kind: 'formula'; formula: TypesetFormula }
   /** A table rule (`width` by `height`), and a header row's shading. */
   | { kind: 'rule'; width: number; height: number }
@@ -56,14 +71,21 @@ export interface BodyLayoutOptions {
   width: number;
   /** Line height of plain text. */
   lineHeight: number;
-  /** Width of plain text in the body font. */
-  measure(text: string): number;
+  /** Width of text in the body font, or at `scale` times its size (a heading). */
+  measure(text: string, scale?: number): number;
   /** Typeset LaTeX at `scale` times the normal formula size, or null. */
   typeset(latex: string, display: boolean, scale: number): TypesetFormula | null;
   /** Size of a picture that was read and decoded, or null when it could not be. */
   image?(ref: string): { width: number; height: number } | null;
   /** Tallest a picture may be drawn. */
   imageHeight?: number;
+  /**
+   * False to print the body as it is written; otherwise its Markdown headings,
+   * emphasis, lists and thematic breaks are set (see `markdown.ts`).
+   */
+  markdown?: boolean;
+  /** The handout's title: a heading that only repeats it at the top of the body is left out. */
+  title?: string;
 }
 
 export interface BodyLayout {
@@ -99,6 +121,20 @@ const TABLE = {
   margin: 0.3,
   /** Thickness of a rule, in pixels. */
   rule: 2,
+} as const;
+
+/** Markdown measures, as shares of the line height unless noted. */
+const MARKDOWN = {
+  /** Size of a heading of each level, as a multiple of the body size. */
+  headingScale: [1.27, 1.15, 1.06, 1, 1, 1],
+  /** Room above a heading that does not open its section. */
+  headingSpace: 0.4,
+  /** How far each level of a nested list moves in. */
+  listIndent: 1,
+  /** Least room for a list marker before the item's text. */
+  markerBox: 0.9,
+  /** Bullets of a list, by depth, taken in turn; the faces have no ◦ or ▪. */
+  bullets: ['•', '–'],
 } as const;
 
 /** `%` starts a comment in LaTeX; as upstream does, a bare one in a formula is taken literally. */
@@ -314,6 +350,7 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
   const plainAbove = plainLineAbove(lineHeight);
   const plain = { above: plainAbove, below: lineHeight - plainAbove };
   const gap = lineHeight * GAP;
+  const markdown = options.markdown !== false;
   let formulas = 0;
   let untypeset = 0;
   let tables = 0;
@@ -342,8 +379,22 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     blockAlign: Align,
     /** False when only measuring: the formula counts are left alone. */
     tally = true,
+    /** For a heading: its size as a multiple of the body size. A heading is bold. */
+    headingScale?: number,
   ): Wrapped[] => {
     const lines: Wrapped[] = [];
+    const scale = headingScale ?? 1;
+    const measureText = scale === 1 ? measure : (text: string) => options.measure(text, scale);
+    // Emphasis changes are marked in the run by characters of their own, which
+    // take no width; the style they set carries on across wrapped lines.
+    const styles = new Map<string, { bold: boolean; italic: boolean }>();
+    let style = { bold: false, italic: false };
+    let runStyle = style;
+    const styled = () => ({
+      ...(style.bold || headingScale !== undefined ? { bold: true as const } : {}),
+      ...(style.italic ? { italic: true as const } : {}),
+      ...(scale !== 1 ? { scale } : {}),
+    });
     // Text and inline formulas collect into a run, wrapped when a display
     // formula or the end of the row closes it.
     let run = '';
@@ -363,16 +414,17 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
         let sum = 0;
         let piece = '';
         for (const char of Array.from(text)) {
+          if (styles.has(char)) continue;
           const formula = inline.get(char);
           if (!formula) {
             piece += char;
             continue;
           }
-          if (piece) sum += measure(piece);
+          if (piece) sum += measureText(piece);
           piece = '';
           sum += formula.width;
         }
-        return piece ? sum + measure(piece) : sum;
+        return piece ? sum + measureText(piece) : sum;
       };
       for (const wrapped of wrapDeliverableText(run, advance, room)) {
         const items: BodyItem[] = [];
@@ -382,11 +434,17 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
         let below = metrics.below;
         const text = () => {
           if (!piece) return;
-          items.push({ kind: 'text', text: piece, x });
-          x += measure(piece);
+          items.push({ kind: 'text', text: piece, x, ...styled() });
+          x += measureText(piece);
           piece = '';
         };
         for (const char of Array.from(wrapped)) {
+          const change = styles.get(char);
+          if (change) {
+            text();
+            style = change;
+            continue;
+          }
           const formula = inline.get(char);
           if (!formula) {
             piece += char;
@@ -405,8 +463,21 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
       runHasContent = false;
     };
 
-    for (const segment of parseQuizMathText(row)) {
+    const pieces: InlinePiece[] = markdown
+      ? inlinePieces(row)
+      : parseQuizMathText(row).map((segment) =>
+          segment.type === 'text'
+            ? { type: 'text', value: segment.value, bold: false, italic: false }
+            : { type: 'math', value: segment.value, displayMode: segment.displayMode },
+        );
+    for (const segment of pieces) {
       if (segment.type === 'text') {
+        if (segment.bold !== runStyle.bold || segment.italic !== runStyle.italic) {
+          const mark = placeholder();
+          runStyle = { bold: segment.bold, italic: segment.italic };
+          styles.set(mark, runStyle);
+          run += mark;
+        }
         // Subscript and superscript characters (H₂O, x²) are in none of the
         // text fonts: each run of them is set as a KaTeX script instead.
         for (const piece of segment.value.split(SCRIPT_RUN)) {
@@ -689,25 +760,121 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
     ];
   };
 
+  /** Lines of text moved `indent` to the right. */
+  const indented = (wrapped: Wrapped[], indent: number): BodyLine[] =>
+    wrapped.map(({ items, above, below }) => ({
+      items: items.map((item) => ({ ...item, x: item.x + indent })),
+      above,
+      below,
+    }));
+
+  /** A heading: bold, larger for the upper levels, with room above it unless it opens the section. */
+  const heading = (level: number, text: string, first: boolean): BodyLine[] => {
+    const scale = MARKDOWN.headingScale[level - 1] ?? 1;
+    const pitch = lineHeight * scale;
+    const metrics = { above: plainLineAbove(pitch), below: pitch - plainLineAbove(pitch) };
+    const lines = indented(paragraph(text, width, metrics, 'left', true, scale), 0);
+    if (!first && lines[0]) lines[0].above += lineHeight * MARKDOWN.headingSpace;
+    return lines;
+  };
+
+  /** A thematic break: a rule across the column, in the middle of a line. */
+  const thematicBreak = (): BodyLine => ({
+    items: [
+      {
+        kind: 'rule',
+        x: 0,
+        y: lineHeight / 2 - plain.above - TABLE.rule / 2,
+        width,
+        height: TABLE.rule,
+      },
+    ],
+    ...plain,
+  });
+
+  /**
+   * A list item: its marker (a bullet, or the number as written) at the item's
+   * depth, its text beside it, and wrapped lines aligned with the text.
+   */
+  const listItem = (depth: number, marker: string, text: string) => {
+    const indent = depth * lineHeight * MARKDOWN.listIndent;
+    const glyph = /^\d/.test(marker) ? marker : MARKDOWN.bullets[depth % MARKDOWN.bullets.length]!;
+    const box = Math.max(lineHeight * MARKDOWN.markerBox, measure(glyph) + lineHeight * 0.3);
+    const lines = indented(paragraph(text, width - indent - box, plain, 'left'), indent + box);
+    lines[0]?.items.unshift({ kind: 'text', text: glyph, x: indent });
+    return { lines, content: indent + box };
+  };
+
   const sections: BodyLine[][] = [];
+  let leading = true;
   for (const part of body.split(DELIVERABLE_PAGE_BREAK)) {
     const section = part.replace(/^[\r\n]+|[\r\n]+$/g, '');
     if (!section.trim()) continue;
     const lines: BodyLine[] = [];
     const rows = section.replace(/\r\n?/g, '\n').split('\n');
+    // Open list items: their indent as written, and where their text starts.
+    const open: Array<{ indent: number; content: number }> = [];
     for (let index = 0; index < rows.length; index += 1) {
-      const picture = IMAGE_ROW.exec(rows[index]!);
+      const row = rows[index]!;
+      const picture = IMAGE_ROW.exec(row);
       if (picture) {
         lines.push(...image(picture[1]!, picture[2]!));
+        open.length = 0;
+        leading = false;
         continue;
       }
       const found = readTable(rows, index);
       if (found) {
         lines.push(...table(found.table));
         index = found.end - 1;
+        open.length = 0;
+        leading = false;
         continue;
       }
-      for (const { items, above, below } of paragraph(rows[index]!, width, plain, 'center'))
+      if (markdown) {
+        const title = HEADING.exec(row);
+        // A heading that repeats the title above it, as an exported answer's first line does.
+        if (leading && title && title[2]!.trim() === options.title?.trim()) {
+          leading = false;
+          while (index + 1 < rows.length && !rows[index + 1]!.trim()) index += 1;
+          continue;
+        }
+        if (row.trim()) leading = false;
+        if (THEMATIC_BREAK.test(row)) {
+          lines.push(thematicBreak());
+          open.length = 0;
+          continue;
+        }
+        if (title) {
+          lines.push(...heading(title[1]!.length, title[2]!, lines.length === 0));
+          open.length = 0;
+          continue;
+        }
+        const item = LIST_ITEM.exec(row);
+        if (item) {
+          const indent = indentWidth(item[1]!);
+          while (open.length && open[open.length - 1]!.indent >= indent) open.pop();
+          const laid = listItem(open.length, item[2]!, item[3]!);
+          open.push({ indent, content: laid.content });
+          lines.push(...laid.lines);
+          continue;
+        }
+        // An indented line under a list item goes on with that item's text; a
+        // line that is not indented ends the list. A blank line keeps it open.
+        const indent = indentWidth(/^[ \t]*/.exec(row)![0]);
+        const parent = [...open].reverse().find((entry) => entry.indent < indent);
+        if (row.trim() && parent) {
+          lines.push(
+            ...indented(
+              paragraph(row.trim(), width - parent.content, plain, 'left'),
+              parent.content,
+            ),
+          );
+          continue;
+        }
+        if (row.trim()) open.length = 0;
+      }
+      for (const { items, above, below } of paragraph(row, width, plain, 'center'))
         lines.push({ items, above, below });
     }
     sections.push(lines);

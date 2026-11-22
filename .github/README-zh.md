@@ -35,6 +35,7 @@
 - **表格**：讲义里的 Markdown 表格（每行以 `|` 开头和结尾）和课程里的表格画成带线的表格：表头有底色，各列按设定对齐，长内容在格子里换行。合并单元格画成一个格子；长表格跨页时每页重复表头。[实现方式](/extensions/README.md#a4-handouts-zhexu)。
 - **图片**：课程里的图片放进讲义，从这门课所属用户的课程素材里读取，不会去外网取图。放不进的图片会留下一行“图片未放入”的说明。[实现方式](/extensions/README.md#a4-handouts-zhexu)。
 - **互动页和项目页**：课程里的互动页取出组件自带的说明（概念或任务、描述、步骤、概念图的节点），项目页取出项目描述、学习目标、各阶段和任务。页面本身的程序不印。
+- **Markdown**：助手在讲义里写的标题、粗体和斜体、项目符号和编号列表、`---` 分隔线会排成对应的样式，没有空格的中文里也能正确识别。课程讲义的文字取自课程本身，原样印出。[实现方式](/extensions/README.md#a4-handouts-zhexu)。
 
 这些功能默认关闭，由两个开关控制（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有单元测试，也有[浏览器测试](/extensions/zhexu/e2e/README.md)：CI 会对着生产构建和 Docker 镜像各端到端跑一遍，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
 
@@ -43,10 +44,6 @@
 | ![一页 A4 讲义样张：化学方程式、行内公式、带合并单元格的表格和一张细胞示意图](/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp) | ![一页手写体的 A4 讲义样张](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![一张带标注的图片样张：图上有编号标记，标注列在图的下方](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
 
 这三页是渲染器的真实输出，内容是测试用的。第一页由 [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts) 在设置 `ZHEXU_RENDER_SAMPLES=1` 时生成。
-
-计划中：
-
-- **讲义里的 Markdown**：助手用 Markdown 写的标题、加粗和列表目前按原样印出，计划排成真正的标题、粗体和列表。
 
 方向是给老师的可打印材料，这是折序和上游不重叠的地方。
 

@@ -194,8 +194,26 @@ tied together by such a cell are not split across pages, and the header rows
 top of each later page the table runs on. A course's table is written as such a
 table, with a header when the table's theme marks one and its merged cells
 marked; a table whose cells do not fit the HTML-table reading upstream stores
-stays rows of text separated by ` | `. Other Markdown (headings, emphasis, lists)
-is printed as written.
+stays rows of text separated by ` | `.
+
+Headings, emphasis, lists and thematic breaks are set (`markdown.ts`). A line
+`#` to `######` and a space is a bold heading, the first three levels larger; a
+heading that only repeats the title at the top of the body is left out, as an
+exported answer's first line usually does. `**bold**`, `*italic*` and `_italic_`
+follow CommonMark's delimiter rules, with one change for Chinese, Japanese and
+Korean text: next to one of those characters a mark may open or close beside
+punctuation, so `**注意：**这里` is bold as written. A `_` inside a word stays a
+`_`, a code span keeps its marks and backticks, and a backslash keeps `*`, `_`,
+`#`, `-`, `+` or `.` literal. The faces have no bold or italic of their own, so
+bold is the glyphs outlined in their own colour and italic the glyphs slanted.
+A line that starts with `-`, `*` or `+` and a space is a bullet item, one that
+starts with a number and `.` or `)` a numbered item, the number as written;
+wrapped lines align with the item's text, an indented item nests under the one
+above, and an indented line goes on with the item. A line of three or more `-`,
+`*` or `_` is a rule across the column. A course handout's text is the course's
+own words, not Markdown (its source carries `markdown: false`), so a `*` or a
+leading `-` in it is printed. Text without these marks is laid out exactly as
+before.
 
 Pictures are placed. A line that is only `![description](asset id)` is a
 picture: it is centred on lines of its own, as large as the column and half a
@@ -215,9 +233,10 @@ Subscript and superscript characters in plain text (H₂O, m², SO₄²⁻) are 
 of the shipped text fonts, so each run of them is set as a KaTeX script at the
 text's size; the line keeps its height.
 
-Not covered: a picture inside a line of text, and Markdown other than tables
-(headings, emphasis, lists are printed as written). Text that needs more than
-sixteen pages is refused, not cut.
+Not covered: a picture inside a line of text, and the Markdown not named above
+(links, block quotes, code blocks and code spans are printed as written; a
+formula in a heading keeps the body size). Text that needs more than sixteen
+pages is refused, not cut.
 
 ## Image annotations (ZHEXU)
 

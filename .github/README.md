@@ -35,6 +35,7 @@ Available now:
 - **Tables**: a Markdown pipe table in a handout, and a table of a course, is drawn ruled, with a shaded header row, aligned columns, long cells wrapped and merged cells drawn as one box; a long table repeats its header on each page. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Pictures**: a course's pictures are placed in its handout, read from the owner's course assets; nothing remote is fetched. A picture that cannot be placed leaves a visible note. [How it works](/extensions/README.md#a4-handouts-zhexu).
 - **Interactive and project pages**: a course's interactive page gives a handout what its widget explains (the concept or task, the description, the steps, the nodes of a diagram); a project page its description, learning objective, milestones and tasks. The page's program is not printed.
+- **Markdown**: headings, bold and italic text, bullet and numbered lists and `---` rules that the assistant writes in a handout are set as such, also in Chinese text without spaces. A course's own text is printed as it is. [How it works](/extensions/README.md#a4-handouts-zhexu).
 
 They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. They have not been run with a real model yet.
 
@@ -43,10 +44,6 @@ They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMA
 | ![A sample A4 handout page: a chemical equation, inline formulas, a table with merged cells and a cell diagram](/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp) | ![A sample A4 handout page set in a Chinese handwriting face](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![A sample annotated image: a drawing with numbered markers and the labels listed under it](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
 
 These three pages are real output of the renderer, made from test content. The first is rendered by [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts) when `ZHEXU_RENDER_SAMPLES=1` is set.
-
-Planned:
-
-- **Markdown in handouts**: headings, emphasis and lists that the assistant writes in Markdown are printed as written for now; the plan is to set them as headings, bold text and lists.
 
 The direction is printable material for teachers, which is where ZHEXU differs from upstream.
 

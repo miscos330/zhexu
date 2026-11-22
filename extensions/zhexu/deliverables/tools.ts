@@ -369,7 +369,7 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
     label: 'Create downloadable document',
     executionMode: 'sequential',
     description:
-      'Create real private files from NEW content: an A4 PDF and page images the user can download. Not an outline: include the complete text the user asked for. At most 16 pages and 16000 UTF-8 bytes of arguments (below 4000 Chinese characters). style=handwriting sets the body in a Chinese running-hand face. Write formulas in LaTeX: \\( \\) inside a line, \\[ \\] on a line of its own; they are typeset. Write a table as a Markdown pipe table (| a | b | rows, a | --- | --- | line under the header row); it is drawn ruled. A cell that is only < joins the cell to its left, only ^ the cell above. For content that already exists in the conversation, use export_deliverable instead of copying it into the arguments. Preserve facts; only missing noncritical details may be visible placeholders.',
+      'Create real private files from NEW content: an A4 PDF and page images the user can download. Not an outline: include the complete text the user asked for. At most 16 pages and 16000 UTF-8 bytes of arguments (below 4000 Chinese characters). style=handwriting sets the body in a Chinese running-hand face. Write formulas in LaTeX: \\( \\) inside a line, \\[ \\] on a line of its own; they are typeset. Write a table as a Markdown pipe table (| a | b | rows, a | --- | --- | line under the header row); it is drawn ruled. A cell that is only < joins the cell to its left, only ^ the cell above. Markdown headings (# to ######), **bold**, *italic*, lists (- item, 1. item, indented to nest) and a --- line are set as such. For content that already exists in the conversation, use export_deliverable instead of copying it into the arguments. Preserve facts; only missing noncritical details may be visible placeholders.',
     parameters: Type.Object(
       {
         kind: Type.Literal('document'),
@@ -445,6 +445,8 @@ export function buildDeliverableTools(deps: DeliverableToolDeps): AgentTool[] {
           title: text.title.slice(0, 160),
           body: text.body,
           style: params.style ?? 'standard',
+          // The course's words are printed as they are, not read as Markdown.
+          markdown: false,
         });
         // The source is the course's own text: too much of it is a reason to
         // export a part, never to shorten it here.

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Features
 
 - The brand reaches the rest of the app. Upstream's strings that name the product (the welcome tour, the account menu's about entry, the sandbox settings, the achievement image) say 折序 ZHEXU; the two that name OpenMAIC itself (a built-in skill ships with OpenMAIC, the official skill download) stay. The classic home page shows the brand's logo and name. The browser tab shows the brand mark in browsers that read SVG icons. Upstream's GitHub pill on the workspace home, which showed upstream's star count, is hidden; the home note and the about page name and link OpenMAIC.
+- Markdown in handouts. A heading (`#` to `######`) is set bold, the first three levels larger; one that only repeats the title at the top of the body is left out. `**bold**`, `*italic*` and `_italic_` follow CommonMark's rules, except that next to Chinese, Japanese or Korean text a mark may open or close beside punctuation (`**注意：**这里`). Bullet and numbered items get their marker, wrapped lines aligned with their text, and nest when indented; a line of `---` is a rule. The faces have no bold or italic, so bold is outlined and italic slanted. A course handout's text is the course's own words and is printed as it is: its saved source carries `markdown: false`. Text without these marks gives byte-identical pages before and after, checked on eight pages (prose, handwriting, formulas, a table, a picture and a course handout).
 
 ### Documentation
 

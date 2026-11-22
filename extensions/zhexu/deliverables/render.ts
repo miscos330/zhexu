@@ -195,6 +195,8 @@ export async function renderDeliverable(
   const bodySize = source.style === 'handwriting' ? 38 : 30;
   const bodyLineHeight = Math.ceil(bodySize * 1.65);
   const bodyFont = `${bodySize}px ${bodyFamily}, sans-serif`;
+  /** The body face at `scale` times its size: a heading. */
+  const bodyFontAt = (scale: number) => `${bodySize * scale}px ${bodyFamily}, sans-serif`;
   const linesPerPage = Math.floor((height - heading.bodyTop - 90) / bodyLineHeight);
   const room = linesPerPage * bodyLineHeight;
   const plainAbove = plainLineAbove(bodyLineHeight);
@@ -230,7 +232,9 @@ export async function renderDeliverable(
   const body = layoutBody(source.body, {
     width: bodyWidth,
     lineHeight: bodyLineHeight,
-    measure: measureIn(bodyFont),
+    measure: (text, scale) => measureIn(scale ? bodyFontAt(scale) : bodyFont)(text),
+    markdown: source.markdown !== false,
+    title: source.title,
     typeset: (latex, display, scale) =>
       typesetFormula(latex, {
         display,
@@ -331,10 +335,26 @@ export async function renderDeliverable(
         } else if (item.kind === 'rule' || item.kind === 'shade') {
           ctx.fillStyle = item.kind === 'rule' ? PALETTE.muted : PALETTE.shade;
           ctx.fillRect(x, y, item.width, item.height);
-        } else {
+        } else if (!item.bold && !item.italic && !item.scale) {
           ctx.font = bodyFont;
           ctx.fillStyle = PALETTE.ink;
           ctx.fillText(item.text, x, y);
+        } else {
+          // The faces have no bold or italic of their own: bold is the glyphs
+          // outlined in their own colour, italic the glyphs slanted.
+          ctx.save();
+          ctx.font = item.scale ? bodyFontAt(item.scale) : bodyFont;
+          ctx.fillStyle = PALETTE.ink;
+          ctx.translate(x, y);
+          if (item.italic) ctx.transform(1, 0, -0.2, 1, 0, 0);
+          ctx.fillText(item.text, 0, 0);
+          if (item.bold) {
+            ctx.strokeStyle = PALETTE.ink;
+            ctx.lineWidth = bodySize * (item.scale ?? 1) * 0.045;
+            ctx.lineJoin = 'round';
+            ctx.strokeText(item.text, 0, 0);
+          }
+          ctx.restore();
         }
       }
     ctx.fillStyle = PALETTE.muted;

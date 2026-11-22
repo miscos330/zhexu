@@ -794,6 +794,8 @@ describe('course handout tool', () => {
     const source = f.render.mock.calls[0][0] as DeliverableSource;
     expect(source.body).toBe(courseHandoutText(COURSE).body);
     expect(source.style).toBe('standard');
+    // The course's words are printed as they are, not read as Markdown.
+    expect(source.markdown).toBe(false);
     const files = made.details.files as Array<{ download: string }>;
     expect(files.every((file) => isDeliverableDownloadUrl(file.download))).toBe(true);
   });

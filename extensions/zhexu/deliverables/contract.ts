@@ -25,6 +25,12 @@ export const deliverableSourceSchema = z
     title: z.string().trim().min(1).max(160),
     body: z.string().max(20000),
     style: z.enum(['standard', 'handwriting']).default('standard'),
+    /**
+     * False when the body is text to print as it is, not Markdown: a course's
+     * own text, where a `*` or a leading `-` is what the course says. Absent
+     * (never defaulted, so a saved source keeps its hash) means Markdown.
+     */
+    markdown: z.literal(false).optional(),
   })
   .strict()
   .superRefine((value, ctx) => {

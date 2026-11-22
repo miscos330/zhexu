@@ -157,10 +157,9 @@ window.ZX_STRINGS = {
     'open.now.interactive.term': 'Interactive and project pages',
     'open.now.interactive.desc':
       'An interactive page gives what its widget explains and its steps; a project page its goal, milestones and tasks.',
-    'open.next.label': 'Planned',
-    'open.next.markdown.term': 'Markdown in handouts',
-    'open.next.markdown.desc':
-      'Headings, emphasis and lists the assistant writes in Markdown are printed as written for now; the plan is to set them as headings, bold text and lists.',
+    'open.now.markdown.term': 'Markdown',
+    'open.now.markdown.desc':
+      'Headings, bold and italic text, lists and rules the assistant writes are set as such; a course handout’s text is printed as it is.',
 
     'run.title': 'Run it on your own machine',
     'run.sub': 'You need Node.js 22.19 or later, pnpm 10 and PostgreSQL 16.',
