@@ -822,6 +822,22 @@ figcaption {
   gap: var(--zx-space-24);
 }
 
+/* Sample pages: A4 and the annotation keep their own shape, on white paper. */
+.zx-samples-note {
+  margin-top: var(--zx-space-32);
+}
+
+.zx-samples {
+  align-items: start;
+}
+
+.zx-samples .zx-shot {
+  aspect-ratio: auto;
+  height: auto;
+  background: #fff;
+  object-fit: contain;
+}
+
 .zx-groups {
   display: flex;
   flex-direction: column;

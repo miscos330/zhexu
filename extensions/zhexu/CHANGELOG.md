@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - The brand reaches the rest of the app. Upstream's strings that name the product (the welcome tour, the account menu's about entry, the sandbox settings, the achievement image) say 折序 ZHEXU; the two that name OpenMAIC itself (a built-in skill ships with OpenMAIC, the official skill download) stay. The classic home page shows the brand's logo and name. The browser tab shows the brand mark in browsers that read SVG icons. Upstream's GitHub pill on the workspace home, which showed upstream's star count, is hidden; the home note and the about page name and link OpenMAIC.
 
+### Documentation
+
+- A new sample handout page, with a chemical equation, inline formulas, a table with merged cells and a picture, in the README and on the showcase page next to the handwriting and annotation samples. A test renders it from fixed content when `ZHEXU_RENDER_SAMPLES=1` is set, so it can be made again.
+
 ### Upstream files touched
 
 `lib/i18n/load-resource.ts` (one import and one call) and `app/classic-home.tsx` (the logo and footer read `useBrand()`).

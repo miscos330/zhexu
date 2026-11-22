@@ -72,6 +72,17 @@ window.ZX_STRINGS = {
     'screens.finished.alt': 'The dialog shown after a lesson, offering the quiz or a fresh start.',
     'screens.dark': 'Dark mode.',
     'screens.dark.alt': 'The classroom in dark mode.',
+    'samples.note':
+      'The three pages below are real output of the renderer, made from test content.',
+    'samples.formulas': 'A handout with formulas, a table and a picture.',
+    'samples.formulas.alt':
+      'A sample A4 handout page: a chemical equation, inline formulas, a table with merged cells and a cell diagram.',
+    'samples.handwriting': 'A handout in the Chinese handwriting face.',
+    'samples.handwriting.alt': 'A sample A4 handout page set in a Chinese handwriting face.',
+    'samples.annotation':
+      'An annotated image: numbered markers on the image, the labels listed below.',
+    'samples.annotation.alt':
+      'A sample annotated image: a drawing with numbered markers and the labels listed under it.',
 
     'syllabus.title': 'What is in a lesson',
     'syllabus.class.label': 'In class',

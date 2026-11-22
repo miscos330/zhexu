@@ -8,6 +8,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
+import sharp from 'sharp';
 import { describe, expect, it } from 'vitest';
 import { ZHEXU_LINKS } from '@/extensions/zhexu/brand';
 
@@ -99,13 +100,16 @@ describe('showcase page files', () => {
     expect(css).not.toContain('@import');
   });
 
-  it('gives every screenshot its size and a description', () => {
+  it('gives every image the size of its file and a description', async () => {
     const images = html.match(/<img\b[^>]*>/g) ?? [];
-    expect(images).toHaveLength(4);
+    // Four screenshots of the app and three sample pages.
+    expect(images).toHaveLength(7);
     for (const image of images) {
-      expect(image).toMatch(/\swidth="2400"/);
-      expect(image).toMatch(/\sheight="1500"/);
       expect(image).toMatch(/\salt="[^"]+"/);
+      const src = /\ssrc="([^"]+)"/.exec(image)?.[1] ?? '';
+      const { width, height } = await sharp(join(SITE, src)).metadata();
+      expect(image, src).toContain(` width="${width}"`);
+      expect(image, src).toContain(` height="${height}"`);
     }
   });
 

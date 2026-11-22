@@ -38,11 +38,11 @@
 
 这些功能默认关闭，由两个开关控制（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有单元测试，也有[浏览器测试](/extensions/zhexu/e2e/README.md)：CI 会对着生产构建和 Docker 镜像各端到端跑一遍，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
 
-| 手写体讲义 | 图片标注 |
-| --- | --- |
-| ![一页手写体的 A4 讲义样张](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![一张带标注的图片样张：图上有编号标记，标注列在图的下方](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
+| 公式、表格和图片 | 手写体 | 图片标注 |
+| --- | --- | --- |
+| ![一页 A4 讲义样张：化学方程式、行内公式、带合并单元格的表格和一张细胞示意图](/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp) | ![一页手写体的 A4 讲义样张](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![一张带标注的图片样张：图上有编号标记，标注列在图的下方](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
 
-这两页是渲染器的真实输出，内容是测试用的。
+这三页是渲染器的真实输出，内容是测试用的。第一页由 [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts) 在设置 `ZHEXU_RENDER_SAMPLES=1` 时生成。
 
 计划中：
 
