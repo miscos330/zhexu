@@ -20,7 +20,7 @@ The upstream README is kept unchanged at the root of this repository. [README.md
 
 ## Status
 
-This is an early edition. The latest release candidate is [0.1.0-rc.2](https://github.com/miscos330/zhexu/releases/tag/zhexu-v0.1.0-rc.2), of 2026-11-21; what each release changes is in the [changelog](/extensions/zhexu/CHANGELOG.md).
+This is an early edition. The latest release candidate is [0.1.0-rc.3](https://github.com/miscos330/zhexu/releases/tag/zhexu-v0.1.0-rc.3), of 2026-11-23; what each release changes is in the [changelog](/extensions/zhexu/CHANGELOG.md).
 
 Available now:
 
