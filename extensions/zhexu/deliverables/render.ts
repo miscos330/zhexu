@@ -262,15 +262,20 @@ export async function renderDeliverable(
       page.push({ line, baseline: heading.bodyTop + used + (line.above - plainAbove) });
       used += line.above + line.below;
     };
+    // Set when text ran on to a new page: blank lines there would only leave a gap at its top.
+    let ranOn = false;
     for (const line of lines) {
       const pitch = line.above + line.below;
       if (page.length && used + pitch > room + 0.001) {
         pages.push(page);
         page = [];
         used = 0;
-        // A table that runs on to this page shows its header row again.
-        if (line.repeat) place(line.repeat);
+        ranOn = true;
       }
+      if (ranOn && !page.length && !line.items.length) continue;
+      // A table that runs on to this page shows its header row again.
+      if (ranOn && !page.length && line.repeat) place(line.repeat);
+      ranOn = false;
       place(line);
     }
     if (page.length) pages.push(page);

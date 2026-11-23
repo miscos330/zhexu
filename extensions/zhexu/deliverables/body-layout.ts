@@ -426,7 +426,7 @@ export function layoutBody(body: string, options: BodyLayoutOptions): BodyLayout
         }
         return piece ? sum + measureText(piece) : sum;
       };
-      for (const wrapped of wrapDeliverableText(run, advance, room)) {
+      for (const wrapped of wrapDeliverableText(run, advance, room, (char) => styles.has(char))) {
         const items: BodyItem[] = [];
         let x = 0;
         let piece = '';

@@ -4,16 +4,26 @@ const opening = /[（【《「『〔〈(\[]$/u;
 /**
  * Break text into lines no wider than `maxWidth`. Paragraph breaks are kept and
  * no character is dropped. A line never starts with closing punctuation or ends
- * with an opening bracket, and a Latin word is moved to the next line whole
- * when it fits there.
+ * with an opening bracket (spaces after it included, as in a blank `（　）`), and
+ * a Latin word is moved to the next line whole when it fits there.
+ *
+ * `invisible` marks characters that take no room and are not text, such as the
+ * marks of an emphasis change: these rules look through them.
  */
 export function wrapDeliverableText(
   text: string,
   measure: (text: string) => number,
   maxWidth: number,
+  invisible?: (char: string) => boolean,
 ): string[] {
   if (!Number.isFinite(maxWidth) || maxWidth <= 0) throw Error('deliverable_layout_width');
   const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+  const seen = (value: string) =>
+    invisible
+      ? Array.from(value)
+          .filter((char) => !invisible(char))
+          .join('')
+      : value;
   const out: string[] = [];
   for (const row of text.replace(/\r\n?/g, '\n').split('\n')) {
     let line = '';
@@ -21,13 +31,18 @@ export function wrapDeliverableText(
       if (line && measure(line + segment) > maxWidth) {
         let carry = segment;
         const split = line.lastIndexOf(' ');
-        if (/^[A-Za-z0-9]/.test(segment) && /[A-Za-z0-9]$/.test(line) && split > line.length / 3) {
+        if (
+          /^[A-Za-z0-9]/.test(segment) &&
+          /[A-Za-z0-9]$/.test(seen(line)) &&
+          split > line.length / 3
+        ) {
           carry = line.slice(split + 1) + carry;
           line = line.slice(0, split + 1);
         }
         while (
           line &&
-          (opening.test(line) || (closing.test(carry) && Array.from(line).length > 1))
+          (opening.test(seen(line).trimEnd()) ||
+            (closing.test(seen(carry)) && Array.from(seen(line)).length > 1))
         ) {
           const chars = Array.from(segmenter.segment(line), (value) => value.segment);
           carry = chars.pop()! + carry;

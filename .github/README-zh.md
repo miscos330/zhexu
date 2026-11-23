@@ -37,7 +37,7 @@
 - **互动页和项目页**：课程里的互动页取出组件自带的说明（概念或任务、描述、步骤、概念图的节点），项目页取出项目描述、学习目标、各阶段和任务。页面本身的程序不印。
 - **Markdown**：助手在讲义里写的标题、粗体和斜体、项目符号和编号列表、`---` 分隔线会排成对应的样式，没有空格的中文里也能正确识别。课程讲义的文字取自课程本身，原样印出。[实现方式](/extensions/README.md#a4-handouts-zhexu)。
 
-这些功能默认关闭，由两个开关控制（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有单元测试，也有[浏览器测试](/extensions/zhexu/e2e/README.md)：CI 会对着生产构建和 Docker 镜像各端到端跑一遍，用的是按脚本应答的模拟模型。还没有用真实模型跑过。
+这些功能默认关闭，由两个开关控制（`ZHEXU_DELIVERABLES_ENABLED`、`ZHEXU_IMAGE_ANNOTATIONS_ENABLED`）。它们有单元测试，也有[浏览器测试](/extensions/zhexu/e2e/README.md)：CI 会对着生产构建和 Docker 镜像各端到端跑一遍，用的是按脚本应答的模拟模型。用真实模型（DeepSeek Flash）跑过一次，做出了一份讲义和一张标注图；其他模型还没有验证。
 
 | 公式、表格和图片 | 手写体 | 图片标注 |
 | --- | --- | --- |

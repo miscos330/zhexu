@@ -14,6 +14,8 @@ import {
 import { deliverableSourceSchema } from '@/extensions/zhexu/deliverables/contract';
 import type { TypesetFormula } from '@/extensions/zhexu/deliverables/formula';
 import { inlinePieces } from '@/extensions/zhexu/deliverables/markdown';
+import { renderDeliverable } from '@/extensions/zhexu/deliverables/render';
+import { wrapDeliverableText } from '@/extensions/zhexu/deliverables/text-layout';
 
 /** One object per formula, so two layouts of the same text compare equal. */
 const formulas = new Map<string, TypesetFormula>();
@@ -195,6 +197,40 @@ describe('Markdown in a handout body', () => {
       '<shade><shade><rule><rule><rule><rule><rule><rule><rule>**a**b',
       '<rule><rule><rule><rule><rule><rule><rule>1*2*',
     ]);
+  });
+});
+
+describe('line breaks and page breaks around Markdown', () => {
+  it('keeps closing punctuation off the start of a line after bold text', () => {
+    // Found with a real model: "叫做**光的折射**。" broke before the 。.
+    for (let width = 300; width <= 700; width += 20) {
+      const laid = lines(
+        '光从一种介质斜射入另一种介质时，这种现象叫做**光的折射**。然后继续说下去。',
+        {
+          width,
+        },
+      );
+      for (const line of laid)
+        expect(texts(line)[0]?.text ?? '', `width ${width}`).not.toMatch(/^[。，]/);
+    }
+  });
+
+  it('moves a blank answer bracket to the next line whole, its spaces included', () => {
+    const measure = (text: string) => Array.from(text).length * 10;
+    const wrapped = wrapDeliverableText('下列说法正确的是（   ）', measure, 100);
+    expect(wrapped).toEqual(['下列说法正确的是', '（   ）']);
+  });
+
+  it('starts a page that text ran on to with text, not with the blank lines before it', async () => {
+    // 28 lines fill a page of standard text under a one-line title.
+    const full = Array.from({ length: 28 }, (_, i) => `第 ${i + 1} 行`).join('\n');
+    const [pdf] = await renderDeliverable({
+      kind: 'document',
+      title: '分页',
+      body: `${full}\n${'\n'.repeat(40)}末行`,
+      style: 'standard',
+    });
+    expect(pdf!.pages).toBe(2);
   });
 });
 

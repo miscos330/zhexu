@@ -37,7 +37,7 @@ Available now:
 - **Interactive and project pages**: a course's interactive page gives a handout what its widget explains (the concept or task, the description, the steps, the nodes of a diagram); a project page its description, learning objective, milestones and tasks. The page's program is not printed.
 - **Markdown**: headings, bold and italic text, bullet and numbered lists and `---` rules that the assistant writes in a handout are set as such, also in Chinese text without spaces. A course's own text is printed as it is. [How it works](/extensions/README.md#a4-handouts-zhexu).
 
-They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. They have not been run with a real model yet.
+They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMAGE_ANNOTATIONS_ENABLED`). They are covered by unit tests and by [browser tests](/extensions/zhexu/e2e/README.md) that CI runs end to end against a production build and against the Docker image, with a scripted stand-in for the model. One run with a real model (DeepSeek Flash) has made a handout and an annotated image; other models are not checked.
 
 | Formulas, a table and a picture | The handwriting face | An annotated image |
 | --- | --- | --- |

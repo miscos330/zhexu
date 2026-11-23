@@ -303,10 +303,13 @@ out of date.
 - Literal colours in upstream TSX (inline styles, share images, video export).
 - The tab icon in browsers that do not read SVG icons (Safari): Next always
   lists upstream's `app/favicon.ico` first, and the brand mark is an SVG.
-- A real model: every run so far, on a development machine and in CI (a
-  production build and the Docker image, see `zhexu/e2e/README.md`), used a
-  scripted stand-in that calls the tools with fixed content. How a real model
-  uses the tools, and what it writes into a handout, is not checked.
+- A real model, beyond one run: CI and the browser tests (a production build
+  and the Docker image, see `zhexu/e2e/README.md`) use a scripted stand-in that
+  calls the tools with fixed content. One run on a development machine used a
+  real model (DeepSeek Flash, 2026-11-23): asked for a handout, it wrote one
+  in Markdown with headings, lists, bold text, two tables and two formulas,
+  and an annotation request put four labels on an attached diagram, each on
+  its part. Other models, and other requests, are not checked.
 
 ## Add another extension
 
