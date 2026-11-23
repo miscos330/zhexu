@@ -10,10 +10,6 @@ English | [简体中文](/.github/README-zh.md)
 
 ![The ZHEXU classroom: a slide in the middle, the teacher's narration under it and AI classmates on the right](/extensions/zhexu/site/assets/shots/classroom-light.webp)
 
-An answer the assistant hands over as an A4 handout, with headings, a chemical equation, an inline formula, a table with merged cells and a picture:
-
-<img src="/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp" alt="An A4 handout on cellular respiration: a heading, bold text and a list, a chemical equation, an inline formula, a table with merged cells and a picture of a plant cell" width="420">
-
 ## Built on OpenMAIC
 
 ZHEXU is a downstream edition of [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC), which the THU-MAIC team open-sourced under the MIT license. The classroom, the pages and the exports all come from upstream. This repository adds its own brand, theme and extensions on top. Improvements that are not specific to ZHEXU go back upstream instead of staying here.

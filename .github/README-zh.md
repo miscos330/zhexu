@@ -10,10 +10,6 @@
 
 ![折序的课堂：中间是一页课件，下面是老师的讲解，右边是 AI 同学](/extensions/zhexu/site/assets/shots/classroom-light.webp)
 
-助手把回答做成 A4 讲义交给你，里面有标题、化学方程式、行内公式、带合并单元格的表格和图片：
-
-<img src="/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp" alt="一页 A4 讲义样张：标题、粗体和列表，化学方程式、行内公式、带合并单元格的表格和一张细胞示意图。" width="420">
-
 ## 基于 OpenMAIC
 
 折序是 [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC) 的下游版本。OpenMAIC 由 THU-MAIC 团队以 MIT 许可开源，课堂、课件和导出这些能力都来自上游。本仓库在上面加自己的品牌、主题和扩展。不是折序专用的改进会提交回上游，不留在这里。
