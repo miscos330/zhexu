@@ -10,6 +10,10 @@
 
 ![折序的课堂：中间是一页课件，下面是老师的讲解，右边是 AI 同学](/extensions/zhexu/site/assets/shots/classroom-light.webp)
 
+助手把回答做成 A4 讲义交给你，里面有标题、化学方程式、行内公式、带合并单元格的表格和图片：
+
+<img src="/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp" alt="一页 A4 讲义样张：标题、粗体和列表，化学方程式、行内公式、带合并单元格的表格和一张细胞示意图。" width="420">
+
 ## 基于 OpenMAIC
 
 折序是 [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC) 的下游版本。OpenMAIC 由 THU-MAIC 团队以 MIT 许可开源，课堂、课件和导出这些能力都来自上游。本仓库在上面加自己的品牌、主题和扩展。不是折序专用的改进会提交回上游，不留在这里。
@@ -98,7 +102,7 @@ pnpm dev
 
 ## 参与贡献
 
-不是折序专用的改进应该提给上游，这样所有人都能用上，做法见 OpenMAIC 的 [CONTRIBUTING.md](/CONTRIBUTING.md)。对扩展、主题或展示页的修改，欢迎在这里向 `zhexu` 分支提 pull request；它们的问题可以在本仓库提议题。在这里参与请遵守[行为准则](/.github/CODE_OF_CONDUCT.md)（英文，Contributor Covenant 2.0）。
+不是折序专用的改进应该提给上游，这样所有人都能用上，做法见 OpenMAIC 的 [CONTRIBUTING.md](/CONTRIBUTING.md)。对扩展、主题或展示页的修改，欢迎在这里向 `zhexu` 分支提 pull request；它们的问题可以在本仓库提议题。使用中的疑问、想法和用折序做出的东西，欢迎发到 [Discussions](https://github.com/miscos330/zhexu/discussions)。在这里参与请遵守[行为准则](/.github/CODE_OF_CONDUCT.md)（英文，Contributor Covenant 2.0）。
 
 这个仓库到目前为止提给上游的内容（状态截至 2026-11-20）：
 

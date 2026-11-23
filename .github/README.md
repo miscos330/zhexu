@@ -10,6 +10,10 @@ English | [简体中文](/.github/README-zh.md)
 
 ![The ZHEXU classroom: a slide in the middle, the teacher's narration under it and AI classmates on the right](/extensions/zhexu/site/assets/shots/classroom-light.webp)
 
+An answer the assistant hands over as an A4 handout, with headings, a chemical equation, an inline formula, a table with merged cells and a picture:
+
+<img src="/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp" alt="An A4 handout on cellular respiration: a heading, bold text and a list, a chemical equation, an inline formula, a table with merged cells and a picture of a plant cell" width="420">
+
 ## Built on OpenMAIC
 
 ZHEXU is a downstream edition of [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC), which the THU-MAIC team open-sourced under the MIT license. The classroom, the pages and the exports all come from upstream. This repository adds its own brand, theme and extensions on top. Improvements that are not specific to ZHEXU go back upstream instead of staying here.
@@ -98,7 +102,7 @@ Six upstream files are touched, each by a few lines: `app/layout.tsx` mounts the
 
 ## Contributing
 
-An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`, and problems with them as issues in this repository. Taking part here follows the [code of conduct](/.github/CODE_OF_CONDUCT.md).
+An improvement that is not specific to ZHEXU belongs upstream, where everyone gets it. OpenMAIC's [CONTRIBUTING.md](/CONTRIBUTING.md) says how. Changes to the extension, the theme or the showcase page are welcome here as pull requests against `zhexu`, and problems with them as issues in this repository. Questions, ideas and things you made with ZHEXU go in [Discussions](https://github.com/miscos330/zhexu/discussions). Taking part here follows the [code of conduct](/.github/CODE_OF_CONDUCT.md).
 
 What this repository has sent upstream so far (status as of 2026-11-20):
 
