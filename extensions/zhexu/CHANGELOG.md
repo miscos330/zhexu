@@ -8,10 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.1.0-rc.3] - 2026-11-23
+
+The third release candidate for 0.1.0. Handouts now set the Markdown a model writes, the brand reaches upstream's strings and the classic home page, and a first run with a real model made a handout and an annotated image. It is still a candidate: one model and a few requests are not a release check; see "How it was checked". Built on upstream `main` at `b3b51384` (1.5.0-rc.3 and the changes upstream has made since).
+
 ### Features
 
 - The brand reaches the rest of the app. Upstream's strings that name the product (the welcome tour, the account menu's about entry, the sandbox settings, the achievement image) say 折序 ZHEXU; the two that name OpenMAIC itself (a built-in skill ships with OpenMAIC, the official skill download) stay. The classic home page shows the brand's logo and name. The browser tab shows the brand mark in browsers that read SVG icons. Upstream's GitHub pill on the workspace home, which showed upstream's star count, is hidden; the home note and the about page name and link OpenMAIC.
-- Markdown in handouts. A heading (`#` to `######`) is set bold, the first three levels larger; one that only repeats the title at the top of the body is left out. `**bold**`, `*italic*` and `_italic_` follow CommonMark's rules, except that next to Chinese, Japanese or Korean text a mark may open or close beside punctuation (`**注意：**这里`). Bullet and numbered items get their marker, wrapped lines aligned with their text, and nest when indented; a line of `---` is a rule. The faces have no bold or italic, so bold is outlined and italic slanted. A course handout's text is the course's own words and is printed as it is: its saved source carries `markdown: false`. Text without these marks gives byte-identical pages before and after, checked on eight pages (prose, handwriting, formulas, a table, a picture and a course handout).
+- Markdown in handouts. A heading (`#` to `######`) is set bold, the first three levels larger; one that only repeats the title at the top of the body is left out. `**bold**`, `*italic*` and `_italic_` follow CommonMark's rules, except that next to Chinese, Japanese or Korean text a mark may open or close beside punctuation (`**注意：**这里`). Bullet and numbered items get their marker, wrapped lines aligned with their text, and nest when indented; a line of `---` is a rule. The faces have no bold or italic, so bold is outlined and italic slanted. A course handout's text is the course's own words and is printed as it is: its saved source carries `markdown: false`.
 
 ### Fixes
 
@@ -20,10 +24,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### How it was checked
 
 - One run with a real model, DeepSeek Flash, on a development machine. Asked for a handout on refraction for year-8 pupils, it called `create_deliverable` once and wrote Markdown (headings, numbered and bullet lists, bold text, two tables, two display formulas, a split table repeating its header); it came out as five pages, and four once the fixes above were in. Asked to label an attached diagram, it looked at it, called `annotate_image` and checked the result: the four labels sit on the incident ray, the refracted ray, the normal and the surface. Other models, and the course handout tool, were not run.
+- Text without Markdown marks gives byte-identical pages before and after the Markdown change: eight pages of prose, handwriting, formulas, a table, a picture and a course handout.
+- 317 unit tests under `tests/extensions/` and the same 7 browser tests, against a production build and the Docker image. The scripted stand-in for the model now writes its handout in Markdown (headings, a numbered and a bullet list, bold text, a formula and a table), so both runs take the Markdown path.
+
+### Known limits
+
+- Links, block quotes, code blocks and code spans in a handout are printed as written, and a formula in a heading keeps the body size.
+- Under CommonMark's rules `2*3*4` sets the 3 in italic; a literal `*` is written `\*`.
+- The real-model run used one model. The annotation tools are still offered only to a model that upstream's built-in registry declares vision-capable.
+- A handout has at most sixteen pages. Longer text is refused, not cut.
 
 ### Documentation
 
-- A new sample handout page, with a chemical equation, inline formulas, a table with merged cells and a picture, in the README and on the showcase page next to the handwriting and annotation samples. A test renders it from fixed content when `ZHEXU_RENDER_SAMPLES=1` is set, so it can be made again.
+- A new sample handout page, with a heading, bold text and a list, a chemical equation, inline formulas, a table with merged cells and a picture, in the README and on the showcase page next to the handwriting and annotation samples. A test renders it from fixed content when `ZHEXU_RENDER_SAMPLES=1` is set, so it can be made again.
 - A code of conduct, the Contributor Covenant 2.0, in `.github/CODE_OF_CONDUCT.md`. Reports go through an issue in this repository; one that should not be public asks there for a private channel, or goes to GitHub.
 
 ### Upstream files touched
