@@ -18,8 +18,28 @@
 import { createServer } from 'node:http';
 
 const port = Number(process.argv[2] ?? 11999);
-const ANSWER =
-  '《光的折射》课堂要点\n\n一、光从一种介质斜射入另一种介质时，传播方向发生偏折，这叫光的折射。\n二、光从空气斜射入水或玻璃时，折射角小于入射角；入射角增大，折射角也增大。\n三、垂直入射时传播方向不变；折射现象中光路可逆。';
+// Written in Markdown, as a real model writes a handout (a run with DeepSeek
+// Flash used headings, lists, bold text, a table and formulas), so the browser
+// tests take the renderer's Markdown path too. The first heading repeats the
+// title and is left out of the page.
+const ANSWER = [
+  '# 光的折射 课堂要点',
+  '',
+  '## 一、现象',
+  '光从一种介质**斜射**入另一种介质时，传播方向发生偏折，这叫**光的折射**。',
+  '',
+  '## 二、规律',
+  '1. 光从空气斜射入水或玻璃时，折射角**小于**入射角。',
+  '2. 入射角增大，折射角也增大。',
+  '3. 垂直入射时传播方向不变；折射现象中光路可逆。',
+  '',
+  '- 定量关系（拓展）：\\(n = \\frac{\\sin i}{\\sin r}\\)',
+  '',
+  '| 介质 | 折射率 |',
+  '| --- | :---: |',
+  '| 水 | 1.33 |',
+  '| 玻璃 | 1.50 |',
+].join('\n');
 
 const textOf = (m) =>
   typeof m?.content === 'string'

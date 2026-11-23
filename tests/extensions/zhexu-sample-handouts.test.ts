@@ -25,10 +25,11 @@ const PICTURE_ID = 'ast_sample_cell_diagram';
 const STORED_WIDTH = 760;
 
 const FORMULAS_BODY = [
-  '细胞呼吸把葡萄糖里的化学能转移到 ATP 中。有氧呼吸的总反应式：',
+  '## 一、总反应',
+  '细胞呼吸把葡萄糖里的化学能转移到 ATP 中。**有氧呼吸**的总反应式：',
   '\\[ \\mathrm{C_6H_{12}O_6} + 6\\,\\mathrm{O_2} \\longrightarrow 6\\,\\mathrm{CO_2} + 6\\,\\mathrm{H_2O} + \\text{能量} \\]',
-  '一摩尔葡萄糖彻底氧化释放约 \\(2870\\ \\mathrm{kJ}\\)，其中约 \\(\\frac{977}{2870} \\approx 34\\%\\) 储存在 ATP 中，其余以热能散失。',
-  '',
+  '- 释放约 \\(2870\\ \\mathrm{kJ}\\)，约 \\(\\frac{977}{2870} \\approx 34\\%\\) 储存在 ATP 中',
+  '- 其余以*热能*散失',
   '| 阶段 | 场所 | 产物 | ATP |',
   '| --- | --- | --- | :---: |',
   '| 第一阶段 | 细胞质基质 | 丙酮酸、[H] | 少量 |',

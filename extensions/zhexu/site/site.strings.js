@@ -74,9 +74,9 @@ window.ZX_STRINGS = {
     'screens.dark.alt': 'The classroom in dark mode.',
     'samples.note':
       'The three pages below are real output of the renderer, made from test content.',
-    'samples.formulas': 'A handout with formulas, a table and a picture.',
+    'samples.formulas': 'A handout with Markdown, formulas, a table and a picture.',
     'samples.formulas.alt':
-      'A sample A4 handout page: a chemical equation, inline formulas, a table with merged cells and a cell diagram.',
+      'A sample A4 handout page: a heading, bold text and a list, a chemical equation, inline formulas, a table with merged cells and a cell diagram.',
     'samples.handwriting': 'A handout in the Chinese handwriting face.',
     'samples.handwriting.alt': 'A sample A4 handout page set in a Chinese handwriting face.',
     'samples.annotation':
