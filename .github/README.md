@@ -43,7 +43,7 @@ They are off until their switch is set (`ZHEXU_DELIVERABLES_ENABLED`, `ZHEXU_IMA
 | --- | --- | --- |
 | ![A sample A4 handout page: a heading, bold text and a list, a chemical equation, inline formulas, a table with merged cells and a cell diagram](/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp) | ![A sample A4 handout page set in a Chinese handwriting face](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![A sample annotated image: a drawing with numbered markers and the labels listed under it](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
 
-These three pages are real output of the renderer, made from test content. The first is rendered by [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts) when `ZHEXU_RENDER_SAMPLES=1` is set.
+These three pages are real output of the renderer, made from test content. The first two are rendered by [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts) when `ZHEXU_RENDER_SAMPLES=1` is set.
 
 The direction is printable material for teachers, which is where ZHEXU differs from upstream.
 

@@ -43,7 +43,7 @@
 | --- | --- | --- |
 | ![一页 A4 讲义样张：标题、粗体和列表，化学方程式、行内公式、带合并单元格的表格和一张细胞示意图](/extensions/zhexu/site/assets/shots/sample-handout-formulas.webp) | ![一页手写体的 A4 讲义样张](/extensions/zhexu/site/assets/shots/sample-handout.webp) | ![一张带标注的图片样张：图上有编号标记，标注列在图的下方](/extensions/zhexu/site/assets/shots/sample-annotation.webp) |
 
-这三页是渲染器的真实输出，内容是测试用的。第一页由 [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts) 在设置 `ZHEXU_RENDER_SAMPLES=1` 时生成。
+这三页是渲染器的真实输出，内容是测试用的。前两页由 [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts) 在设置 `ZHEXU_RENDER_SAMPLES=1` 时生成。
 
 方向是给老师的可打印材料，这是折序和上游不重叠的地方。
 

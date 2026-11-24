@@ -221,6 +221,21 @@ describe('line breaks and page breaks around Markdown', () => {
     expect(wrapped).toEqual(['下列说法正确的是', '（   ）']);
   });
 
+  it('keeps a word whole in any script that puts spaces between words', () => {
+    const measure = (text: string) => Array.from(text).length * 10;
+    // Found in the handwriting sample: "Преломление" broke after "Преломл".
+    expect(wrapDeliverableText('Закон: Преломление света', measure, 150)).toEqual([
+      'Закон: ',
+      'Преломление ',
+      'света',
+    ]);
+    expect(wrapDeliverableText('νόμος διάθλαση', measure, 100)).toEqual(['νόμος ', 'διάθλαση']);
+    expect(wrapDeliverableText('قانون الانكسار', measure, 100)).toEqual(['قانون ', 'الانكسار']);
+    // Chinese, Japanese and Korean still break between characters.
+    expect(wrapDeliverableText('光的 折射规律', measure, 50)).toEqual(['光的 折射', '规律']);
+    expect(wrapDeliverableText('빛의 굴절법칙', measure, 50)).toEqual(['빛의 굴절', '법칙']);
+  });
+
   it('starts a page that text ran on to with text, not with the blank lines before it', async () => {
     // 28 lines fill a page of standard text under a one-line title.
     const full = Array.from({ length: 28 }, (_, i) => `第 ${i + 1} 行`).join('\n');

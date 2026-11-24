@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixes
+
+- A word in Cyrillic, Greek, Arabic or accented Latin could break in the middle at the end of a line (`Преломл` / `ение`), because only the letters A to Z and digits were kept together. A word in any script that puts spaces between words now moves to the next line whole when it fits there. Chinese, Japanese and Korean text still breaks between characters.
+
+### Documentation
+
+- The handwriting sample on the README and the showcase page is rendered again by [`zhexu-sample-handouts.test.ts`](/tests/extensions/zhexu-sample-handouts.test.ts), so it can be made again. The old picture came from 0.1.0-rc.1 and showed a box for `₁` and a gap for `θ₁`, which 0.1.0-rc.2 had already fixed.
+
 ## [0.1.0-rc.3] - 2026-11-23
 
 The third release candidate for 0.1.0. Handouts now set the Markdown a model writes, the brand reaches upstream's strings and the classic home page, and a first run with a real model made a handout and an annotated image. It is still a candidate: one model and a few requests are not a release check; see "How it was checked". Built on upstream `main` at `b3b51384` (1.5.0-rc.3 and the changes upstream has made since).

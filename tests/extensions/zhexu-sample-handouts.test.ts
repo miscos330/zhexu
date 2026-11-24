@@ -40,6 +40,22 @@ const FORMULAS_BODY = [
   `![植物细胞结构示意](${PICTURE_ID})`,
 ].join('\n');
 
+/** The handwriting page. Its last line mixes in Greek, subscripts, Korean and Cyrillic, which other faces draw. */
+const HANDWRITING_BODY = [
+  '## 一、什么是光的折射',
+  '光从一种介质斜射入另一种介质时，传播方向发生偏折，这种现象叫做光的折射。例如把筷子斜插入水中，从水面上方看，筷子好像在水面处“折断”了。',
+  '## 二、折射规律',
+  '1. 折射光线、入射光线和法线在同一平面内。',
+  '2. 折射光线和入射光线分居法线两侧。',
+  '3. 光从空气斜射入水或玻璃时，折射角小于入射角；反之折射角大于入射角。',
+  '4. 垂直入射时，传播方向不变。',
+  '## 三、课堂练习',
+  '（1）画出光从空气斜射入水中的光路图，并标出入射角 i 和折射角 r。',
+  '（2）解释：为什么池水看起来比实际的浅？',
+  '',
+  "Mixed text: Snell's law n₁·sinθ₁ = n₂·sinθ₂; 한국어 굴절; Преломление света.",
+].join('\n');
+
 async function readImage(ref: string): Promise<{ bytes: Uint8Array } | null> {
   return ref === PICTURE_ID ? { bytes: await readFile(PICTURE) } : null;
 }
@@ -53,11 +69,30 @@ describe.skipIf(process.env.ZHEXU_RENDER_SAMPLES !== '1')('sample handout pages'
     );
     // The sample is one page: the PDF holds them all, the PNG is the first.
     expect(outputs.find((output) => output.format === 'pdf')?.pages).toBe(1);
-    const png = outputs.find((output) => output.format === 'png');
-    const webp = await sharp(png!.bytes)
-      .resize({ width: STORED_WIDTH })
-      .webp({ quality: 82, effort: 6 })
-      .toBuffer();
-    await writeFile(join(OUT, 'sample-handout-formulas.webp'), webp);
+    await writeSample(outputs, 'sample-handout-formulas.webp');
+  }, 120_000);
+
+  it('renders the page in the handwriting face', async () => {
+    const outputs = await renderDeliverable({
+      kind: 'document',
+      title: '第三课 光的折射（课堂讲义）',
+      body: HANDWRITING_BODY,
+      style: 'handwriting',
+    });
+    expect(outputs.find((output) => output.format === 'pdf')?.pages).toBe(1);
+    await writeSample(outputs, 'sample-handout.webp');
   }, 120_000);
 });
+
+/** Store the first page image, scaled to the stored width, as WebP. */
+async function writeSample(
+  outputs: Awaited<ReturnType<typeof renderDeliverable>>,
+  name: string,
+): Promise<void> {
+  const png = outputs.find((output) => output.format === 'png');
+  const webp = await sharp(png!.bytes)
+    .resize({ width: STORED_WIDTH })
+    .webp({ quality: 82, effort: 6 })
+    .toBuffer();
+  await writeFile(join(OUT, name), webp);
+}

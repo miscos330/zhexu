@@ -1,11 +1,21 @@
 const closing = /^[，。！？；：、）】》」』〕〉,.!?;:%…]/u;
 const opening = /[（【《「『〔〈(\[]$/u;
+/**
+ * A letter or digit of a script that puts spaces between words, such as Latin,
+ * Cyrillic, Greek or Arabic. Chinese, Japanese, Korean and Thai text breaks
+ * between characters instead.
+ */
+const wordChar =
+  /(?![\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}])[\p{L}\p{N}\p{M}]/u;
+const startsWord = new RegExp(`^${wordChar.source}`, 'u');
+const endsWord = new RegExp(`${wordChar.source}$`, 'u');
 
 /**
  * Break text into lines no wider than `maxWidth`. Paragraph breaks are kept and
  * no character is dropped. A line never starts with closing punctuation or ends
  * with an opening bracket (spaces after it included, as in a blank `（　）`), and
- * a Latin word is moved to the next line whole when it fits there.
+ * a word of a script that spaces its words (Latin, Cyrillic, Greek, Arabic) is
+ * moved to the next line whole when it fits there.
  *
  * `invisible` marks characters that take no room and are not text, such as the
  * marks of an emphasis change: these rules look through them.
@@ -31,11 +41,7 @@ export function wrapDeliverableText(
       if (line && measure(line + segment) > maxWidth) {
         let carry = segment;
         const split = line.lastIndexOf(' ');
-        if (
-          /^[A-Za-z0-9]/.test(segment) &&
-          /[A-Za-z0-9]$/.test(seen(line)) &&
-          split > line.length / 3
-        ) {
+        if (startsWord.test(segment) && endsWord.test(seen(line)) && split > line.length / 3) {
           carry = line.slice(split + 1) + carry;
           line = line.slice(0, split + 1);
         }
